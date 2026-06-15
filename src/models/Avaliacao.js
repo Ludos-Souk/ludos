@@ -16,4 +16,15 @@ export default class Avaliacao {
         this.usuarioId = usuarioId;
     }
 
+    toFirestore() {
+
+        return {
+            comentario: this.comentario,
+            criadoEm: this.criadoEm,
+            nota: this.nota,
+            produtoId: this.produtoId,
+            usuarioId: this.usuarioId
+        };
+
+    }
 }

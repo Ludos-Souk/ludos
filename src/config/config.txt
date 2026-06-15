@@ -1,3 +1,0 @@
---> Pasta para configuração do firebase do projeto
-
---> APAGAR ESSE ARQUIVO

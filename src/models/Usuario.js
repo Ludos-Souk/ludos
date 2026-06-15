@@ -12,4 +12,11 @@ export default class Usuario {
         this.role = role;
     }
 
+    toFirestore() {
+        return {
+            email: this.email,
+            nome: this.nome,
+            role: this.role
+        };
+    }
 }

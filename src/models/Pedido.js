@@ -14,4 +14,12 @@ export default class Pedido {
         this.criadoEm = criadoEm;
     }
 
+    toFirestore() {
+        return {
+            produtos: this.produtos,
+            status: this.status,
+            usuarioId: this.usuarioId,
+            criadoEm: this.criadoEm
+        };
+    }
 }
