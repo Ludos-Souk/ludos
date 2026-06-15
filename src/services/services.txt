@@ -1,3 +1,0 @@
---> Pasta para comunicação com firebase do projeto
-
---> APAGAR ESSE ARQUIVO
