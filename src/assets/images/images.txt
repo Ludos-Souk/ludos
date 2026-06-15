@@ -1,0 +1,3 @@
+--> Pasta para imagens do projeto
+
+--> APAGAR ESSE ARQUIVO

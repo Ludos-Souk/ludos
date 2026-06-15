@@ -1,0 +1,3 @@
+--> Pasta para js de controle de acessos do projeto
+
+--> APAGAR ESSE ARQUIVO
