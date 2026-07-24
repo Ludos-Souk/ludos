@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Cadastro | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+
+<body>
+<main class="container">
+    <aside class="banner">
+        <div class="banner__background"></div>
+        <nav class="switch" aria-label="Alternar telas">
+
+            <a href="cadastro.html"
+               class="switch__button switch__button--active"
+               aria-current="page">
+                Cadastrar
+            </a>
+            <a href="login.html"
+               class="switch__button">
+                Entrar
+            </a>
+
+        </nav>
+
+        <section class="banner__content">
+            <p class="banner__subtitle">Aqui você encontra</p>
+            <h1>Seu boneco Pixar perfeito</h1>
+        </section>
+
+    </aside>
+
+    <section class="auth">
+        <img
+            src="../assets/images/logo.png"
+            alt="Logo Ludos"
+            class="logo">
+        <h2>Crie uma conta</h2>
+        <p class="description">Procure seu boneco Funko Pixar perfeito</p>
+
+        <form id="cadastro-form">
+            <div class="input-group">
+                <label for="nome" class="sr-only">
+                    Nome
+                </label>
+                <input
+                    id="nome"
+                    name="nome"
+                    type="text"
+                    placeholder="Digite seu nome"
+                    autocomplete="name">
+            </div>
+
+            <small class="error"></small>
+
+            <div class="input-group">
+                <label for="email" class="sr-only">
+                    Email
+                </label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Digite seu email"
+                    autocomplete="email">
+            </div>
+            <small class="error"></small>
+
+            <div class="input-group">
+                <label for="senha" class="sr-only">
+                    Senha
+                </label>
+                <input
+                    id="senha"
+                    name="senha"
+                    type="password"
+                    placeholder="Crie uma senha"
+                    autocomplete="new-password">
+            </div>
+
+            <small class="error"></small>
+
+            <button type="submit">
+                Criar conta
+            </button>
+        </form>
+
+        <p class="footer-link">Já tem uma conta?
+            <a href="login.html">Entre aqui</a>
+        </p>
+
+    </section>
+</main>
+</body>
+</html>
