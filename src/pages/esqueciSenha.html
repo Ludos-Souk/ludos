@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0">
 
     <title>Esqueci minha senha | Ludos</title>
 
@@ -57,7 +57,7 @@
         <h2>Esqueceu sua senha?</h2>
         <p class="description">Não tem problema, digite seu email para resetar sua senha</p>
 
-        <form id="cadastro-form">
+        <form id="esqueciSenha-form">
             
             <div class="input-group">
                 <label for="email" class="sr-only">
@@ -70,7 +70,7 @@
                     placeholder="Digite seu email"
                     autocomplete="email">
             </div>
-            <small class="error"></small>
+            <small id="erro-email" class="error"></small>
 
 
             <button type="submit">
@@ -82,5 +82,6 @@
 
     </section>
 </main>
+<script type="module" src="../assets/js/esqueciSenha_back.js"></script>
 </body>
 </html>

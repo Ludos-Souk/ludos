@@ -57,7 +57,7 @@
         <h2>Bem-vindo de volta!</h2>
         <p class="description">Por favor, insira suas informações</p>
 
-        <form id="cadastro-form">
+        <form id="login-form">
             
             <div class="input-group">
                 <label for="email" class="sr-only">
@@ -70,7 +70,7 @@
                     placeholder="Digite seu email"
                     autocomplete="email">
             </div>
-            <small class="error"></small>
+            <small id="erro-email" class="error"></small>
 
             <div class="input-group">
                 <label for="senha" class="sr-only">
@@ -85,7 +85,7 @@
             </div>
             <p class="footer-link"><a href="esqueciSenha.html">Esqueci minha senha</a></p>
 
-            <small class="error"></small>
+            <small id="erro-senha" class="error"></small>
 
             <button type="submit">
                 Entrar
@@ -98,5 +98,6 @@
 
     </section>
 </main>
+<script type="module" src="../assets/js/login_back.js"></script>
 </body>
 </html>
