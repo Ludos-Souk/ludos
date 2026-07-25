@@ -230,6 +230,10 @@ form{
     font-size: 12px;
 }
 
+.auth h2.error-title{
+    color: var(--error-color);
+}
+
 .error.show{
     display: block;
 }
@@ -251,6 +255,11 @@ button[type="submit"]:hover{
 
 button[type="submit"]:active{
     transform: scale(.99);
+}
+
+#button_link {
+    text-decoration:none;
+    color: var(--btn-yellow-text);
 }
 
 .footer-link{

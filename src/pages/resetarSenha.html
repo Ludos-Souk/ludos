@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro | Ludos</title>
+    <title>Resete sua senha | Ludos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
@@ -38,37 +38,10 @@
             src="../assets/images/logo.png"
             alt="Logo Ludos"
             class="logo">
-        <h2>Crie uma conta</h2>
-        <p class="description">Procure seu boneco Funko Pixar perfeito</p>
+        <h2>Resete sua senha</h2>
+        <p class="description">Crie uma nova senha para sua conta</p>
 
         <form id="cadastro-form">
-            <div class="input-group">
-                <label for="nome" class="sr-only">
-                    Nome
-                </label>
-                <input
-                    id="nome"
-                    name="nome"
-                    type="text"
-                    placeholder="Digite seu nome"
-                    autocomplete="name">
-            </div>
-
-            <small id="erro-nome" class="error"></small>
-
-            <div class="input-group">
-                <label for="email" class="sr-only">
-                    Email
-                </label>
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Digite seu email"
-                    autocomplete="email">
-            </div>
-            <small id="erro-email" class="error"></small>
-
             <div class="input-group">
                 <label for="senha" class="sr-only">
                     Senha
@@ -83,14 +56,24 @@
 
             <small id="erro-senha" class="error"></small>
 
+            <div class="input-group">
+                <label for="senha" class="sr-only">
+                    Senha
+                </label>
+                <input
+                    id="senha"
+                    name="senha"
+                    type="password"
+                    placeholder="Confirmar senha"
+                    autocomplete="new-password">
+            </div>
+
+            <small id="erro-senha" class="error"></small>
+
             <button type="submit">
-                Criar conta
+                Resetar senha
             </button>
         </form>
-
-        <p class="footer-link">Já tem uma conta?
-            <a href="login.html">Entre aqui</a>
-        </p>
 
     </section>
 </main>
