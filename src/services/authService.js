@@ -1,7 +1,8 @@
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    signOut
+    signOut,
+    sendPasswordResetEmail
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -58,6 +59,15 @@ export async function cadastro(
     );
 
     return usuario;
+
+}
+
+export async function recuperarSenha(email) {
+
+    await sendPasswordResetEmail(
+        auth,
+        email
+    );
 
 }
 

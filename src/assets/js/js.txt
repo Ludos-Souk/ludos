@@ -1,3 +1,0 @@
---> Pasta para JSs do projeto
-
---> APAGAR ESSE ARQUIVO

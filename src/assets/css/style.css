@@ -223,10 +223,15 @@ form{
 }
 
 .error{
+    display: none;
     margin-top: -10px;
     margin-left: 18px;
     color: var(--error-color);
     font-size: 12px;
+}
+
+.error.show{
+    display: block;
 }
 
 button[type="submit"]{

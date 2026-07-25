@@ -2,8 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro | Ludos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
@@ -55,7 +54,7 @@
                     autocomplete="name">
             </div>
 
-            <small class="error"></small>
+            <small id="erro-nome" class="error"></small>
 
             <div class="input-group">
                 <label for="email" class="sr-only">
@@ -68,7 +67,7 @@
                     placeholder="Digite seu email"
                     autocomplete="email">
             </div>
-            <small class="error"></small>
+            <small id="erro-email" class="error"></small>
 
             <div class="input-group">
                 <label for="senha" class="sr-only">
@@ -82,7 +81,7 @@
                     autocomplete="new-password">
             </div>
 
-            <small class="error"></small>
+            <small id="erro-senha" class="error"></small>
 
             <button type="submit">
                 Criar conta
@@ -95,5 +94,6 @@
 
     </section>
 </main>
+<script type="module" src="../assets/js/cadastro_back.js"></script>p
 </body>
 </html>
