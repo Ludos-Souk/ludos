@@ -1,95 +1,61 @@
 import { login } from "../../services/authService.js";
+import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 
-const formulario = document.getElementById("login-form")
-const botao = formulario.querySelector('button[type="submit"]')
-var erros = 0
+const formulario = document.getElementById("login-form");
+const botao = formulario.querySelector('button[type="submit"]');
 
-formulario.addEventListener("submit", async function(event) {
+const { mostrarErro, limparTodosErros, temErros } = criarGerenciadorErros([
+    ["erro-email", "email"],
+    ["erro-senha", "senha"],
+]);
+const { definirCarregando, restaurar } = criarControleBotao(botao, "Entrar");
+
+const MENSAGENS_ERRO_LOGIN = {
+    "auth/invalid-credential": "Email ou senha incorretos.",
+    "auth/invalid-email": "Digite um email válido.",
+    "auth/user-disabled": "Esta conta foi desativada.",
+    "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos.",
+};
+
+formulario.addEventListener("submit", async function (event) {
     event.preventDefault();
     limparTodosErros();
-    botao.disabled = true;
-    botao.textContent = "Entrando...";
+    definirCarregando("Entrando...");
 
-    var email = document.getElementById("email").value.trim();
-    var senha = document.getElementById("senha").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value.trim();
 
-    if (email === "") {
-        mostrarErro("erro-email", "Preencha o campo de email.", "email")
-    }
-    if (senha === "") {
-        mostrarErro("erro-senha", "Preencha o campo de senha.", "senha")
-    }
+    validarCampos(email, senha);
 
-    if (erros > 0) {
-        botao.disabled = false;
-        botao.textContent = "Entrar";
+    if (temErros()) {
+        restaurar();
         return;
     }
 
     try {
-        await login(email, senha)
-
-        alert("Ir para tela principal - home")
-        // Implementar depois essa parte
+        await login(email, senha);
+        irParaHome();
     } catch (erro) {
-        switch (erro.code) {
-            case "auth/invalid-credential":
-                mostrarErro(
-                    "erro-email",
-                    "Email ou senha incorretos.",
-                    "email"
-                );
-                break;
-            case "auth/invalid-email":
-                mostrarErro(
-                    "erro-email",
-                    "Digite um email válido.",
-                    "email"
-                );
-                break;
-            case "auth/user-disabled":
-            mostrarErro(
-                "erro-email",
-                "Esta conta foi desativada.",
-                "email"
-            );
-            break;
-            case "auth/too-many-requests":
-                mostrarErro(
-                    "erro-email",
-                    "Muitas tentativas. Aguarde alguns minutos.",
-                    "email"
-                );
-                break;
-            default:
-                mostrarErro(
-                    "erro-email",
-                    "Não foi possível realizar o login.",
-                    "email"
-                );
-            }
-        botao.disabled = false;
-        botao.textContent = "Entrar"
+        exibirErroDeLogin(erro);
+        restaurar();
     }
-})
+});
 
-function mostrarErro(id, mensagem, idInput){
-    const erro = document.getElementById(id);
-    erro.textContent = mensagem;
-    erro.classList.add("show");
-    document.getElementById(idInput).parentElement.classList.add("input-group--error");
-    erros += 1
+function validarCampos(email, senha) {
+    if (email === "") {
+        mostrarErro("erro-email", "Preencha o campo de email.", "email");
+    }
+    if (senha === "") {
+        mostrarErro("erro-senha", "Preencha o campo de senha.", "senha");
+    }
 }
 
-function limparErro(id, idInput){
-    const erro = document.getElementById(id);
-    erro.textContent = "";
-    erro.classList.remove("show")
-    document.getElementById(idInput).parentElement.classList.remove("input-group--error")
+function exibirErroDeLogin(erro) {
+    const mensagem = MENSAGENS_ERRO_LOGIN[erro.code] ?? "Não foi possível realizar o login.";
+    mostrarErro("erro-email", mensagem, "email");
 }
 
-function limparTodosErros(){
-    erros = 0
-    limparErro("erro-email", "email")
-    limparErro("erro-senha", "senha")
+function irParaHome() {
+    alert("Ir para tela principal - home");
+    // Implementar depois essa parte
 }

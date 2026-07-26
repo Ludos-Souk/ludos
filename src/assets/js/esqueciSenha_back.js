@@ -1,96 +1,48 @@
 import { recuperarSenha } from "../../services/authService.js";
+import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 
-const formulario = document.getElementById("esqueciSenha-form")
-const botao = formulario.querySelector('button[type="submit"]')
-var erros = 0
+const formulario = document.getElementById("esqueciSenha-form");
+const botao = formulario.querySelector('button[type="submit"]');
 
-formulario.addEventListener("submit", async function(event) {
+const { mostrarErro, limparTodosErros, temErros } = criarGerenciadorErros([
+    ["erro-email", "email"],
+]);
+const { definirCarregando, restaurar } = criarControleBotao(botao, "Enviar email");
+
+const MENSAGENS_ERRO_RECUPERACAO = {
+    "auth/invalid-email": "Digite um email válido.",
+    "auth/missing-email": "Informe seu email.",
+    "auth/user-not-found": "Não encontramos uma conta com esse email.",
+    "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos.",
+    "auth/network-request-failed": "Sem conexão com a internet.",
+};
+
+formulario.addEventListener("submit", async function (event) {
     event.preventDefault();
     limparTodosErros();
-    botao.disabled = true;
-    botao.textContent = "Enviando...";
+    definirCarregando("Enviando...");
 
-    var email = document.getElementById("email").value.trim();
+    const email = document.getElementById("email").value.trim();
 
     if (email === "") {
-        mostrarErro("erro-email", "Preencha o campo de email.", "email")
+        mostrarErro("erro-email", "Preencha o campo de email.", "email");
     }
 
-    if (erros > 0) {
-        botao.disabled = false;
-        botao.textContent = "Enviar email"
+    if (temErros()) {
+        restaurar();
         return;
     }
 
     try {
-        recuperarSenha(email)
-        
-        window.location.href = "verificarEmail.html"
+        await recuperarSenha(email);
+        window.location.href = "verificarEmail.html";
     } catch (erro) {
-        switch (erro.code) {
-            case "auth/invalid-email":
-                mostrarErro(
-                    "erro-email",
-                    "Digite um email válido.",
-                    "email"
-                );
-                break;
-            case "auth/missing-email":
-                mostrarErro(
-                    "erro-email",
-                    "Informe seu email.",
-                    "email"
-                );
-                break;
-            case "auth/user-not-found":
-                mostrarErro(
-                    "erro-email",
-                    "Não encontramos uma conta com esse email.",
-                    "email"
-                );
-                break;
-            case "auth/too-many-requests":
-                mostrarErro(
-                    "erro-email",
-                    "Muitas tentativas. Aguarde alguns minutos.",
-                    "email"
-                );
-                break;
-            case "auth/network-request-failed":
-                mostrarErro(
-                    "erro-email",
-                    "Sem conexão com a internet.",
-                    "email"
-                );
-                break;
-            default:
-                mostrarErro(
-                    "erro-email",
-                    "Não foi possível enviar o email de recuperação.",
-                    "email"
-                );
-        }
-        botao.disabled = false;
-        botao.textContent = "Enviar email"
+        exibirErroDeRecuperacao(erro);
+        restaurar();
     }
-})
+});
 
-function mostrarErro(id, mensagem, idInput){
-    const erro = document.getElementById(id);
-    erro.textContent = mensagem;
-    erro.classList.add("show");
-    document.getElementById(idInput).parentElement.classList.add("input-group--error");
-    erros += 1
-}
-
-function limparErro(id, idInput){
-    const erro = document.getElementById(id);
-    erro.textContent = "";
-    erro.classList.remove("show")
-    document.getElementById(idInput).parentElement.classList.remove("input-group--error")
-}
-
-function limparTodosErros(){
-    erros = 0
-    limparErro("erro-email", "email")
+function exibirErroDeRecuperacao(erro) {
+    const mensagem = MENSAGENS_ERRO_RECUPERACAO[erro.code] ?? "Não foi possível enviar o email de recuperação.";
+    mostrarErro("erro-email", mensagem, "email");
 }

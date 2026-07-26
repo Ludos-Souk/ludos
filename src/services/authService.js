@@ -2,7 +2,8 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    confirmPasswordReset
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -64,11 +65,35 @@ export async function cadastro(
 
 export async function recuperarSenha(email) {
 
-    await sendPasswordResetEmail(
-        auth,
-        email
+    const response = await fetch(
+        "https://ludos-password-reset.onrender.com/auth/forgot-password",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                email: email
+            })
+        }
     );
 
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.mensagem ||
+            "Não foi possível enviar o e-mail de recuperação."
+        );
+    }
+
+    return data;
+}
+
+export async function resetarSenha(oobCode, senha) {
+    await confirmPasswordReset(auth, oobCode, senha)
 }
 
 export async function logout() {
