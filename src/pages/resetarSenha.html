@@ -41,7 +41,7 @@
         <h2>Resete sua senha</h2>
         <p class="description">Crie uma nova senha para sua conta</p>
 
-        <form id="cadastro-form">
+        <form id="resetarSenha-form">
             <div class="input-group">
                 <label for="senha" class="sr-only">
                     Senha
@@ -57,18 +57,18 @@
             <small id="erro-senha" class="error"></small>
 
             <div class="input-group">
-                <label for="senha" class="sr-only">
+                <label for="senhaConfirma" class="sr-only">
                     Senha
                 </label>
                 <input
-                    id="senha"
-                    name="senha"
+                    id="senhaConfirma"
+                    name="senhaConfirma"
                     type="password"
                     placeholder="Confirmar senha"
                     autocomplete="new-password">
             </div>
 
-            <small id="erro-senha" class="error"></small>
+            <small id="erro-senhaConfirma" class="error"></small>
 
             <button type="submit">
                 Resetar senha
@@ -77,5 +77,6 @@
 
     </section>
 </main>
+<script type="module" src="../assets/js/resetarSenha_back.js"></script>
 </body>
 </html>
