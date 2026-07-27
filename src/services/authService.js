@@ -3,7 +3,8 @@ import {
     createUserWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
-    confirmPasswordReset
+    confirmPasswordReset,
+    onAuthStateChanged
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
@@ -105,7 +106,25 @@ export function usuarioLogado() {
 }
 
 export function verificarLogin() {
-    return auth.currentUser !== null;
+
+    return new Promise((resolve) => {
+
+        const cancelar =
+            onAuthStateChanged(
+                auth,
+                (usuario) => {
+
+                    cancelar();
+
+                    resolve(
+                        usuario !== null
+                    );
+
+                }
+            );
+
+    });
+
 }
 
 export async function verificarAdmin() {

@@ -553,3 +553,11 @@ input:focus-visible {
     .footer-bottom { text-align: center; }
     .promo-banner { flex-direction: column; text-align: center; gap: 10px; }
 }
+
+.btn-icon.is-favorite {
+    background: #ffa4a6;
+}
+
+.oculto {
+    display: none;
+}
