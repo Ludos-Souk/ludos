@@ -56,6 +56,5 @@ function exibirErroDeLogin(erro) {
 }
 
 function irParaHome() {
-    alert("Ir para tela principal - home");
-    // Implementar depois essa parte
+    window.location.href = "home.html";
 }

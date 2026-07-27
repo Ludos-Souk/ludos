@@ -1,4 +1,5 @@
 import Usuario from "../models/Usuario.js";
+import Endereco from "../models/Endereco.js";
 import { db } from "../config/firebase.js";
 
 import {
@@ -95,5 +96,217 @@ export async function listarUsuarios() {
         );
         
     });
+
+}
+
+
+export async function listarEnderecos(uid) {
+
+    const referencia =
+        doc(
+            db,
+            "usuarios",
+            uid
+        );
+
+    const snapshot =
+        await getDoc(referencia);
+
+    if (!snapshot.exists()) {
+        return [];
+    }
+
+    const dados =
+        snapshot.data();
+
+    // Usuário ainda não possui endereços
+    if (!dados.enderecos) {
+        return [];
+    }
+
+    return dados.enderecos.map(
+        dadosEndereco => {
+
+            return new Endereco(
+                dadosEndereco.etiqueta,
+                dadosEndereco.cep,
+                dadosEndereco.uf,
+                dadosEndereco.cidade,
+                dadosEndereco.bairro,
+                dadosEndereco.numero,
+                dadosEndereco.complemento,
+                dadosEndereco.informacoesAdicionais,
+                dadosEndereco.nome,
+                dadosEndereco.email,
+                dadosEndereco.id
+            );
+
+        }
+    );
+}
+
+
+export async function buscarEnderecoPorId(
+    uid,
+    enderecoId
+) {
+
+    const enderecos =
+        await listarEnderecos(uid);
+
+    return enderecos.find(
+        endereco =>
+            endereco.id === enderecoId
+    ) || null;
+}
+
+
+export async function adicionarEndereco(
+    uid,
+    endereco
+) {
+
+    const referencia =
+        doc(
+            db,
+            "usuarios",
+            uid
+        );
+
+    const snapshot =
+        await getDoc(referencia);
+
+    if (!snapshot.exists()) {
+        throw new Error(
+            "Usuário não encontrado."
+        );
+    }
+
+    const dados =
+        snapshot.data();
+
+    const enderecos =
+        dados.enderecos || [];
+
+    enderecos.push(
+        endereco.toFirestore()
+    );
+
+    await updateDoc(
+        referencia,
+        {
+            enderecos: enderecos
+        }
+    );
+
+    return endereco;
+}
+
+
+export async function atualizarEndereco(
+    uid,
+    enderecoId,
+    endereco
+) {
+
+    const referencia =
+        doc(
+            db,
+            "usuarios",
+            uid
+        );
+
+    const snapshot =
+        await getDoc(referencia);
+
+    if (!snapshot.exists()) {
+        throw new Error(
+            "Usuário não encontrado."
+        );
+    }
+
+    const dados =
+        snapshot.data();
+
+    const enderecos =
+        dados.enderecos || [];
+
+    const indice =
+        enderecos.findIndex(
+            endereco =>
+                endereco.id === enderecoId
+        );
+
+    if (indice === -1) {
+        throw new Error(
+            "Endereço não encontrado."
+        );
+    }
+
+    // Garante que o ID original seja mantido
+    endereco.id = enderecoId;
+
+    enderecos[indice] =
+        endereco.toFirestore();
+
+    await updateDoc(
+        referencia,
+        {
+            enderecos: enderecos
+        }
+    );
+
+    return endereco;
+}
+
+
+export async function removerEndereco(
+    uid,
+    enderecoId
+) {
+
+    const referencia =
+        doc(
+            db,
+            "usuarios",
+            uid
+        );
+
+    const snapshot =
+        await getDoc(referencia);
+
+    if (!snapshot.exists()) {
+        throw new Error(
+            "Usuário não encontrado."
+        );
+    }
+
+    const dados =
+        snapshot.data();
+
+    const enderecos =
+        dados.enderecos || [];
+
+    const novosEnderecos =
+        enderecos.filter(
+            endereco =>
+                endereco.id !== enderecoId
+        );
+
+    if (
+        novosEnderecos.length ===
+        enderecos.length
+    ) {
+        throw new Error(
+            "Endereço não encontrado."
+        );
+    }
+
+    await updateDoc(
+        referencia,
+        {
+            enderecos: novosEnderecos
+        }
+    );
 
 }

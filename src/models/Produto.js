@@ -5,6 +5,7 @@ export default class Produto {
         ativo,
         criadoEm,
         descricao,
+        desconto,
         estoque,
         franquia,
         imagem,
@@ -15,6 +16,7 @@ export default class Produto {
         this.ativo = ativo;
         this.criadoEm = criadoEm;
         this.descricao = descricao;
+        this.desconto = desconto;
         this.estoque = estoque;
         this.franquia = franquia;
         this.imagem = imagem;
@@ -27,6 +29,7 @@ export default class Produto {
             ativo: this.ativo,
             criadoEm: this.criadoEm,
             descricao: this.descricao,
+            desconto: this.desconto,
             estoque: this.estoque,
             franquia: this.franquia,
             imagem: this.imagem,

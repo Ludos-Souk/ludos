@@ -2,7 +2,6 @@ import { db } from "../config/firebase.js";
 
 import Produto from "../models/Produto.js";
 
-
 import {
     collection,
     getDocs,
@@ -18,6 +17,10 @@ from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 
+// ======================================================
+// LISTAR PRODUTOS
+// ======================================================
+
 export async function listarProdutos() {
 
     const snapshot =
@@ -27,13 +30,15 @@ export async function listarProdutos() {
 
     return snapshot.docs.map(documento => {
 
-        const dados = documento.data();
+        const dados =
+            documento.data();
 
         return new Produto(
             documento.id,
             dados.ativo,
             dados.criadoEm,
             dados.descricao,
+            dados.desconto,
             dados.estoque,
             dados.franquia,
             dados.imagem,
@@ -45,10 +50,19 @@ export async function listarProdutos() {
 
 }
 
+
+// ======================================================
+// BUSCAR PRODUTO POR ID
+// ======================================================
+
 export async function buscarProdutoPorId(id) {
 
     const referencia =
-        doc(db, "produtos", id);
+        doc(
+            db,
+            "produtos",
+            id
+        );
 
     const snapshot =
         await getDoc(referencia);
@@ -57,13 +71,15 @@ export async function buscarProdutoPorId(id) {
         return null;
     }
 
-    const dados = snapshot.data();
+    const dados =
+        snapshot.data();
 
     return new Produto(
         snapshot.id,
         dados.ativo,
         dados.criadoEm,
         dados.descricao,
+        dados.desconto,
         dados.estoque,
         dados.franquia,
         dados.imagem,
@@ -73,12 +89,21 @@ export async function buscarProdutoPorId(id) {
 
 }
 
+
+// ======================================================
+// BUSCAR PRODUTOS ATIVOS
+// ======================================================
+
 export async function buscarProdutosAtivos() {
 
     const consulta =
         query(
             collection(db, "produtos"),
-            where("ativo", "==", true)
+            where(
+                "ativo",
+                "==",
+                true
+            )
         );
 
     const snapshot =
@@ -86,13 +111,15 @@ export async function buscarProdutosAtivos() {
 
     return snapshot.docs.map(documento => {
 
-        const dados = documento.data();
+        const dados =
+            documento.data();
 
         return new Produto(
             documento.id,
             dados.ativo,
             dados.criadoEm,
             dados.descricao,
+            dados.desconto,
             dados.estoque,
             dados.franquia,
             dados.imagem,
@@ -104,11 +131,21 @@ export async function buscarProdutosAtivos() {
 
 }
 
-export async function cadastrarProduto(produto) {
+
+// ======================================================
+// CADASTRAR PRODUTO
+// ======================================================
+
+export async function cadastrarProduto(
+    produto
+) {
 
     const referencia =
         await addDoc(
-            collection(db, "produtos"),
+            collection(
+                db,
+                "produtos"
+            ),
             produto.toFirestore()
         );
 
@@ -116,19 +153,29 @@ export async function cadastrarProduto(produto) {
 
 }
 
+
+// ======================================================
+// ATUALIZAR PRODUTO
+// ======================================================
+
 export async function atualizarProduto(
     id,
     produto
 ) {
 
     const referencia =
-        doc(db, "produtos", id);
+        doc(
+            db,
+            "produtos",
+            id
+        );
 
     await updateDoc(
         referencia,
         {
             ativo: produto.ativo,
             descricao: produto.descricao,
+            desconto: produto.desconto,
             estoque: produto.estoque,
             franquia: produto.franquia,
             imagem: produto.imagem,
@@ -139,10 +186,19 @@ export async function atualizarProduto(
 
 }
 
+
+// ======================================================
+// DESATIVAR PRODUTO
+// ======================================================
+
 export async function desativarProduto(id) {
 
     const referencia =
-        doc(db, "produtos", id);
+        doc(
+            db,
+            "produtos",
+            id
+        );
 
     await updateDoc(
         referencia,
@@ -152,6 +208,11 @@ export async function desativarProduto(id) {
     );
 
 }
+
+
+// ======================================================
+// EXCLUIR PRODUTO
+// ======================================================
 
 export async function excluirProduto(id) {
 
