@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 * {
     margin: 0;
@@ -11,10 +11,26 @@ html {
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
     background-color: #15338B;
     color: #333;
     overflow-x: hidden;
+}
+
+h1, h2, h3, h4,
+.price,
+.title,
+.brand,
+.side-card-text,
+.orders-link,
+.address-label,
+.footer-col h4,
+.btn-buy,
+.btn-orders,
+.btn-change-address {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
 }
 
 ul, menu { 
@@ -51,6 +67,16 @@ input:focus-visible {
     border-radius: 8px;
 }
 
+/* Ícones (lucide). Cada ícone vira um <svg class="lucide">; o tamanho e a cor
+   seguem o font-size/color do elemento onde o <i data-lucide="..."> foi colocado,
+   então basta ajustar font-size/color no elemento pai para redimensionar. */
+.lucide {
+    width: 1em;
+    height: 1em;
+    stroke-width: 2px;
+    vertical-align: -0.15em;
+}
+
 .header {
     position: fixed;
     top: 0;
@@ -63,6 +89,27 @@ input:focus-visible {
     justify-content: space-between;
     align-items: center;
     padding: 0 60px;
+}
+
+.header::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background-color: #15338B;
+    z-index: -1;
+    pointer-events: none;
+    transition: height 0.15s ease;
+}
+
+.header:has(.promo-banner.compact)::after {
+    height: 100px;
+}
+
+.header.sem-banner::after {
+    display: none;
 }
 
 .logo img {
@@ -85,12 +132,16 @@ input:focus-visible {
 }
 
 .search-icon { 
-    position: absolute; left: 25px; color: #888; font-size: 18px;
+    position: absolute; left: 25px; color: #000000; font-size: 18px;
 }
 
 .mic-btn {
-    position: absolute; right: 25px; background: none;
-    border: none; color: #888; font-size: 18px;
+    position: absolute; 
+    right: 25px; 
+    background: none;
+    border: none; 
+    color: #000000; 
+    font-size: 18px;
 }
 
 .search-form input {
@@ -102,14 +153,22 @@ input:focus-visible {
 }
 
 .header-icons ul { 
-    display: flex; gap: 16px; 
+    display: flex; 
+    gap: 16px; 
 }
 
 .header-icons button {
-    background: #ffcc00; color: #15338B; width: 46px; height: 46px;
-    border: none; border-radius: 50%; display: flex;
-    justify-content: center; align-items: center;
-    transition: 0.2s; font-size: 16px;
+    background: #ffcc00; 
+    color: #3E3E43; 
+    width: 46px; 
+    height: 46px;
+    border: none; 
+    border-radius: 50%; 
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    transition: 0.2s; 
+    font-size: 24px;
 }
 
 .header-icons button:hover { 
@@ -117,14 +176,28 @@ input:focus-visible {
 }
 
 .promo-banner {
+    position: fixed;
+    top: 170px;
+    left: 60px;
+    right: 60px;
+    z-index: 900;
     background: white;
-    margin: 170px 60px 30px;
-    padding: 32px 34px;
-    border-radius: 40px;
+    margin: 0;
+    padding: 18px 34px;
+    border-radius: 9999px;
     display: flex; justify-content: space-between;
     align-items: center; font-weight: 600; font-size: 15px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    transition: 0.3s ease;
+    transition: top .35sec ease, transform .35 ease, opacity .35sec ease;
+}
+
+.promo-banner svg {
+    font-size: 28px;
+    color: #434242CC;
+}
+
+.promo-banner.compact {
+    top: 140px;
 }
 
 .promo-banner p {
@@ -133,24 +206,12 @@ input:focus-visible {
     gap: 14px;
 }
 
-.promo-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 1.5px solid #ccc;
-    color: #999;
-    font-size: 11px;
-    flex-shrink: 0;
-}
-
 .btn-close-promo {
     border: none; 
     background: none; 
-    font-size: 18px; 
+    font-size: 24px; 
     color: #888; 
+    flex-shrink: 0;
 }
 
 .main-content {
@@ -158,10 +219,13 @@ input:focus-visible {
     border-radius: 70px;
     padding: 60px;
     padding-top: 40px;
+    margin-top: 290px;
     min-height: 80vh;
     width: 100%;
-    margin: 0;
+    margin-left: 0;
+    margin-right: 0;
     position: relative;
+    transition: margin-top 0.6s ease;
 }
 
 .content-handle {
@@ -176,7 +240,7 @@ input:focus-visible {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 2.5fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 36px;
     margin-bottom: 60px;
 }
@@ -184,7 +248,7 @@ input:focus-visible {
 .card {
     background: white; 
     padding: 44px; 
-    border-radius: 25px;
+    border-radius: 36px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
@@ -210,7 +274,7 @@ input:focus-visible {
 }
 
 .arrow-icon {
-    font-size: 15px;
+    font-size: 24px;
     color: #333;
 }
 
@@ -238,17 +302,17 @@ input:focus-visible {
 .side-cards { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
-    gap: 36px; 
+    gap: 28px; 
 }
 
 .side-card {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: flex-start;
+    justify-content: space-between;
     position: relative;
-    min-height: 170px;
-    padding: 32px;
+    min-height: 160px;
+    padding: 26px;
 }
 
 .cart-card { 
@@ -266,7 +330,7 @@ input:focus-visible {
     width: 26px;
     height: 26px; 
     display: flex; 
-    -content: center;
+    justify-content: center;
     align-items: center; 
     border-radius: 50%; 
     border: 3px solid white;
@@ -274,16 +338,17 @@ input:focus-visible {
 }
 
 .side-icon { 
-    font-size: 30px;
+    font-size: 40px;
     color: #ccc;
     margin-bottom: 40px;
 }
 
 .side-card-text { 
-    font-size: 15px; 
-    font-weight: 700; 
+    font-size: 18px; 
+    font-weight: 600; 
     text-align: left; 
     color: #222; 
+    line-height: 1.2;
 }
 
 .address-card {
@@ -323,7 +388,7 @@ input:focus-visible {
     padding: 10px 25px;
     border-radius: 20px;
     border: none;
-    background: #f4f5f9;
+    background: #807E7D1A;
     font-weight: 600;
     font-size: 12px;
     flex-shrink: 0;
@@ -337,24 +402,51 @@ input:focus-visible {
 
 .product-card {
     background: white; 
-    padding: 20px; 
-    border-radius: 25px;
+    padding: 24px; 
+    border-radius: 46px;
     position: relative; 
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
+.product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    min-height: 35px;
+}
+
 .product-image { 
     width: 100%; 
-    height: auto; 
-    border-radius: 15px; 
+    height: 320px; 
+    object-fit: contain;
+    display: block;
     margin-bottom: 20px; 
-    background: #f8f9fa; 
+}
+
+.product-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image-wrapper::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    right:0;
+    bottom:0;
+    height:120px;
+    background:linear-gradient(
+        to top,
+        white 0%,
+        rgba(255,255,255,.95) 20%,
+        rgba(255,255,255,.65) 45%,
+        rgba(255,255,255,0) 100%
+    );
+    pointer-events:none;
 }
 
 .discount-badge {
-    position: absolute; 
-    top: 30px; 
-    left: 30px; 
     background: #89a3ff;
     color: white; 
     padding: 6px 15px; 
@@ -364,11 +456,9 @@ input:focus-visible {
 }
 
 .actions { 
-    position: absolute; 
-    top: 30px; 
-    right: 30px; 
     display: flex; 
-    gap: 10px; 
+    gap: 10px;
+    margin-left: auto;
 }
 
 .btn-icon {
@@ -441,7 +531,7 @@ input:focus-visible {
     background:none;
     border:none;
     color:#444;
-    font-size:20px;
+    font-size:24px;
     width:32px;
     height:32px;
     display:grid;
@@ -511,7 +601,7 @@ input:focus-visible {
 }
 
 .icon-small { 
-    font-size: 10px; 
+    font-size: 24px; 
     margin-left: 5px; 
 }
 
@@ -539,9 +629,9 @@ input:focus-visible {
 @media (max-width: 992px) {
     .dashboard-grid { grid-template-columns: 1fr; }
     .header { flex-wrap: wrap; gap: 20px; position: relative; height: auto; padding: 20px; }
-    .promo-banner { margin: 30px 20px; max-width: 100%; }
+    .promo-banner { position: fixed; top: 100px; left: 20px; right: 20px; max-width: none; }
     .search-bar { order: 3; margin: 0; max-width: 100%; }
-    .main-content { padding: 30px; }
+    .main-content { padding: 30px; margin-top: 220px; }
     .address-card { grid-column: 1; }
 }
 

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página inicial | Ludos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/home.css">
 </head>
 <body id="topo">
@@ -19,27 +18,29 @@
         <search class="search-bar">
             <form action="#" class="search-form" role="search">
                 <label for="search-input" class="sr-only">Buscar Boneco</label>
-                <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
                 <input type="search" id="search-input" placeholder="Buscar Boneco">
                 <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
-                    <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                    <i data-lucide="mic" aria-hidden="true"></i>
                 </button>
             </form>
         </search>
 
         <nav class="header-icons" aria-label="Menu principal do usuário">
             <ul>
-                <li><button aria-label="Abrir menu de categorias"><i class="fa-solid fa-bars-staggered" aria-hidden="true"></i></button></li>
-                <li><button aria-label="Acessar meu perfil"><i class="fa-regular fa-user" aria-hidden="true"></i></button></li>
-                <li><button aria-label="Ver meus favoritos"><i class="fa-regular fa-heart" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
             </ul>
         </nav>
-    </header>
 
-    <aside id="promo-banner" class="promo-banner" aria-label="Aviso promocional">
-        <p><span class="promo-icon"><i class="fa-solid fa-percent" aria-hidden="true"></i></span> Consiga 10% de desconto na sua primeira compra</p>
-        <button class="btn-close-promo" aria-label="Fechar aviso promocional" onclick="fecharBanner()"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-    </aside>
+        <aside id="promo-banner" class="promo-banner" aria-label="Aviso promocional">
+            <p><i data-lucide="badge-percent" aria-hidden="true"></i> Consiga 10% de desconto na sua primeira compra</p>
+            <button class="btn-close-promo" aria-label="Fechar aviso promocional" aria-expanded="true" onclick="alternarBanner()"><i data-lucide="x" aria-hidden="true"></i></button>
+        </aside>
+
+    </header>
 
     <main class="main-content">
         <span class="content-handle" aria-hidden="true"></span>
@@ -49,7 +50,7 @@
             <article class="card orders-card">
                 <header class="orders-header">
                     <a href="#" class="orders-link">Meus pedidos</a>
-                    <i class="fa-solid fa-chevron-right arrow-icon" aria-hidden="true"></i>
+                    <i class="arrow-icon" data-lucide="chevron-right" aria-hidden="true"></i>
                 </header>
                 <h3>Os status dos seus pedidos aparecerão aqui.</h3>
                 <button class="btn-orders">Fazer pedido</button>
@@ -57,21 +58,21 @@
 
             <aside class="side-cards" aria-label="Acesso rápido">
                 <article class="card side-card cart-card">
-                    <i class="fa-solid fa-cart-shopping side-icon" aria-hidden="true"></i>
+                    <i class="side-icon" data-lucide="shopping-cart" aria-hidden="true"></i>
                     <span class="side-card-text">Carrinho</span>
                 </article>
 
                 <article class="card side-card">
-                    <i class="fa-solid fa-headset side-icon" aria-hidden="true"></i>
+                    <i class="side-icon" data-lucide="bot" aria-hidden="true"></i>
                     <span class="side-card-text">Atendimento ao cliente</span>
                 </article>
 
                 <article class="card address-card">
                     <address class="address-info">
                         <span class="address-label">Endereço</span>
-                        <span class="address-value">Você ainda não tem endereços cadastrados</span>
+                        <span class="address-value">Cadastre um endereço de entrega</span>
                     </address>
-                    <button class="btn-change-address" aria-label="Alterar endereço de entrega">Adicionar</button>
+                    <button class="btn-change-address" aria-label="Alterar endereço de entrega">Cadastrar</button>
                 </article>
             </aside>
         </section>
@@ -81,30 +82,31 @@
     </main>
 
     <footer class="footer-wrapper">
-        <div class="footer-grid">
+        <section class="footer-grid">
             <section class="footer-col">
                 <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" class="footer-logo">
                 <h4>INFORMAÇÕES DE CONTATO</h4>
                 <address>
-                    <p><i class="fa-regular fa-envelope" aria-hidden="true"></i> ludos.loja@gmail.com</p>
-                    <p><i class="fa-solid fa-phone" aria-hidden="true"></i> (11) 99250-0693</p>
+                    <p><i data-lucide="mail" aria-hidden="true"></i> ludos.loja@gmail.com</p>
+                    <p><i data-lucide="phone" aria-hidden="true"></i> (11) 99250-0693</p>
                 </address>
             </section>
             <nav class="footer-col" aria-label="Links Rápidos">
                 <h4>LINKS RÁPIDOS</h4>
-                <p><a href="#topo" class="footer-link">Voltar ao início <i class="fa-solid fa-arrow-up-right-from-square icon-small" aria-hidden="true"></i></a></p>
+                <p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
             </nav>
             <nav class="footer-col" aria-label="Ajuda e Suporte">
                 <h4>AJUDA</h4>
-                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="fa-solid fa-arrow-up-right-from-square icon-small" aria-hidden="true"></i></a></p>
+                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
             </nav>
-        </div>
+        </section>
 
         <hr class="footer-divider">
-        <div class="footer-bottom">
+        <section class="footer-bottom">
             <p>Política de privacidade &copy; 2026</p>
-        </div>
+        </section>
     </footer>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../assets/js/home.js"></script>
 </body>
 </html>
