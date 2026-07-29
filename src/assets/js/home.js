@@ -25,6 +25,10 @@ async function verificarAcesso() {
 verificarAcesso();
 carregarCatalogo()
 
+if (window.lucide) {
+    window.lucide.createIcons();
+}
+
 const listaProdutos = document.querySelector("#lista-bonecos-firebase");
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
@@ -61,20 +65,46 @@ if (SpeechRecognition) {
     alert("Seu navegador não tem suporte para pesquisa por voz.");
 }
 
-function fecharBanner() {
+function alternarBanner() {
     const banner = document.getElementById('promo-banner');
 
-    banner.style.opacity = "0";
-    banner.style.pointerEvents = "none";
-    banner.style.boxShadow = "none";
-    banner.style.background = "transparent";
+    banner.remove();
+
+    document.querySelector('.header').classList.add('sem-banner');
+
+    document.querySelector('.main-content').style.marginTop="160px";
 }
+
+window.alternarBanner = alternarBanner;
+
+const header = document.querySelector('.header');
+const banner = document.querySelector('.promo-banner');
+
+window.addEventListener("scroll", () => {
+    if (!banner) return;
+
+    if (window.scrollY > 30) {
+        banner.classList.add("compact");
+    } else {
+        banner.classList.remove("compact");
+    }
+});
 
 function criarCard(produto) {
 
     const card = document.createElement("article");
     card.className = "product-card";
     card.setAttribute("data-id", produto.id);
+
+
+    // ==============================
+    // Cabeçalho do card (badge + ações), acima da imagem, sem sobrepor
+    // ==============================
+
+    const topo =
+        document.createElement("header");
+
+    topo.className = "product-top";
 
 
     // ==============================
@@ -92,7 +122,7 @@ function criarCard(produto) {
         badge.textContent =
             `${produto.desconto}% OFF`;
 
-        card.appendChild(badge);
+        topo.appendChild(badge);
     }
 
 
@@ -135,8 +165,10 @@ function criarCard(produto) {
     const iconeFavorito =
         document.createElement("i");
 
-    iconeFavorito.className =
-        "fa-regular fa-heart";
+    iconeFavorito.setAttribute(
+        "data-lucide",
+        "heart"
+    );
 
     iconeFavorito.setAttribute(
         "aria-hidden",
@@ -173,8 +205,10 @@ function criarCard(produto) {
     const iconeCarrinho =
         document.createElement("i");
 
-    iconeCarrinho.className =
-        "fa-solid fa-cart-plus";
+    iconeCarrinho.setAttribute(
+        "data-lucide",
+        "shopping-cart"
+    );
 
     iconeCarrinho.setAttribute(
         "aria-hidden",
@@ -198,6 +232,8 @@ function criarCard(produto) {
         favoritoLi,
         carrinhoLi
     );
+
+    topo.appendChild(actions);
 
     
 
@@ -312,8 +348,10 @@ function criarCard(produto) {
     const iconeSeta =
         document.createElement("i");
 
-    iconeSeta.className =
-        "fa-solid fa-chevron-right";
+    iconeSeta.setAttribute(
+        "data-lucide",
+        "chevron-right"
+    );
 
     iconeSeta.setAttribute(
         "aria-hidden",
@@ -344,7 +382,7 @@ function criarCard(produto) {
     // ==============================
 
     card.append(
-        actions,
+        topo,
         imagem,
         info
     );
@@ -409,6 +447,10 @@ function renderCatalogo(lista, container) {
 
     container.appendChild(fragment);
 
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+
     const status =
         document.getElementById(
             "status-catalogo"
@@ -432,8 +474,6 @@ listaProdutos.addEventListener("click", (event) => {
     const idProduto = article.dataset.id;
 
     botao.classList.toggle("is-favorite");
-
-    const icone = botao.querySelector("i");
 
     toggleFavorito(idProduto)
 });
