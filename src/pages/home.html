@@ -106,6 +106,27 @@
             <p>Política de privacidade &copy; 2026</p>
         </section>
     </footer>
+
+    <dialog id="modal-endereco" class="modal-endereco" aria-labelledby="modal-titulo">
+        <article class="modal-content">
+            <header class="modal-header">
+                <h3 id="modal-titulo" class="modal-title">Escolha um endereço de entrega</h3>
+                <button type="button" class="btn-close-modal" id="btn-fechar-modal" aria-label="Fechar pop-up de endereço">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </header>
+            
+            <section class="modal-body">
+                <p>Cadastre um endereço de entrega</p>
+            </section>
+            
+            <footer class="modal-footer">
+                <button type="button" class="btn-confirmar">Confirmar</button>
+                <button type="button" class="btn-adicionar">Adicionar endereço</button>
+            </footer>
+        </article>
+    </dialog>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../assets/js/home.js"></script>
 </body>
