@@ -90,6 +90,34 @@ window.addEventListener("scroll", () => {
     }
 });
 
+const btnAbrirModal = document.querySelector('.btn-change-address');
+const modalEndereco = document.getElementById('modal-endereco');
+const btnFecharModal = document.getElementById('btn-fechar-modal');
+
+if (btnAbrirModal && modalEndereco) {
+    btnAbrirModal.addEventListener('click', () => {
+        modalEndereco.showModal();
+    });
+
+    btnFecharModal.addEventListener('click', () => {
+        modalEndereco.close();
+    });
+
+    modalEndereco.addEventListener('click', (event) => {
+        if (event.target === modalEndereco) {
+            modalEndereco.close();
+        }
+    });
+}
+
+const btnIrParaCadastro = document.querySelector('.btn-adicionar');
+
+if (btnIrParaCadastro) {
+    btnIrParaCadastro.addEventListener('click', () => {
+        window.location.href = "endereco.html";
+    });
+}
+
 function criarCard(produto) {
 
     const card = document.createElement("article");
