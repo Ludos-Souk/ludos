@@ -1,3 +1,4 @@
+// #region Imports
 import {
     buscarProdutosAtivos
 } from "../../services/produtoService.js";
@@ -6,8 +7,21 @@ import {
     ehFavorito
 } from "../../services/favoritosService.js";
 import { 
-    verificarLogin 
+    verificarLogin,
+    obterUid
 } from "../../services/authService.js";
+import { 
+    listarEnderecos 
+} from "../../services/usuarioService.js";
+import {
+    toggleCarrinho,
+    estaNoCarrinho
+} from "../../services/carrinhoService.js";
+// #endregion
+
+
+// #region Verificação de acesso (login obrigatório)
+verificarAcesso();
 
 async function verificarAcesso() {
 
@@ -21,18 +35,36 @@ async function verificarAcesso() {
         return;
     }
 }
+// #endregion
 
-verificarAcesso();
-carregarCatalogo()
 
+// #region Inicialização de ícones (lucide)
 if (window.lucide) {
     window.lucide.createIcons();
 }
+// #endregion
 
+
+// #region Seleção de elementos do DOM
+const btnAbrirModal = document.querySelector('.btn-change-address');
+const modalEndereco = document.getElementById('modal-endereco');
+const btnFecharModal = document.getElementById('btn-fechar-modal');
+const banner = document.querySelector('.promo-banner');
+const searchForm = document.querySelector('.search-form');
 const listaProdutos = document.querySelector("#lista-bonecos-firebase");
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
+// #endregion
 
+
+// #region Carregamento inicial da página
+await carregarCatalogo()
+hrefPesquisa();
+hrefEndereco();
+// #endregion
+
+
+// #region Pesquisa por voz (Speech Recognition)
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognition) {    
@@ -64,11 +96,14 @@ if (SpeechRecognition) {
 } else {
     alert("Seu navegador não tem suporte para pesquisa por voz.");
 }
+// #endregion
 
+
+// #region Banner promocional
 function alternarBanner() {
-    const banner = document.getElementById('promo-banner');
-
-    banner.remove();
+    if (banner) {
+        banner.remove();
+    }
 
     document.querySelector('.header').classList.add('sem-banner');
 
@@ -76,9 +111,6 @@ function alternarBanner() {
 }
 
 window.alternarBanner = alternarBanner;
-
-const header = document.querySelector('.header');
-const banner = document.querySelector('.promo-banner');
 
 window.addEventListener("scroll", () => {
     if (!banner) return;
@@ -89,14 +121,159 @@ window.addEventListener("scroll", () => {
         banner.classList.remove("compact");
     }
 });
+// #endregion
 
-const btnAbrirModal = document.querySelector('.btn-change-address');
-const modalEndereco = document.getElementById('modal-endereco');
-const btnFecharModal = document.getElementById('btn-fechar-modal');
 
+// #region Toast de carrinho
+export function mostrarToastCarrinho(
+    mensagem = "Produto adicionado ao carrinho com sucesso!"
+) {
+    const header = document.querySelector('.header');
+
+    banner.remove();
+
+    const toastExistente =
+        document.getElementById(
+            "cart-toast"
+        );
+
+    if (toastExistente) {
+        toastExistente.remove();
+    }
+
+    const toast =
+        document.createElement(
+            "aside"
+        );
+
+    toast.id = "cart-toast";
+
+    toast.className =
+        "cart-toast";
+
+    toast.setAttribute(
+        "role",
+        "status"
+    );
+
+    toast.setAttribute(
+        "aria-live",
+        "polite"
+    );
+
+    toast.setAttribute(
+        "aria-atomic",
+        "true"
+    );
+
+    toast.innerHTML = `
+        <span class="cart-toast-content">
+            <span
+                class="cart-toast-icon"
+                aria-hidden="true"
+            >
+                <i data-lucide="check"></i>
+            </span>
+            <p>${mensagem}</p>
+        </span>
+        <span class="cart-toast-actions">
+            <button
+                type="button"
+                class="btn-go-cart"
+            >
+                Ir para carrinho
+            </button>
+            <button
+                type="button"
+                class="btn-close-toast"
+                aria-label="Fechar aviso"
+            >
+                <i data-lucide="x"></i>
+            </button>
+        </span>
+    `;
+
+    header.appendChild(toast);
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    toast
+        .querySelector(".btn-close-toast")
+        .addEventListener(
+            "click",
+            () => { 
+                toast.remove();
+                header.appendChild(banner)
+            }
+        );
+
+    toast
+        .querySelector(".btn-go-cart")
+        .addEventListener(
+            "click",
+            () => {
+                alert("Parte ainda não implementada. Redirecionar para a página do carrinho.");
+            }
+        );
+
+    setTimeout(
+        () => {
+            toast.remove();
+            header.appendChild(banner)
+        },
+        5000
+    );
+
+}
+// #endregion
+
+
+// #region Formulário de busca (submit)
+const header = document.querySelector('.header');
+
+searchForm.addEventListener('submit', (event) => {
+    event.preventDefault(); 
+})
+// #endregion
+
+
+// #region Navegação vinda de outras páginas (sessionStorage)
+function hrefPesquisa() {
+    const hrefPesquisa = sessionStorage.getItem("href-pesquisa");
+
+    if (!hrefPesquisa) {
+        return;
+    }
+
+    inputBusca.value = hrefPesquisa;
+    filtrarPorNome(hrefPesquisa);
+
+    sessionStorage.removeItem("href-pesquisa");
+}
+
+function hrefEndereco() {
+    const hrefEndereco = sessionStorage.getItem("href-endereco");
+
+    if (!hrefEndereco) {
+        return;
+    }
+
+    // Implementar 
+    modalEndereco.showModal();
+    carregarEnderecos();
+
+    sessionStorage.removeItem("href-endereco");
+}
+// #endregion
+
+
+// #region Modal de endereço
 if (btnAbrirModal && modalEndereco) {
     btnAbrirModal.addEventListener('click', () => {
         modalEndereco.showModal();
+        carregarEnderecos();
     });
 
     btnFecharModal.addEventListener('click', () => {
@@ -110,14 +287,28 @@ if (btnAbrirModal && modalEndereco) {
     });
 }
 
+
+
 const btnIrParaCadastro = document.querySelector('.btn-adicionar');
 
-if (btnIrParaCadastro) {
-    btnIrParaCadastro.addEventListener('click', () => {
-        window.location.href = "endereco.html";
-    });
-}
+btnIrParaCadastro.addEventListener('click', () => {
+    window.location.href = "endereco.html";
+})
 
+
+async function carregarEnderecos() {
+    const uid = obterUid();
+
+    if (!uid) {
+        return;
+    }
+
+    const enderecos = await listarEnderecos(uid);
+}
+// #endregion
+
+
+// #region Criação do card de produto
 function criarCard(produto) {
 
     const card = document.createElement("article");
@@ -224,6 +415,9 @@ function criarCard(produto) {
 
     btnCarrinho.type = "button";
     btnCarrinho.className = "btn-icon";
+    if (estaNoCarrinho(produto.id)) {
+        btnCarrinho.classList.add("is-cart");
+    }
 
     btnCarrinho.setAttribute(
         "aria-label",
@@ -417,7 +611,10 @@ function criarCard(produto) {
 
     return card;
 }
+// #endregion
 
+
+// #region Carregamento e renderização do catálogo
 async function carregarCatalogo() {
 
     const container =
@@ -489,7 +686,10 @@ function renderCatalogo(lista, container) {
             `${lista.length} produto(s)`;
     }
 }
+// #endregion
 
+
+// #region Listeners de favoritos e carrinho (delegação de eventos)
 listaProdutos.addEventListener("click", (event) => {
     const botao = event.target.closest(".actions li:first-child button");
 
@@ -506,14 +706,35 @@ listaProdutos.addEventListener("click", (event) => {
     toggleFavorito(idProduto)
 });
 
+listaProdutos.addEventListener("click", (event) => {
+    const botao = event.target.closest(".actions li:last-child button");
 
+    if (!botao) {
+        return;
+    }
+
+    const article = botao.closest(".product-card");
+
+    const idProduto = article.dataset.id;
+
+    botao.classList.toggle("is-cart");
+
+    toggleCarrinho(idProduto)
+
+    if (estaNoCarrinho(idProduto)) {
+        mostrarToastCarrinho();
+    }
+});
+// #endregion
+
+
+// #region Filtro de busca por nome
 function filtrarPorNome(nome) {
-
     const container = document.getElementById("lista-bonecos-firebase");
 
     const cards =
         container.querySelectorAll(".product-card");
-
+    
     const termo =
         nome.trim().toLowerCase();
 
@@ -548,3 +769,4 @@ inputBusca.addEventListener("input", (event) => {
         inputBusca.value.trim()
     )
 })
+// #endregion

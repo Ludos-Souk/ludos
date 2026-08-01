@@ -11,7 +11,8 @@ import {
     deleteDoc,
     doc,
     query,
-    where
+    where,
+    documentId
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -223,5 +224,46 @@ export async function excluirProduto(id) {
             id
         )
     );
+
+}
+
+export async function buscarProdutosPorIds(ids) {
+
+    if (ids.length === 0) {
+        return [];
+    }
+
+    const consulta =
+        query(
+            collection(db, "produtos"),
+            where(
+                documentId(),
+                "in",
+                ids
+            )
+        );
+
+    const snapshot =
+        await getDocs(consulta);
+
+    return snapshot.docs.map(documento => {
+
+        const dados =
+            documento.data();
+
+        return new Produto(
+            documento.id,
+            dados.ativo,
+            dados.criadoEm,
+            dados.descricao,
+            dados.estoque,
+            dados.franquia,
+            dados.imagem,
+            dados.nome,
+            dados.preco,
+            dados.desconto
+        );
+
+    });
 
 }

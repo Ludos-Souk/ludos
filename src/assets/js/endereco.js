@@ -1,9 +1,37 @@
+import {
+    buscarCep
+} from "../../services/cepService.js";
+import Endereco from "../../models/Endereco.js";
+import {
+    adicionarEndereco
+} from "../../services/usuarioService.js";
+
+import {
+    obterUid
+} from "../../services/authService.js";
+
 if (window.lucide) {
     window.lucide.createIcons();
 }
 
+let temporizador;
+const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
+const formulario = document.getElementById('endereco-form');
+const botao = formulario.querySelector('button[type="submit"]');
+
+const inputEtiqueta = document.getElementById('etiqueta-input');
+const inputCep = document.getElementById('cep-input');
+const inputRua = document.getElementById('rua-input');
+const selectUf = document.getElementById('uf-select');
+const inputCidade = document.getElementById('cidade-input');
+const inputBairro = document.getElementById('bairro-input');
+const inputN = document.getElementById('n-input');
+const inputComplemento = document.getElementById('complemento-input');
+const inputInfoAdicionais = document.getElementById('infoAdicionais-input');
+const inputNome = document.getElementById('nome-input');
+const inputEmail = document.getElementById('email-input');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -68,8 +96,18 @@ inputs.forEach(input => {
     }
 });
 
+searchForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    
+    const busca = inputBusca.value.trim();
+
+    if (busca) {
+        sessionStorage.setItem("href-pesquisa", busca);
+        window.location.href = "home.html";
+    }
+});
+
 async function carregarEstados() {
-    const selectUf = document.getElementById('uf-select');
     
     if (!selectUf) return;
 
@@ -96,4 +134,74 @@ async function carregarEstados() {
     }
 }
 
-carregarEstados();
+async function preencherEnderecoPeloCep(cep) {
+    try {
+        const dados =
+            await buscarCep(cep);
+
+        inputRua.value = dados.logradouro
+        selectUf.value = dados.uf
+        inputCidade.value = dados.localidade
+        inputBairro.value = dados.bairro
+    } catch (erro) {
+        console.error(
+            erro.message
+        );
+    }
+}
+
+inputCep.addEventListener("input", () => {
+
+    clearTimeout(temporizador);
+
+    temporizador = setTimeout(() => {
+        preencherEnderecoPeloCep(inputCep.value);
+    }, 500);
+});
+
+formulario.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    botao.textContent = "Adicionando...";
+    botao.disabled = true;
+
+    try {
+        const uid =
+            obterUid();
+
+        if (!uid) {
+            console.log("Usuário não autenticado.")    
+        }
+        const endereco =
+            new Endereco(
+                inputEtiqueta.value,
+                inputCep.value,
+                selectUf.value,
+                inputCidade.value,
+                inputBairro.value,
+                inputN.value,
+                inputComplemento.value,
+                inputInfoAdicionais.value,
+                inputNome.value,
+                inputEmail.value
+            );
+
+        await adicionarEndereco(
+            uid,
+            endereco
+        );
+
+        sessionStorage.setItem(
+            "href-endereco",
+            20
+        )
+
+        window.location.href = "home.html";
+    } catch (erro) {
+        console.error(erro);
+        botao.textContent = "Adicionar";
+        botao.disabled = false;
+    }
+})
+
+carregarEstados(); 
