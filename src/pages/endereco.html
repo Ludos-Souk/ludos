@@ -16,7 +16,7 @@
         </h1>
 
         <search class="search-bar">
-            <form action="#" class="search-form" role="search">
+            <form class="search-form" role="search">
                 <label for="search-input" class="sr-only">Buscar Boneco</label>
                 <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
                 <input type="search" id="search-input" placeholder="Buscar Boneco">
@@ -49,7 +49,7 @@
             </hgroup>
         </header>
 
-        <form action="#" class="address-form" aria-label="Formulário de cadastro de novo endereço">
+        <form id="endereco-form" class="address-form" aria-label="Formulário de cadastro de novo endereço">
             
             <fieldset class="form-section">
                 <legend class="sr-only">Detalhes do Endereço</legend>
@@ -57,20 +57,20 @@
                 <section class="grid-2-cols">
                     <label class="input-wrapper">
                         <span class="sr-only">Etiqueta (ex: Casa)</span>
-                        <input type="text" placeholder="Etiqueta (ex: Casa)" name="etiqueta" required>
+                        <input type="text" placeholder="Etiqueta (ex: Casa)" name="etiqueta" id="etiqueta-input" required>
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
 
                     <label class="input-wrapper">
                         <span class="sr-only">CEP</span>
-                        <input type="text" placeholder="CEP" name="cep" required>
+                        <input type="text" id="cep-input" placeholder="CEP" name="cep" required>
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
                 </section>
 
                 <label class="input-wrapper">
                     <span class="sr-only">Rua/Avenida</span>
-                    <input type="text" placeholder="Rua/Avenida" name="rua" required>
+                    <input type="text" id="rua-input" placeholder="Rua/Avenida" name="rua" required>
                     <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                 </label>
 
@@ -92,24 +92,24 @@
                 <section class="grid-3-cols">
                     <label class="input-wrapper">
                         <span class="sr-only">Bairro</span>
-                        <input type="text" placeholder="Bairro" name="bairro" required>
+                        <input type="text" id="bairro-input" placeholder="Bairro" name="bairro" required>
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
                     <label class="input-wrapper">
                         <span class="sr-only">Nº</span>
-                        <input type="text" placeholder="Nº" name="numero" required>
+                        <input type="text" placeholder="Nº" id="n-input" name="numero" required>
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
                     <label class="input-wrapper">
                         <span class="sr-only">Complemento (opcional)</span>
-                        <input type="text" placeholder="Complemento (opcional)" name="complemento">
+                        <input type="text" id="complemento-input" placeholder="Complemento (opcional)" name="complemento">
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
                 </section>
 
                 <label class="textarea-wrapper">
                     <span class="sr-only">Informações adicionais deste endereço (opcional)</span>
-                    <textarea placeholder="Informações adicionais deste endereço (opcional)" name="infos" maxlength="150" oninput="document.getElementById('char-count').textContent = this.value.length + '/150'"></textarea>
+                    <textarea id="infoAdicionais-input" placeholder="Informações adicionais deste endereço (opcional)" name="infos" maxlength="150" oninput="document.getElementById('char-count').textContent = this.value.length + '/150'"></textarea>
                     <span id="char-count" class="char-count" aria-live="polite">0/150</span>
                 </label>
             </fieldset>
@@ -123,12 +123,12 @@
                 <legend class="sr-only">Informações de Contato</legend>
                 <label class="input-wrapper">
                     <span class="sr-only">Nome completo</span>
-                    <input type="text" placeholder="Nome completo" name="nome" required>
+                    <input type="text" id="nome-input" placeholder="Nome completo" name="nome" required>
                     <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                 </label>
                 <label class="input-wrapper">
                     <span class="sr-only">Email de contato</span>
-                    <input type="email" placeholder="Email de contato" name="email" required>
+                    <input type="email" id="email-input" placeholder="Email de contato" name="email" required>
                     <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                 </label>
             </fieldset>
@@ -167,4 +167,5 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../assets/js/endereco.js"></script>
 </body>
+<script type="module" src="../assets/js/endereco.js"></script>
 </html>
