@@ -54,6 +54,8 @@ const searchForm = document.querySelector('.search-form');
 const listaProdutos = document.querySelector("#lista-bonecos-firebase");
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
+let bannerFechado = false;
+let timeoutToast = null;
 // #endregion
 
 
@@ -101,24 +103,26 @@ if (SpeechRecognition) {
 
 // #region Banner promocional
 function alternarBanner() {
-    if (banner) {
-        banner.remove();
-    }
+    bannerFechado = true;
+
+    banner.classList.add("oculto");
 
     document.querySelector('.header').classList.add('sem-banner');
 
-    document.querySelector('.main-content').style.marginTop="160px";
+    document.querySelector('.main-content').style.marginTop = "160px";
 }
 
 window.alternarBanner = alternarBanner;
 
 window.addEventListener("scroll", () => {
-    if (!banner) return;
+    const toast = document.getElementById("cart-toast");
 
     if (window.scrollY > 30) {
-        banner.classList.add("compact");
+        banner?.classList.add("compact");
+        toast?.classList.add("compact");
     } else {
-        banner.classList.remove("compact");
+        banner?.classList.remove("compact");
+        toast?.classList.remove("compact");
     }
 });
 // #endregion
@@ -130,7 +134,11 @@ export function mostrarToastCarrinho(
 ) {
     const header = document.querySelector('.header');
 
-    banner.remove();
+    if (!bannerFechado) {
+    banner.classList.add("oculto");
+    }
+
+    header.classList.remove("sem-banner");
 
     const toastExistente =
         document.getElementById(
@@ -139,6 +147,10 @@ export function mostrarToastCarrinho(
 
     if (toastExistente) {
         toastExistente.remove();
+    }
+
+    if (timeoutToast) {
+        clearTimeout(timeoutToast);
     }
 
     const toast =
@@ -195,6 +207,10 @@ export function mostrarToastCarrinho(
 
     header.appendChild(toast);
 
+    if (window.scrollY > 30) {
+        toast.classList.add("compact");
+    }
+
     if (window.lucide) {
         lucide.createIcons();
     }
@@ -205,7 +221,11 @@ export function mostrarToastCarrinho(
             "click",
             () => { 
                 toast.remove();
-                header.appendChild(banner)
+                if (!bannerFechado) {
+                    banner.classList.remove("oculto");
+                } else {
+                    header.classList.add("sem-banner");
+                }
             }
         );
 
@@ -218,13 +238,19 @@ export function mostrarToastCarrinho(
             }
         );
 
-    setTimeout(
-        () => {
-            toast.remove();
-            header.appendChild(banner)
-        },
-        5000
-    );
+    timeoutToast = setTimeout(() => {
+
+        toast.remove();
+
+        timeoutToast = null;
+
+        if (!bannerFechado) {
+            banner.classList.remove("oculto");
+        } else {
+            header.classList.add("sem-banner");
+        }
+
+    }, 20000);
 
 }
 // #endregion
