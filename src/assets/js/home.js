@@ -795,4 +795,18 @@ inputBusca.addEventListener("input", (event) => {
         inputBusca.value.trim()
     )
 })
+
+// Navegação para a página de avaliação
+listaProdutos.addEventListener("click", (event) => {
+    const botao = event.target.closest(".btn-arrow");
+
+    if (!botao) {
+        return;
+    }
+
+    const article = botao.closest(".product-card");
+    const idProduto = article.dataset.id;
+
+    window.location.href = `avaliacaoProduto.html?id=${idProduto}`;
+});
 // #endregion
