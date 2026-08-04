@@ -120,9 +120,11 @@ window.addEventListener("scroll", () => {
     if (window.scrollY > 30) {
         banner?.classList.add("compact");
         toast?.classList.add("compact");
+        header?.classList.add("scrolled");
     } else {
         banner?.classList.remove("compact");
         toast?.classList.remove("compact");
+        header?.classList.remove("scrolled");
     }
 });
 // #endregion
@@ -133,18 +135,17 @@ export function mostrarToastCarrinho(
     mensagem = "Produto adicionado ao carrinho com sucesso!"
 ) {
     const header = document.querySelector('.header');
+    const mainContent = document.querySelector('.main-content'); // Seleciona a tag main
 
     if (!bannerFechado) {
-    banner.classList.add("oculto");
+        banner.classList.add("oculto");
     }
 
+    // Traz de volta o espaço no cabeçalho e empurra o conteúdo para baixo
     header.classList.remove("sem-banner");
+    mainContent.style.marginTop = "290px"; 
 
-    const toastExistente =
-        document.getElementById(
-            "cart-toast"
-        );
-
+    const toastExistente = document.getElementById("cart-toast");
     if (toastExistente) {
         toastExistente.remove();
     }
@@ -153,53 +154,23 @@ export function mostrarToastCarrinho(
         clearTimeout(timeoutToast);
     }
 
-    const toast =
-        document.createElement(
-            "aside"
-        );
-
+    const toast = document.createElement("aside");
     toast.id = "cart-toast";
-
-    toast.className =
-        "cart-toast";
-
-    toast.setAttribute(
-        "role",
-        "status"
-    );
-
-    toast.setAttribute(
-        "aria-live",
-        "polite"
-    );
-
-    toast.setAttribute(
-        "aria-atomic",
-        "true"
-    );
+    toast.className = "cart-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.setAttribute("aria-atomic", "true");
 
     toast.innerHTML = `
         <span class="cart-toast-content">
-            <span
-                class="cart-toast-icon"
-                aria-hidden="true"
-            >
+            <span class="cart-toast-icon" aria-hidden="true">
                 <i data-lucide="check"></i>
             </span>
             <p>${mensagem}</p>
         </span>
         <span class="cart-toast-actions">
-            <button
-                type="button"
-                class="btn-go-cart"
-            >
-                Ir para carrinho
-            </button>
-            <button
-                type="button"
-                class="btn-close-toast"
-                aria-label="Fechar aviso"
-            >
+            <button type="button" class="btn-go-cart">Ir para carrinho</button>
+            <button type="button" class="btn-close-toast" aria-label="Fechar aviso">
                 <i data-lucide="x"></i>
             </button>
         </span>
@@ -217,44 +188,82 @@ export function mostrarToastCarrinho(
 
     toast
         .querySelector(".btn-close-toast")
-        .addEventListener(
-            "click",
-            () => { 
-                toast.remove();
-                if (!bannerFechado) {
-                    banner.classList.remove("oculto");
-                } else {
-                    header.classList.add("sem-banner");
-                }
+        .addEventListener("click", () => { 
+            toast.remove();
+            
+            if (!bannerFechado) {
+                banner.classList.remove("oculto");
+            } else {
+                header.classList.add("sem-banner");
+                mainContent.style.marginTop = "160px"; 
             }
-        );
+        });
 
     toast
         .querySelector(".btn-go-cart")
-        .addEventListener(
-            "click",
-            () => {
-                alert("Parte ainda não implementada. Redirecionar para a página do carrinho.");
-            }
-        );
+        .addEventListener("click", () => {
+            alert("Parte ainda não implementada. Redirecionar para a página do carrinho.");
+        });
 
     timeoutToast = setTimeout(() => {
-
         toast.remove();
-
         timeoutToast = null;
 
         if (!bannerFechado) {
             banner.classList.remove("oculto");
         } else {
             header.classList.add("sem-banner");
+            mainContent.style.marginTop = "160px"; 
         }
-
     }, 20000);
-
 }
+
 // #endregion
 
+// #region Popup diferentes listagens produtos
+const btnFiltro = document.getElementById('btn-filter');
+const popupFiltro = document.getElementById('filter-popup');
+const btnOpcoesFiltro = document.querySelectorAll('.btn-filter-option');
+
+btnFiltro.addEventListener('click', (event) => {
+    event.stopPropagation(); 
+    const estaAberto = btnFiltro.getAttribute('aria-expanded') === 'true';
+    
+    if (estaAberto) {
+        fecharPopupFiltro();
+    } else {
+        abrirPopupFiltro();
+    }
+});
+
+function abrirPopupFiltro() {
+    popupFiltro.classList.remove('oculto');
+    btnFiltro.setAttribute('aria-expanded', 'true');
+    
+    setTimeout(() => {
+        const primeiraOpcao = popupFiltro.querySelector('.btn-filter-option');
+        if (primeiraOpcao) primeiraOpcao.focus();
+    }, 100);
+}
+
+function fecharPopupFiltro() {
+    popupFiltro.classList.add('oculto');
+    btnFiltro.setAttribute('aria-expanded', 'false');
+    btnFiltro.focus(); 
+}
+
+document.addEventListener('click', (event) => {
+    if (!popupFiltro.classList.contains('oculto') && !popupFiltro.contains(event.target) && event.target !== btnFiltro) {
+        fecharPopupFiltro();
+    }
+});
+
+popupFiltro.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        fecharPopupFiltro();
+    }
+});
+// #endregion
 
 // #region Formulário de busca (submit)
 const header = document.querySelector('.header');
@@ -806,7 +815,9 @@ listaProdutos.addEventListener("click", (event) => {
 
     const article = botao.closest(".product-card");
     const idProduto = article.dataset.id;
+    
+    sessionStorage.setItem("produtoId", idProduto);
 
-    window.location.href = `avaliacaoProduto.html?id=${idProduto}`;
+    window.location.href = `avaliacaoProduto.html`;
 });
 // #endregion

@@ -1,9 +1,58 @@
 // #region Imports
 import { verificarLogin } from "../../services/authService.js";
-import { estaNoCarrinho, toggleCarrinho } from "../../services/carrinhoService.js";
+import { estaNoCarrinho, toggleCarrinho, quantidadeProduto, alterarQuantidade, removerProduto, adicionarProduto } from "../../services/carrinhoService.js";
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
+import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
 // #endregion
+
+const searchForm = document.querySelector('.search-form');
+const inputBusca = document.getElementById('search-input');
+const btnMicrofone = document.querySelector('.mic-btn');
+const header        = document.querySelector('.header');
+
+searchForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    
+    const busca = inputBusca.value.trim();
+
+    if (busca) {
+        sessionStorage.setItem("href-pesquisa", busca);
+        window.location.href = "home.html";
+    }
+});
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {    
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
+
+    recognition.onstart = function() {
+        btnMicrofone.style.color = 'blue';
+    };
+
+    recognition.onresult = function(event) {
+        const textoFalado = event.results[0][0].transcript;
+        inputBusca.value = textoFalado;
+    };
+
+    recognition.onend = function() {
+        btnMicrofone.style.color = '#888';
+    };
+
+    recognition.onerror = function(event) {
+        alert("Erro no reconhecimento:" + event.error);
+    };
+
+    btnMicrofone.addEventListener('click', function() {
+        recognition.start();
+    });
+
+} else {
+    alert("Seu navegador não tem suporte para pesquisa por voz.");
+}
 
 // #region Verificação de acesso
 const usuario = await verificarLogin();
@@ -34,10 +83,16 @@ function alternarBanner() {
 window.alternarBanner = alternarBanner;
 
 window.addEventListener("scroll", () => {
+    const toast = document.getElementById("cart-toast");
+
     if (window.scrollY > 30) {
         banner?.classList.add("compact");
+        toast?.classList.add("compact");
+        header?.classList.add("scrolled");
     } else {
         banner?.classList.remove("compact");
+        toast?.classList.remove("compact");
+        header?.classList.remove("scrolled");
     }
 });
 // #endregion
@@ -49,8 +104,7 @@ btnVoltar.addEventListener('click', () => {
 // #endregion
 
 // #region Leitura do id na URL e carregamento do produto
-const params    = new URLSearchParams(window.location.search);
-const idProduto = params.get("id");
+const idProduto = sessionStorage.getItem("produtoId");
 
 if (!idProduto) {
     window.location.href = "home.html";
@@ -72,119 +126,451 @@ if (!produto) {
 
 // #region Render do produto
 async function renderProduto(produto) {
-    const container = document.getElementById("produto-detalhe");
 
-    const precoFormatado = produto.preco.toLocaleString("pt-BR", {
-        style: "currency", currency: "BRL"
-    });
+    const container =
+        document.getElementById(
+            "produto-detalhe"
+        );
 
-    const precoParcela = (produto.preco / 3).toLocaleString("pt-BR", {
-        style: "currency", currency: "BRL"
-    });
+    container.innerHTML = "";
 
-    const badgeHtml = produto.desconto > 0
-        ? `<span class="produto-badge-desconto">${produto.desconto}% OFF</span>`
-        : "";
+    const colunaImagem =
+        criarColunaImagem(produto);
 
-    const favoritoAtivo = ehFavorito(produto.id) ? "is-favorite" : "";
-    const carrinhoAtivo = estaNoCarrinho(produto.id) ? "is-cart" : "";
+    const info =
+        criarColunaInfo(produto);
 
-    container.innerHTML = `
-        <!-- Coluna esquerda: imagem + nome + descrição -->
-        <div class="produto-col-imagem">
-            <img
-                src="${produto.imagem}"
-                alt="Foto de ${produto.nome}"
-                class="produto-imagem-principal"
-            >
-            <h3 class="produto-nome-detalhe">${produto.nome}</h3>
-        </div>
+    const colunaAvaliacoes =
+        criarColunaAvaliacoes();
 
-        <!-- Coluna central: ações, preço, quantidade, comprar -->
-        <div class="produto-col-info">
-            <div class="produto-topo-acoes">
-                ${badgeHtml}
-                <button
-                    type="button"
-                    class="btn-icon ${favoritoAtivo}"
-                    id="btn-favorito-detalhe"
-                    aria-label="Adicionar aos favoritos"
-                >
-                    <i data-lucide="heart" aria-hidden="true"></i>
-                </button>
-                <button
-                    type="button"
-                    class="btn-icon ${carrinhoAtivo}"
-                    id="btn-carrinho-detalhe"
-                    aria-label="Adicionar ao carrinho"
-                >
-                    <i data-lucide="shopping-cart" aria-hidden="true"></i>
-                </button>
-            </div>
-
-            <p class="produto-preco-principal">${precoFormatado}</p>
-            <p class="produto-preco-parcelado">Ou 3x de ${precoParcela}</p>
-
-            <div class="produto-quantidade">
-                <button type="button" class="btn-qtd" id="btn-menos" aria-label="Diminuir quantidade">
-                    <i data-lucide="minus" aria-hidden="true"></i>
-                </button>
-                <span class="qtd-valor" id="qtd-valor">1</span>
-                <button type="button" class="btn-qtd" id="btn-mais" aria-label="Aumentar quantidade">
-                    <i data-lucide="plus" aria-hidden="true"></i>
-                </button>
-            </div>
-
-            <p class="produto-estoque">Disponíveis: ${produto.estoque}</p>
-
-            <button type="button" class="btn-comprar-detalhe">Comprar</button>
-        </div>
-
-        <!-- Coluna direita: avaliações -->
-        <div class="produto-col-avaliacoes">
-            <h3 class="avaliacoes-titulo">
-                <i data-lucide="message-circle" aria-hidden="true"></i>
-                Avaliações
-            </h3>
-            <div class="avaliacoes-lista" id="avaliacoes-lista">
-                <p class="sem-avaliacoes">Carregando avaliações...</p>
-            </div>
-        </div>
-    `;
+    container.append(
+        colunaImagem,
+        info.elemento,
+        colunaAvaliacoes
+    );
 
     if (window.lucide) {
         window.lucide.createIcons();
     }
 
-    // Quantidade
-    let qtd = 1;
-    document.getElementById("btn-mais").addEventListener("click", () => {
-        if (qtd < produto.estoque) {
-            qtd++;
-            document.getElementById("qtd-valor").textContent = qtd;
-        }
-    });
-    document.getElementById("btn-menos").addEventListener("click", () => {
-        if (qtd > 1) {
-            qtd--;
-            document.getElementById("qtd-valor").textContent = qtd;
-        }
-    });
+    configurarQuantidade(
+        info.btnMais,
+        info.btnMenos,
+        info.valorQuantidade,
+        produto
+    );
 
-    // Favorito
-    document.getElementById("btn-favorito-detalhe").addEventListener("click", (e) => {
+    configurarFavorito(
+        info.btnFavorito,
+        produto
+    );
+
+    configurarCarrinho(
+        info.btnCarrinho,
+        produto
+    );
+
+    await carregarAvaliacoes(
+        produto.id
+    );
+
+}
+
+function criarColunaInfo(produto) {
+
+    const coluna =
+        document.createElement("div");
+
+    coluna.className =
+        "produto-col-info";
+
+    const topo =
+        criarTopoAcoes(produto);
+
+    const preco =
+        criarPreco(produto);
+
+    const quantidade =
+        criarControleQuantidade();
+
+    const estoque =
+        document.createElement("p");
+
+    estoque.className =
+        "produto-estoque";
+
+    estoque.textContent =
+        `Disponíveis: ${produto.estoque}`;
+
+    const btnComprar =
+        document.createElement("button");
+
+    btnComprar.type =
+        "button";
+
+    btnComprar.className =
+        "btn-comprar-detalhe";
+
+    btnComprar.textContent =
+        "Comprar";
+
+    coluna.append(
+        topo.elemento,
+        preco.preco,
+        preco.parcela,
+        quantidade.elemento,
+        estoque,
+        btnComprar
+    );
+
+    return {
+
+        elemento: coluna,
+
+        btnFavorito:
+            topo.btnFavorito,
+
+        btnCarrinho:
+            topo.btnCarrinho,
+
+        btnMais:
+            quantidade.btnMais,
+
+        btnMenos:
+            quantidade.btnMenos,
+
+        valorQuantidade:
+            quantidade.valor
+
+    };
+
+}
+
+function criarTopoAcoes(produto) {
+
+    const topo =
+        document.createElement("div");
+
+    topo.className =
+        "produto-topo-acoes";
+
+    if (produto.desconto > 0) {
+
+        const badge =
+            document.createElement("span");
+
+        badge.className =
+            "produto-badge-desconto";
+
+        badge.textContent =
+            `${produto.desconto}% OFF`;
+
+        topo.append(badge);
+
+    }
+
+    const btnFavorito =
+        document.createElement("button");
+
+    btnFavorito.type =
+        "button";
+
+    btnFavorito.id =
+        "btn-favorito-detalhe";
+
+    btnFavorito.className =
+        "btn-icon";
+
+    if (ehFavorito(produto.id)) {
+        btnFavorito.classList.add(
+            "is-favorite"
+        );
+    }
+
+    btnFavorito.innerHTML =
+        `<i data-lucide="heart"></i>`;
+
+    const btnCarrinho =
+        document.createElement("button");
+
+    btnCarrinho.type =
+        "button";
+
+    btnCarrinho.id =
+        "btn-carrinho-detalhe";
+
+    btnCarrinho.className =
+        "btn-icon";
+
+    if (estaNoCarrinho(produto.id)) {
+        btnCarrinho.classList.add(
+            "is-cart"
+        );
+    }
+
+    btnCarrinho.innerHTML =
+        `<i data-lucide="shopping-cart"></i>`;
+
+    topo.append(
+        btnFavorito,
+        btnCarrinho
+    );
+
+    return {
+
+        elemento: topo,
+        btnFavorito,
+        btnCarrinho
+
+    };
+
+}
+
+function criarPreco(produto) {
+
+    const preco =
+        document.createElement("p");
+
+    preco.className =
+        "produto-preco-principal";
+
+    preco.textContent =
+        produto.preco.toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+
+    const parcela =
+        document.createElement("p");
+
+    parcela.className =
+        "produto-preco-parcelado";
+
+    parcela.textContent =
+        `Ou 3x de ${(produto.preco / 3).toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        )}`;
+
+    return {
+
+        preco,
+        parcela
+
+    };
+
+}
+
+function criarControleQuantidade() {
+
+    const container =
+        document.createElement("div");
+
+    container.className =
+        "produto-quantidade";
+
+    const btnMenos =
+        document.createElement("button");
+
+    btnMenos.type =
+        "button";
+
+    btnMenos.className =
+        "btn-qtd";
+
+    btnMenos.innerHTML =
+        `<i data-lucide="minus"></i>`;
+
+    const valor =
+        document.createElement("span");
+
+    valor.className =
+        "qtd-valor";
+
+    const btnMais =
+        document.createElement("button");
+
+    btnMais.type =
+        "button";
+
+    btnMais.className =
+        "btn-qtd";
+
+    btnMais.innerHTML =
+        `<i data-lucide="plus"></i>`;
+
+    container.append(
+        btnMenos,
+        valor,
+        btnMais
+    );
+
+    return {
+
+        elemento: container,
+        btnMais,
+        btnMenos,
+        valor
+
+    };
+
+}
+
+function criarColunaAvaliacoes() {
+
+    const coluna =
+        document.createElement("div");
+
+    coluna.className =
+        "produto-col-avaliacoes";
+
+    const titulo =
+        document.createElement("h3");
+
+    titulo.className =
+        "avaliacoes-titulo";
+
+    titulo.innerHTML =
+        `<i data-lucide="message-circle"></i> Avaliações`;
+
+    const lista =
+        document.createElement("div");
+
+    lista.className =
+        "avaliacoes-lista";
+
+    lista.id =
+        "avaliacoes-lista";
+
+    lista.innerHTML =
+        `<p class="sem-avaliacoes">Carregando avaliações...</p>`;
+
+    coluna.append(
+        titulo,
+        lista
+    );
+
+    return coluna;
+
+}
+
+function configurarQuantidade(
+    btnMais,
+    btnMenos,
+    valor,
+    produto
+) {
+    if (estaNoCarrinho(produto.id)) {
+        valor.textContent = quantidadeProduto(produto.id);  
+    } else {
+        valor.textContent = 0
+    }
+    
+
+    btnMais.addEventListener(
+        "click",
+        () => {
+            let quantidade = parseInt(valor.textContent);
+
+            if ( quantidade < produto.estoque) {
+                quantidade++;
+                valor.textContent = quantidade;
+            }
+
+            if (!estaNoCarrinho(produto.id) && quantidade > 0) {
+                adicionarProduto(produto.id, quantidade);
+                document.getElementById("btn-carrinho-detalhe").classList.add("is-cart");
+            } else {
+                alterarQuantidade(produto.id, quantidade);
+            }
+        }
+    );
+
+    btnMenos.addEventListener(
+        "click",
+        () => {
+            let quantidade = parseInt(valor.textContent);
+            if (quantidade > 0) {
+                quantidade--;
+                valor.textContent = quantidade;
+            }
+
+            if (quantidade === 0) {
+                if (estaNoCarrinho(produto.id)) {
+                    removerProduto(produto.id);
+                    document.getElementById("btn-carrinho-detalhe").classList.remove("is-cart");
+                }
+            }
+
+            alterarQuantidade(produto.id, quantidade);
+        }
+    );
+}
+
+function criarColunaImagem(produto) {
+
+    const coluna =
+        document.createElement("div");
+
+    coluna.className =
+        "produto-col-imagem";
+
+    const imagem =
+        document.createElement("img");
+
+    imagem.src =
+        produto.imagem;
+
+    imagem.alt =
+        `Foto de ${produto.nome}`;
+
+    imagem.className =
+        "produto-imagem-principal";
+
+    const nome =
+        document.createElement("h3");
+
+    nome.className =
+        "produto-nome-detalhe";
+
+    nome.textContent =
+        produto.nome;
+
+    coluna.append(
+        imagem,
+        nome
+    );
+
+    return coluna;
+
+}
+
+function configurarFavorito(botaoFavorito, produto) {
+    botaoFavorito.addEventListener("click", (e) => {
         e.currentTarget.classList.toggle("is-favorite");
         toggleFavorito(produto.id);
     });
+}
 
-    // Carrinho
-    document.getElementById("btn-carrinho-detalhe").addEventListener("click", (e) => {
+function configurarCarrinho(botaoCarrinho, produto) {
+    botaoCarrinho.addEventListener("click", (e) => {
         e.currentTarget.classList.toggle("is-cart");
         toggleCarrinho(produto.id);
-    });
 
-    // Avaliações
-    await carregarAvaliacoes(produto.id);
+        if (estaNoCarrinho(produto.id) && document.querySelector(".qtd-valor").textContent == 0 ) {
+            document.querySelector(".qtd-valor").textContent = 1;
+        } else {
+            document.querySelector(".qtd-valor").textContent = 0;
+        }
+
+        alterarQuantidade(produto.id, parseInt(document.querySelector(".qtd-valor").textContent));
+    });
 }
 // #endregion
 
@@ -196,22 +582,22 @@ async function carregarAvaliacoes(idProduto) {
         const avaliacoes = await listarAvaliacoesProduto(idProduto);
 
         if (!avaliacoes || avaliacoes.length === 0) {
-            lista.innerHTML = `<p class="sem-avaliacoes">Nenhuma avaliação ainda.</p>`;
+            lista.innerHTML = `<p class="sem-avaliacoes">Nenhuma avaliação encontrada.</p>`;
             return;
         }
 
-        lista.innerHTML = avaliacoes.map(av => `
-            <article class="avaliacao-card">
-                <div class="avaliacao-autor">
-                    <i data-lucide="circle-user" aria-hidden="true"></i>
-                    ${av.nomeUsuario ?? "Usuário"}
-                </div>
-                <p class="avaliacao-texto">${av.comentario ?? ""}</p>
-                <div class="avaliacao-estrelas" aria-label="${av.nota} de 5 estrelas">
-                    ${renderEstrelas(av.nota)}
-                </div>
-            </article>
-        `).join("");
+        lista.innerHTML = "";
+
+        for (const avaliacao of avaliacoes) {
+
+            const card =
+                await criarCardAvaliacao(
+                    avaliacao
+                );
+
+            lista.append(card);
+
+        }
 
         if (window.lucide) {
             window.lucide.createIcons();
@@ -221,6 +607,69 @@ async function carregarAvaliacoes(idProduto) {
         console.error("Erro ao carregar avaliações:", erro);
         lista.innerHTML = `<p class="sem-avaliacoes">Erro ao carregar avaliações.</p>`;
     }
+}
+
+async function criarCardAvaliacao(avaliacao) {
+
+    const artigo =
+        document.createElement("article");
+
+    artigo.className =
+        "avaliacao-card";
+
+    const autor =
+        document.createElement("div");
+
+    autor.className =
+        "avaliacao-autor";
+
+    const icone =
+        document.createElement("i");
+
+    icone.setAttribute(
+        "data-lucide",
+        "circle-user"
+    );
+
+    autor.append(icone);
+
+    autor.append(
+        await avaliacao.getNomeUsuario()
+    );
+
+    const comentario =
+        document.createElement("p");
+
+    comentario.className =
+        "avaliacao-texto";
+
+    comentario.textContent =
+        avaliacao.comentario ?? "";
+
+    const estrelas =
+        document.createElement("div");
+
+    estrelas.className =
+        "avaliacao-estrelas";
+
+    estrelas.setAttribute(
+        "aria-label",
+        `${avaliacao.nota} de 5 estrelas`
+    );
+
+    estrelas.innerHTML =
+        renderEstrelas(
+            avaliacao.nota
+        );
+
+    artigo.append(
+        autor,
+        comentario,
+        estrelas
+    );
+
+    return artigo;
+
 }
 
 function renderEstrelas(nota) {
@@ -259,7 +708,8 @@ function renderRelacionados(lista, idAtual) {
         const botao = event.target.closest(".btn-arrow");
         if (!botao) return;
         const article = botao.closest(".product-card");
-        window.location.href = `produto.html?id=${article.dataset.id}`;
+        sessionStorage.setItem("produtoId", article.dataset.id);
+        window.location.href = `avaliacaoProduto.html`;
     });
 
     // Favorito nos cards relacionados

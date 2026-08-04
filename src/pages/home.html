@@ -28,7 +28,21 @@
 
         <nav class="header-icons" aria-label="Menu principal do usuário">
             <ul>
-                <li><button aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li class="filter-wrapper">
+                    <button type="button" id="btn-filter" aria-label="Abrir menu de filtros" aria-haspopup="menu" aria-expanded="false" aria-controls="filter-popup">
+                        <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+                    </button>
+
+                    <section id="filter-popup" class="filter-popup oculto" aria-labelledby="filter-title">
+                        <h3 id="filter-title">Filtrar por</h3>
+                        <menu class="filter-menu" role="menu">
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="alfabetica">Ordem alfabética</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="barato">Mais barato</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="caro">Mais caro</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="desconto">Desconto</button></li>
+                        </menu>
+                    </section>
+                </li>
                 <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
                 <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
                 <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>

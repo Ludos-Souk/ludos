@@ -8,67 +8,52 @@
     <link rel="stylesheet" href="../assets/css/produto.css" />
   </head>
   <body id="topo">
-    <header class="header">
-      <h1 class="logo">
-        <a href="home.html" aria-label="Voltar ao topo da página inicial">
-          <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" />
-        </a>
-      </h1>
+        <header class="header">
+        <h1 class="logo">
+            <a href="#topo" aria-label="Voltar ao topo da página inicial">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
+            </a>
+        </h1>
 
-      <search class="search-bar">
-        <form class="search-form" role="search">
-          <label for="search-input" class="sr-only">Buscar Boneco</label>
-          <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
-          <input type="search" id="search-input" placeholder="Buscar Boneco" />
-          <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
-            <i data-lucide="mic" aria-hidden="true"></i>
-          </button>
-        </form>
-      </search>
+        <search class="search-bar">
+            <form class="search-form" role="search">
+                <label for="search-input" class="sr-only">Buscar Boneco</label>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
+                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
+                    <i data-lucide="mic" aria-hidden="true"></i>
+                </button>
+            </form>
+        </search>
 
-      <nav class="header-icons" aria-label="Menu principal do usuário">
-        <ul>
-          <li>
-            <button aria-label="Abrir menu de categorias">
-              <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
-            </button>
-          </li>
-          <li>
-            <button aria-label="Acessar meu perfil">
-              <i data-lucide="circle-user" aria-hidden="true"></i>
-            </button>
-          </li>
-          <li>
-            <button aria-label="Ver meus favoritos">
-              <i data-lucide="heart" aria-hidden="true"></i>
-            </button>
-          </li>
-          <li>
-            <button aria-label="Ver meu carrinho">
-              <i data-lucide="shopping-cart" aria-hidden="true"></i>
-            </button>
-          </li>
-        </ul>
-      </nav>
+        <nav class="header-icons" aria-label="Menu principal do usuário">
+            <ul>
+                <li class="filter-wrapper">
+                    <button type="button" id="btn-filter" aria-label="Abrir menu de filtros" aria-haspopup="menu" aria-expanded="false" aria-controls="filter-popup">
+                        <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+                    </button>
 
-      <aside
-        id="promo-banner"
-        class="promo-banner"
-        aria-label="Aviso promocional"
-      >
-        <p>
-          <i data-lucide="badge-percent" aria-hidden="true"></i> Consiga 10% de
-          desconto na sua primeira compra
-        </p>
-        <button
-          class="btn-close-promo"
-          aria-label="Fechar aviso promocional"
-          aria-expanded="true"
-          onclick="alternarBanner()"
-        >
-          <i data-lucide="x" aria-hidden="true"></i>
-        </button>
-      </aside>
+                    <section id="filter-popup" class="filter-popup oculto" aria-labelledby="filter-title">
+                        <h3 id="filter-title">Filtrar por</h3>
+                        <menu class="filter-menu" role="menu">
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="alfabetica">Ordem alfabética</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="barato">Mais barato</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="caro">Mais caro</button></li>
+                            <li role="none"><button type="button" role="menuitem" class="btn-filter-option" data-sort="desconto">Desconto</button></li>
+                        </menu>
+                    </section>
+                </li>
+                <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
+            </ul>
+        </nav>
+
+        <aside id="promo-banner" class="promo-banner" aria-label="Aviso promocional">
+            <p><i data-lucide="badge-percent" aria-hidden="true"></i> Consiga 10% de desconto na sua primeira compra</p>
+            <button class="btn-close-promo" aria-label="Fechar aviso promocional" aria-expanded="true" onclick="alternarBanner()"><i data-lucide="x" aria-hidden="true"></i></button>
+        </aside>
+
     </header>
 
     <main class="main-content">
@@ -154,5 +139,6 @@
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../assets/js/avaliacaoProduto.js"></script>
+
   </body>
 </html>

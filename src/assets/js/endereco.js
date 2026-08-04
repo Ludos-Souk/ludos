@@ -5,11 +5,11 @@ import Endereco from "../../models/Endereco.js";
 import {
     adicionarEndereco
 } from "../../services/usuarioService.js";
-
 import {
     obterUid
 } from "../../services/authService.js";
 
+// Inicializa os ícones do Lucide assim que o script é carregado
 if (window.lucide) {
     window.lucide.createIcons();
 }
@@ -19,7 +19,7 @@ const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
 const formulario = document.getElementById('endereco-form');
-const botao = formulario.querySelector('button[type="submit"]');
+const botao = formulario ? formulario.querySelector('button[type="submit"]') : null;
 
 const inputEtiqueta = document.getElementById('etiqueta-input');
 const inputCep = document.getElementById('cep-input');
@@ -32,6 +32,7 @@ const inputComplemento = document.getElementById('complemento-input');
 const inputInfoAdicionais = document.getElementById('infoAdicionais-input');
 const inputNome = document.getElementById('nome-input');
 const inputEmail = document.getElementById('email-input');
+const header = document.querySelector('.header');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -57,12 +58,11 @@ if (SpeechRecognition) {
         alert("Erro no reconhecimento:" + event.error);
     };
 
-    btnMicrofone.addEventListener('click', function() {
-        recognition.start();
-    });
-
-} else {
-    alert("Seu navegador não tem suporte para pesquisa por voz.");
+    if (btnMicrofone) {
+        btnMicrofone.addEventListener('click', function() {
+            recognition.start();
+        });
+    }
 }
 
 const btnVoltar = document.querySelector('.btn-back');
@@ -86,7 +86,6 @@ inputs.forEach(input => {
                 btnClear.classList.remove('visible'); 
             }
         });
-
         
         btnClear.addEventListener('click', () => {
             input.value = ''; 
@@ -96,19 +95,19 @@ inputs.forEach(input => {
     }
 });
 
-searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    
-    const busca = inputBusca.value.trim();
+if (searchForm) {
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const busca = inputBusca.value.trim();
 
-    if (busca) {
-        sessionStorage.setItem("href-pesquisa", busca);
-        window.location.href = "home.html";
-    }
-});
+        if (busca) {
+            sessionStorage.setItem("href-pesquisa", busca);
+            window.location.href = "home.html";
+        }
+    });
+}
 
 async function carregarEstados() {
-    
     if (!selectUf) return;
 
     try {
@@ -136,44 +135,43 @@ async function carregarEstados() {
 
 async function preencherEnderecoPeloCep(cep) {
     try {
-        const dados =
-            await buscarCep(cep);
+        const dados = await buscarCep(cep);
 
-        inputRua.value = dados.logradouro
-        selectUf.value = dados.uf
-        inputCidade.value = dados.localidade
-        inputBairro.value = dados.bairro
+        if (inputRua) inputRua.value = dados.logradouro || '';
+        if (selectUf) selectUf.value = dados.uf || '';
+        if (inputCidade) inputCidade.value = dados.localidade || '';
+        if (inputBairro) inputBairro.value = dados.bairro || '';
     } catch (erro) {
-        console.error(
-            erro.message
-        );
+        console.error(erro.message);
     }
 }
 
-inputCep.addEventListener("input", () => {
+if (inputCep) {
+    inputCep.addEventListener("input", () => {
+        clearTimeout(temporizador);
 
-    clearTimeout(temporizador);
+        temporizador = setTimeout(() => {
+            preencherEnderecoPeloCep(inputCep.value);
+        }, 500);
+    });
+}
 
-    temporizador = setTimeout(() => {
-        preencherEnderecoPeloCep(inputCep.value);
-    }, 500);
-});
+if (formulario) {
+    formulario.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-formulario.addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    botao.textContent = "Adicionando...";
-    botao.disabled = true;
-
-    try {
-        const uid =
-            obterUid();
-
-        if (!uid) {
-            console.log("Usuário não autenticado.")    
+        if (botao) {
+            botao.textContent = "Adicionando...";
+            botao.disabled = true;
         }
-        const endereco =
-            new Endereco(
+
+        try {
+            const uid = obterUid();
+
+            if (!uid) {
+                console.log("Usuário não autenticado.");    
+            }
+            const endereco = new Endereco(
                 inputEtiqueta.value,
                 inputCep.value,
                 selectUf.value,
@@ -186,22 +184,32 @@ formulario.addEventListener("submit", async function (event) {
                 inputEmail.value
             );
 
-        await adicionarEndereco(
-            uid,
-            endereco
-        );
+            await adicionarEndereco(uid, endereco);
 
-        sessionStorage.setItem(
-            "href-endereco",
-            20
-        )
+            sessionStorage.setItem("href-endereco", 20);
 
-        window.location.href = "home.html";
-    } catch (erro) {
-        console.error(erro);
-        botao.textContent = "Adicionar";
-        botao.disabled = false;
+            window.location.href = "home.html";
+        } catch (erro) {
+            console.error(erro);
+            if (botao) {
+                botao.textContent = "Adicionar";
+                botao.disabled = false;
+            }
+        }
+    });
+}
+
+// Comportamento de scroll do Header
+window.addEventListener("scroll", () => {
+    const toast = document.getElementById("cart-toast");
+
+    if (window.scrollY > 30) {
+        header?.classList.add("scrolled");
+        toast?.classList.add("compact");
+    } else {
+        header?.classList.remove("scrolled");
+        toast?.classList.remove("compact");
     }
-})
+});
 
-carregarEstados(); 
+carregarEstados();
