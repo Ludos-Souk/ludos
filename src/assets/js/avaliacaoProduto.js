@@ -84,8 +84,10 @@ window.alternarBanner = alternarBanner;
 window.addEventListener("scroll", () => {
     if (window.scrollY > 30) {
         banner?.classList.add("compact");
+        header?.classList.add("scrolled");
     } else {
         banner?.classList.remove("compact");
+        header?.classList.remove("scrolled");
     }
 });
 // #endregion
