@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 .produto-page-header {
     display: flex;
     align-items: center;
@@ -12,7 +14,7 @@
     color: #1a1a2e;
 }
 
-.btn-back {
+.btn-back-icon {
     width: 44px;
     height: 44px;
     border: none;
@@ -33,12 +35,12 @@
 .produto-detalhe {
     background: white;
     border-radius: 32px;
-    padding: 40px;
+    padding:  60px 40px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.07);
     margin-bottom: 40px;
     display: grid;
     grid-template-columns: 260px 1fr 1fr;
-    gap: 40px;
+    gap: 45px;
     align-items: start;
 }
 
@@ -53,7 +55,6 @@
     aspect-ratio: 1 / 1;
     object-fit: contain;
     border-radius: 16px;
-    background: #f4f5f9;
     display: block;
 }
 
@@ -68,7 +69,7 @@
 .produto-col-info {
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 35px;
     padding-top: 8px;
 }
 
@@ -261,7 +262,7 @@
 
 .products-grid--small {
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 30px;
 }
 
 .products-grid--small .product-card {
@@ -270,16 +271,16 @@
 }
 
 .products-grid--small .product-image {
-    height: 160px;
+    height: 290px;
 }
 
 .products-grid--small .product-top {
     margin-bottom: 10px;
-    min-height: 28px;
+    min-height: 15px;
 }
 
 .products-grid--small .discount-badge {
-    font-size: 10px;
+    font-size: 12px;
     padding: 4px 10px;
 }
 
@@ -290,22 +291,22 @@
 }
 
 .products-grid--small .brand {
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .products-grid--small .title {
-    font-size: 12px;
+    font-size: 14px;
     margin: 6px 0 12px;
 }
 
 .products-grid--small .price {
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 12px;
 }
 
 .products-grid--small .btn-buy {
-    font-size: 12px;
+    font-size: 14px;
     padding: 10px 0;
 }
 
