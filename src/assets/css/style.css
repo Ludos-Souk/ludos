@@ -290,13 +290,20 @@ button[type="submit"]:active{
 }
 
 @media(max-width: 900px){
+    html, body {
+        overflow-y: auto;
+        height: auto;
+    }
+
     .container{
         grid-template-columns: 1fr;
-        height: 100vh;
+        height: auto;
+        min-height: 100vh;
     }
 
     .banner{
-        min-height: 240px;
+        min-height: 280px;
+        max-height: 320px;
     }
 
     .banner__content{
@@ -308,36 +315,44 @@ button[type="submit"]:active{
     }
 
     .auth{
-        padding: 30px;
+        padding: 40px 30px 60px;
+        height: auto;
+        justify-content: flex-start;
     }
 
     .auth h2{
         font-size: 34px;
     }
-    
+
     .logo {
         margin-top: 0;
     }
 }
 
 @media(max-width: 500px){
-    .switch{
-        width: 150px;
+    .banner{
+        min-height: 220px;
+        max-height: 260px;
     }
 
-    .auth{
-        padding: 20px;
+    .switch{
+        width: 150px;
+        margin-top: 24px;
     }
 
     .banner__content h1{
-        font-size: 32px;
-    }
-
-    .auth h2{
         font-size: 28px;
     }
 
     .banner__subtitle{
-        font-size: 18px;
+        font-size: 16px;
+    }
+
+    .auth{
+        padding: 32px 20px 48px;
+    }
+
+    .auth h2{
+        font-size: 26px;
     }
 }

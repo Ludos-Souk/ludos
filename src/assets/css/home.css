@@ -67,9 +67,6 @@ input:focus-visible {
     border-radius: 8px;
 }
 
-/* Ícones (lucide). Cada ícone vira um <svg class="lucide">; o tamanho e a cor
-   seguem o font-size/color do elemento onde o <i data-lucide="..."> foi colocado,
-   então basta ajustar font-size/color no elemento pai para redimensionar. */
 .lucide {
     width: 1em;
     height: 1em;
@@ -89,6 +86,7 @@ input:focus-visible {
     justify-content: space-between;
     align-items: center;
     padding: 0 60px;
+    transition: border-radius 0.3s ease, background-color 0.3s ease;
 }
 
 .header::after {
@@ -106,10 +104,17 @@ input:focus-visible {
 
 .header:has(.promo-banner.compact)::after {
     height: 100px;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
 }
 
 .header.sem-banner::after {
     display: none;
+}
+
+.header.scrolled.sem-banner {
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
 }
 
 .logo img {
@@ -338,7 +343,7 @@ input:focus-visible {
 }
 
 .side-icon { 
-    font-size: 40px;
+    font-size: 32px;
     color: #ccc;
     margin-bottom: 40px;
 }
@@ -449,8 +454,12 @@ input:focus-visible {
 .discount-badge {
     background: #89a3ff;
     color: white; 
-    padding: 6px 15px; 
-    border-radius: 15px; 
+    padding: 0 14px; 
+    height: 28px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
     font-size: 11px; 
     font-weight: bold;
 }
@@ -463,14 +472,14 @@ input:focus-visible {
 
 .btn-icon {
     background: #f4f5f9; 
-    width: 35px; 
-    height: 35px; 
+    width: 46px;  
+    height: 46px; 
     border: none;
     display: flex; 
     justify-content: center; 
     align-items: center;
     border-radius: 50%; 
-    font-size: 14px; 
+    font-size: 24px; 
     color: #555; 
     transition: 0.2s;
 }
@@ -1127,4 +1136,69 @@ select:focus{
     opacity: 0;
     transform: translateY(-16px);
     pointer-events: none;
+}
+
+.filter-wrapper {
+    position: relative;
+}
+
+.filter-popup {
+    position: absolute;
+    top: calc(100% + 15px); 
+    right: 0; 
+    background-color: #ffffff;
+    border-radius: 28px;
+    padding: 24px;
+    width: 230px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+.filter-popup.oculto {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+.filter-popup h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    text-align: left;
+}
+
+.filter-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.header-icons .filter-popup .btn-filter-option {
+    width: 100%;
+    height: auto; 
+    padding: 14px 18px;
+    background-color: #807E7D1A; 
+    border: none;
+    border-radius: 999px; 
+    font-weight: 600;
+    font-size: 14px;
+    color: #4342428A;
+    text-align: left;
+    display: block; 
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.header-icons .filter-popup .btn-filter-option:hover,
+.header-icons .filter-popup .btn-filter-option:focus-visible {
+    background-color: #c1c3c7;
+    color: #111;
 }

@@ -1,3 +1,5 @@
+import { buscarUsuarioPorId } from "../services/usuarioService.js";
+
 export default class Avaliacao {
 
     constructor(
@@ -26,5 +28,9 @@ export default class Avaliacao {
             usuarioId: this.usuarioId
         };
 
+    }
+
+    getNomeUsuario() {
+        return buscarUsuarioPorId(this.usuarioId).then(usuario => usuario?.nome ?? "Usuário");
     }
 }
