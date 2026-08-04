@@ -1,7 +1,7 @@
+import Endereco from "../../models/Endereco.js";
 import {
     buscarCep
 } from "../../services/cepService.js";
-import Endereco from "../../models/Endereco.js";
 import {
     adicionarEndereco
 } from "../../services/usuarioService.js";
@@ -13,6 +13,17 @@ import {
 if (window.lucide) {
     window.lucide.createIcons();
 }
+
+const header = document.querySelector('.header');
+
+window.addEventListener("scroll", () => {
+    if (window.scrollY > 30) {
+        header?.classList.add("scrolled");
+        header?.classList.add("sem-banner");
+    } else {
+        header?.classList.remove("scrolled");
+    }
+});
 
 let temporizador;
 const searchForm = document.querySelector('.search-form');
@@ -35,7 +46,7 @@ const inputEmail = document.getElementById('email-input');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-if (SpeechRecognition) {    
+if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.continuous = false;
@@ -69,7 +80,7 @@ const btnVoltar = document.querySelector('.btn-back');
 
 if (btnVoltar) {
     btnVoltar.addEventListener('click', () => {
-        history.back();
+        window.location.href = "home.html";
     });
 }
 
@@ -77,28 +88,28 @@ const inputs = document.querySelectorAll('.input-wrapper input');
 
 inputs.forEach(input => {
     const btnClear = input.parentElement.querySelector('.btn-clear-input');
-    
+
     if (btnClear) {
         input.addEventListener('input', () => {
             if (input.value.length > 0) {
-                btnClear.classList.add('visible'); 
+                btnClear.classList.add('visible');
             } else {
-                btnClear.classList.remove('visible'); 
+                btnClear.classList.remove('visible');
             }
         });
 
-        
+
         btnClear.addEventListener('click', () => {
-            input.value = ''; 
-            btnClear.classList.remove('visible'); 
-            input.focus(); 
+            input.value = '';
+            btnClear.classList.remove('visible');
+            input.focus();
         });
     }
 });
 
 searchForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    
+
     const busca = inputBusca.value.trim();
 
     if (busca) {
@@ -108,7 +119,7 @@ searchForm.addEventListener('submit', (event) => {
 });
 
 async function carregarEstados() {
-    
+
     if (!selectUf) return;
 
     try {
@@ -170,7 +181,7 @@ formulario.addEventListener("submit", async function (event) {
             obterUid();
 
         if (!uid) {
-            console.log("Usuário não autenticado.")    
+            console.log("Usuário não autenticado.")
         }
         const endereco =
             new Endereco(
@@ -204,4 +215,4 @@ formulario.addEventListener("submit", async function (event) {
     }
 })
 
-carregarEstados(); 
+carregarEstados();
