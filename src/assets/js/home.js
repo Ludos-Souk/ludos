@@ -806,7 +806,9 @@ listaProdutos.addEventListener("click", (event) => {
 
     const article = botao.closest(".product-card");
     const idProduto = article.dataset.id;
+    
+    sessionStorage.setItem("produtoId", idProduto);
 
-    window.location.href = `avaliacaoProduto.html?id=${idProduto}`;
+    window.location.href = `avaliacaoProduto.html`;
 });
 // #endregion
