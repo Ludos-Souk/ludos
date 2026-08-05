@@ -320,8 +320,9 @@ input:focus-visible {
     padding: 26px;
 }
 
-.cart-card { 
-    overflow: visible; 
+.cart-card {
+    overflow: visible;
+    cursor: pointer;
 }
 
 .cart-badge {

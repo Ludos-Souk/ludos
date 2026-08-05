@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página inicial | Ludos</title>
+    <title>Meu Carrinho | Ludos</title>
     <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="../assets/css/carrinho.css">
 </head>
 <body id="topo">
 
-    <header class="header">
+    <header class="header sem-banner">
         <h1 class="logo">
             <a href="#topo" aria-label="Voltar ao topo da página inicial">
                 <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
@@ -49,50 +50,59 @@
             </ul>
         </nav>
 
-        <aside id="promo-banner" class="promo-banner" aria-label="Aviso promocional">
-            <p><i data-lucide="badge-percent" aria-hidden="true"></i> Consiga 10% de desconto na sua primeira compra</p>
-            <button class="btn-close-promo" aria-label="Fechar aviso promocional" aria-expanded="true" onclick="alternarBanner()"><i data-lucide="x" aria-hidden="true"></i></button>
-        </aside>
-
     </header>
 
-    <main class="main-content">
+    <main class="main-content cart-main-wrapper">
         <span class="content-handle" aria-hidden="true"></span>
-        <h2 class="sr-only">Painel de controle e listagem de produtos</h2>
+        
+        <header class="cart-page-header">
+            <button class="btn-back-icon" aria-label="Voltar" onclick="history.back()">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+            </button>
+            <h2 class="cart-page-title">Meu carrinho</h2>
+        </header>
 
-        <section class="dashboard-grid" aria-label="Resumo da sua conta">
-            <article class="card orders-card">
-                <header class="orders-header">
-                    <a href="#" class="orders-link">Meus pedidos</a>
-                    <i class="arrow-icon" data-lucide="chevron-right" aria-hidden="true"></i>
+        <section class="cart-layout">
+            <section class="cart-items-section">
+                
+                <header class="select-all-wrapper">
+                    <label class="custom-checkbox-label">
+                        <input type="checkbox" id="checkbox-select-all" class="sr-only">
+                        <span class="custom-checkbox">
+                            <i data-lucide="check" aria-hidden="true"></i>
+                        </span>
+                        Selecionar todos os produtos
+                    </label>
                 </header>
-                <h3>Os status dos seus pedidos aparecerão aqui.</h3>
-                <button class="btn-orders">Fazer pedido</button>
-            </article>
 
-            <aside class="side-cards" aria-label="Acesso rápido">
-                <article class="card side-card cart-card">
-                    <span class="cart-badge" id="badge-carrinho-home">4</span>
-                    <i class="side-icon" data-lucide="shopping-cart" aria-hidden="true"></i>
-                    <span class="side-card-text">Carrinho</span>
-                </article>
+                <section class="cart-grid" id="cart-items-container" aria-label="Lista de produtos no carrinho"></section>
+            </section>
 
-                <article class="card side-card">
-                    <i class="side-icon" data-lucide="bot" aria-hidden="true"></i>
-                    <span class="side-card-text">Atendimento ao cliente</span>
-                </article>
-
-                <article class="card address-card">
-                    <address class="address-info">
-                        <span class="address-label">Endereço</span>
-                        <span class="address-value">Cadastre um endereço de entrega</span>
-                    </address>
-                    <button class="btn-change-address" aria-label="Alterar endereço de entrega">Cadastrar</button>
-                </article>
+            <aside class="cart-summary" aria-label="Resumo do pedido">
+                <header class="summary-header">
+                    <h3><i data-lucide="file-edit" aria-hidden="true"></i> Resumo do pedido</h3>
+                </header>
+                
+                <dl class="summary-details">
+                    <dt>Produtos (<span id="summary-count">0</span>)</dt>
+                    <dd id="summary-subtotal">R$ 0,00</dd>
+                    
+                    <dt>Desconto</dt>
+                    <dd id="summary-discount">R$ 0,00</dd>
+                    
+                    <dt>Chegará em</dt>
+                    <dd>5 dias úteis</dd>
+                </dl>
+                
+                <hr class="summary-divider">
+                
+                <dl class="summary-total">
+                    <dt>Total</dt>
+                    <dd id="summary-total">R$ 0,00</dd>
+                </dl>
+                
+                <button class="btn-buy btn-continue" type="button">Continuar</button>
             </aside>
-        </section>
-
-        <section id="lista-bonecos-firebase" class="products-grid" aria-label="Produtos em destaque">
         </section>
     </main>
 
@@ -108,7 +118,7 @@
             </section>
             <nav class="footer-col" aria-label="Links Rápidos">
                 <h4>LINKS RÁPIDOS</h4>
-                <p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+                <p><a href="#" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
             </nav>
             <nav class="footer-col" aria-label="Ajuda e Suporte">
                 <h4>AJUDA</h4>
@@ -122,27 +132,7 @@
         </section>
     </footer>
 
-    <dialog id="modal-endereco" class="modal-endereco" aria-labelledby="modal-titulo">
-        <article class="modal-content">
-            <header class="modal-header">
-                <h3 id="modal-titulo" class="modal-title">Escolha um endereço de entrega</h3>
-                <button type="button" class="btn-close-modal" id="btn-fechar-modal" aria-label="Fechar pop-up de endereço">
-                    <i data-lucide="x" aria-hidden="true"></i>
-                </button>
-            </header>
-            
-            <section class="modal-body">
-                <p>Cadastre um endereço de entrega</p>
-            </section>
-            
-            <footer class="modal-footer">
-                <button type="button" class="btn-confirmar">Confirmar</button>
-                <button type="button" class="btn-adicionar">Adicionar endereço</button>
-            </footer>
-        </article>
-    </dialog>
-
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script type="module" src="../assets/js/home.js"></script>
+    <script type="module" src="../assets/js/carrinho.js"></script>
 </body>
 </html>

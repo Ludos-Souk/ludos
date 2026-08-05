@@ -202,7 +202,7 @@ export function mostrarToastCarrinho(
     toast
         .querySelector(".btn-go-cart")
         .addEventListener("click", () => {
-            alert("Parte ainda não implementada. Redirecionar para a página do carrinho.");
+            window.location.href = "carrinho.html";
         });
 
     timeoutToast = setTimeout(() => {
@@ -818,6 +818,50 @@ listaProdutos.addEventListener("click", (event) => {
     
     sessionStorage.setItem("produtoId", idProduto);
 
-    window.location.href = `avaliacaoProduto.html`;
-});
+        window.location.href = `avaliacaoProduto.html`;
+    });
+
+
+// #endregion
+
+function inicializarNavegacaoCarrinho() {
+    const btnHeaderCarrinho = document.querySelector('button[aria-label="Ver meu carrinho"]');
+    if (btnHeaderCarrinho) {
+        btnHeaderCarrinho.addEventListener('click', () => {
+            window.location.href = "carrinho.html";
+        });
+    }
+
+    const cartCard = document.querySelector('.cart-card');
+    if (cartCard) {
+        cartCard.addEventListener('click', () => {
+            window.location.href = "carrinho.html";
+        });
+    }
+}
+
+// #region Métodos de inicialização
+
+verificarAcesso();
+
+configurarEndereco();
+configurarOrdem();
+inicializarIconesLucide();
+
+await carregarCatalogo();
+hrefPesquisa();
+hrefEndereco();
+
+inicializarPesquisaPorVoz();
+inicializarBanner();
+inicializarPopupFiltro();
+inicializarFiltroMenu();
+inicializarFormularioBusca();
+inicializarFiltroBusca();
+inicializarModalEndereco();
+inicializarBtnConfirmar();
+inicializarModalBodyListeners();
+inicializarListenersProdutos();
+inicializarNavegacaoCarrinho();
+
 // #endregion
