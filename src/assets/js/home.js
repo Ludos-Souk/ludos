@@ -21,7 +21,7 @@ import {
 
 
 // #region Verificação de acesso (login obrigatório)
-verificarAcesso();
+verificarLogin();
 
 async function verificarAcesso() {
 
