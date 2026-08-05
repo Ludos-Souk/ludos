@@ -26,9 +26,8 @@ import {
 // #endregion
 
 
-// #region Variáveis
-
-// Modal de endereço
+// #region Seleção de elementos do DOM
+const btnAbrirModal = document.querySelector('.btn-change-address');
 const modalEndereco = document.getElementById('modal-endereco');
 const btnFecharModal = document.getElementById('btn-fechar-modal');
 const modalBody = document.querySelector('.modal-body');
@@ -58,7 +57,6 @@ const filterMenu = document.querySelector('.filter-menu');
 // Estado
 let bannerFechado = false;
 let timeoutToast = null;
-
 // #endregion
 
 
@@ -96,7 +94,9 @@ function configurarOrdem() {
     }
 
     const botao = document.querySelector(`.btn-filter-option[data-sort="${tipoOrdenacao}"]`);
-    botao.classList.add("selecionado");
+    if (botao) {
+        botao.classList.add("selecionado");
+    }
 }
 
 function inicializarIconesLucide() {
@@ -106,20 +106,74 @@ function inicializarIconesLucide() {
 }
 
 
+// --- Navegação para o Carrinho ---
+
+function inicializarNavegacaoCarrinho() {
+    const btnHeaderCarrinho = 
+        document.querySelector('button[aria-label="Ver meu carrinho"]');
+        
+    if (btnHeaderCarrinho) {
+        btnHeaderCarrinho.addEventListener('click', () => {
+            window.location.href = "carrinho.html";
+        });
+    }
+
+    const cartCard = 
+        document.querySelector('.cart-card');
+        
+    if (cartCard) {
+        cartCard.addEventListener('click', () => {
+            window.location.href = "carrinho.html";
+        });
+    }
+}
+
+
+// --- Banner promocional ---
+
+function alternarBanner() {
+    bannerFechado = true;
+
+    banner.classList.add("oculto");
+
+    document.querySelector('.header').classList.add('sem-banner');
+
+    document.querySelector('.main-content').style.marginTop = "160px";
+}
+
+function inicializarBanner() {
+    window.alternarBanner = alternarBanner;
+
+    window.addEventListener("scroll", () => {
+        const toast = document.getElementById("cart-toast");
+
+        if (window.scrollY > 30) {
+            banner?.classList.add("compact");
+            toast?.classList.add("compact");
+            header?.classList.add("scrolled");
+        } else {
+            banner?.classList.remove("compact");
+            toast?.classList.remove("compact");
+            header?.classList.remove("scrolled");
+        }
+    });
+}
+
+
 // --- Toast de carrinho ---
 
 export function mostrarToastCarrinho(
     mensagem = "Produto adicionado ao carrinho com sucesso!"
 ) {
-    const mainContent = document.querySelector('.main-content'); // Seleciona a tag main
+    const header = document.querySelector('.header');
+    const mainContent = document.querySelector('.main-content'); 
 
     if (!bannerFechado) {
         banner.classList.add("oculto");
     }
 
-    // Traz de volta o espaço no cabeçalho e empurra o conteúdo para baixo
     header.classList.remove("sem-banner");
-    mainContent.style.marginTop = "290px";
+    mainContent.style.marginTop = "290px"; 
 
     const toastExistente = document.getElementById("cart-toast");
     if (toastExistente) {
@@ -164,21 +218,21 @@ export function mostrarToastCarrinho(
 
     toast
         .querySelector(".btn-close-toast")
-        .addEventListener("click", () => {
+        .addEventListener("click", () => { 
             toast.remove();
-
+            
             if (!bannerFechado) {
                 banner.classList.remove("oculto");
             } else {
                 header.classList.add("sem-banner");
-                mainContent.style.marginTop = "160px";
+                mainContent.style.marginTop = "160px"; 
             }
         });
 
     toast
         .querySelector(".btn-go-cart")
         .addEventListener("click", () => {
-            alert("Parte ainda não implementada. Redirecionar para a página do carrinho.");
+            window.location.href = "carrinho.html";
         });
 
     timeoutToast = setTimeout(() => {
@@ -189,75 +243,9 @@ export function mostrarToastCarrinho(
             banner.classList.remove("oculto");
         } else {
             header.classList.add("sem-banner");
-            mainContent.style.marginTop = "160px";
+            mainContent.style.marginTop = "160px"; 
         }
     }, 20000);
-}
-
-
-// --- Banner promocional ---
-
-function alternarBanner() {
-    bannerFechado = true;
-
-    banner.classList.add("oculto");
-
-    document.querySelector('.header').classList.add('sem-banner');
-
-    document.querySelector('.main-content').style.marginTop = "160px";
-}
-
-function inicializarBanner() {
-    window.alternarBanner = alternarBanner;
-
-    window.addEventListener("scroll", () => {
-        const toast = document.getElementById("cart-toast");
-
-        if (window.scrollY > 30) {
-            banner?.classList.add("compact");
-            toast?.classList.add("compact");
-            header?.classList.add("scrolled");
-        } else {
-            banner?.classList.remove("compact");
-            toast?.classList.remove("compact");
-            header?.classList.remove("scrolled");
-        }
-    });
-}
-
-
-// --- Pesquisa por voz (Speech Recognition) ---
-
-function inicializarPesquisaPorVoz() {
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            inputBusca.value = textoFalado;
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-
-    } else {
-        alert("Seu navegador não tem suporte para pesquisa por voz.");
-    }
 }
 
 
@@ -266,7 +254,7 @@ function inicializarPesquisaPorVoz() {
 function abrirPopupFiltro() {
     popupFiltro.classList.remove('oculto');
     btnFiltro.setAttribute('aria-expanded', 'true');
-
+    
     setTimeout(() => {
         const primeiraOpcao = popupFiltro.querySelector('.btn-filter-option');
         if (primeiraOpcao) primeiraOpcao.focus();
@@ -276,14 +264,14 @@ function abrirPopupFiltro() {
 function fecharPopupFiltro() {
     popupFiltro.classList.add('oculto');
     btnFiltro.setAttribute('aria-expanded', 'false');
-    btnFiltro.focus();
+    btnFiltro.focus(); 
 }
 
 function inicializarPopupFiltro() {
     btnFiltro.addEventListener('click', (event) => {
-        event.stopPropagation();
+        event.stopPropagation(); 
         const estaAberto = btnFiltro.getAttribute('aria-expanded') === 'true';
-
+        
         if (estaAberto) {
             fecharPopupFiltro();
         } else {
@@ -323,6 +311,42 @@ function inicializarFiltroMenu() {
 
         await carregarCatalogo();
     });
+}
+
+
+// --- Pesquisa por voz (Speech Recognition) ---
+
+function inicializarPesquisaPorVoz() {
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+
+        recognition.onstart = function() {
+            btnMicrofone.style.color = 'blue';
+        };
+
+        recognition.onresult = function(event) {
+            const textoFalado = event.results[0][0].transcript;
+            inputBusca.value = textoFalado;
+            filtrarPorNome(textoFalado);
+        };
+
+        recognition.onend = function() {
+            btnMicrofone.style.color = '#888';
+        };
+
+        recognition.onerror = function(event) {
+            alert("Erro no reconhecimento:" + event.error);
+        };
+
+        btnMicrofone.addEventListener('click', function() {
+            recognition.start();
+        });
+
+    } else {
+        alert("Seu navegador não tem suporte para pesquisa por voz.");
+    }
 }
 
 
@@ -439,19 +463,22 @@ async function carregarEnderecos() {
 }
 
 function inicializarModalEndereco() {
-    sideCards.addEventListener("click", (event) => {
+    
+    if (sideCards) {
+        sideCards.addEventListener("click", (event) => {
 
-        const botao =
-            event.target.closest(".btn-change-address");
+            const botao =
+                event.target.closest(".btn-change-address");
 
-        if (!botao) {
-            return;
-        }
+            if (!botao) {
+                return;
+            }
 
-        abrirModalEndereco();
-        carregarEnderecos();
+            abrirModalEndereco();
+            carregarEnderecos();
 
-    });
+        });
+    }
 
     if (modalEndereco) {
         btnFecharModal.addEventListener('click', () => {
@@ -467,16 +494,20 @@ function inicializarModalEndereco() {
         });
     }
 
-    btnIrParaCadastro.addEventListener('click', () => {
-        window.location.href = "endereco.html";
-    });
+    if (btnIrParaCadastro) {
+        btnIrParaCadastro.addEventListener('click', () => {
+            window.location.href = "endereco.html";
+        });
+    }
 }
 
 function inicializarBtnConfirmar() {
-    btnConfirmar.addEventListener('click', () => {
-        document.body.classList.remove("modal-open");
-        modalEndereco.close();
-    });
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', () => {
+            document.body.classList.remove("modal-open");
+            modalEndereco.close();
+        });
+    }
 }
 
 function criarCardEndereco(etiqueta) {
@@ -487,6 +518,8 @@ function criarCardEndereco(etiqueta) {
         document.querySelector(
             ".side-cards"
         );
+        
+    if (!sideCards) return null;
 
     const card =
         document.createElement(
@@ -598,6 +631,8 @@ function carregarListaEnderecos(enderecos) {
         document.querySelector(
             ".modal-body"
         );
+        
+    if (!modalBody) return;
 
     modalBody.classList.remove(
         "modal-body-empty"
@@ -804,6 +839,9 @@ function carregarListaEnderecos(enderecos) {
 }
 
 function inicializarModalBodyListeners() {
+    
+    if (!modalBody) return;
+    
     modalBody.addEventListener("click", (event) => {
         if (event.target.closest(".btn-edit-address")) {
             return;
@@ -1165,6 +1203,8 @@ async function carregarCatalogo() {
 
     const container =
         document.getElementById("lista-bonecos-firebase");
+        
+    if (!container) return [];
 
     try {
 
@@ -1263,6 +1303,8 @@ function renderCatalogo(lista, container) {
 }
 
 function inicializarListenersProdutos() {
+    
+    if (!listaProdutos) return;
 
     // Favoritar (delegação de eventos)
     listaProdutos.addEventListener("click", (event) => {
@@ -1326,6 +1368,7 @@ function inicializarListenersProdutos() {
 
 verificarAcesso();
 
+inicializarNavegacaoCarrinho();
 configurarEndereco();
 configurarOrdem();
 inicializarIconesLucide();
@@ -1334,8 +1377,8 @@ await carregarCatalogo();
 hrefPesquisa();
 hrefEndereco();
 
-inicializarPesquisaPorVoz();
 inicializarBanner();
+inicializarPesquisaPorVoz();
 inicializarPopupFiltro();
 inicializarFiltroMenu();
 inicializarFormularioBusca();

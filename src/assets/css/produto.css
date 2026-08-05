@@ -289,7 +289,6 @@
 .products-grid--small .product-image  { height: 290px; }
 .products-grid--small .product-top    { margin-bottom: 10px; min-height: 15px; }
 .products-grid--small .discount-badge { font-size: 12px; padding: 4px 10px; }
-.products-grid--small .btn-icon       { width: 28px; height: 28px; font-size: 12px; }
 .products-grid--small .brand          { font-size: 12px; }
 .products-grid--small .title          { font-size: 14px; margin: 6px 0 12px; }
 .products-grid--small .price          { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
