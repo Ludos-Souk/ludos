@@ -1,9 +1,9 @@
 // #region Imports
 import { verificarLogin } from "../../services/authService.js";
-import { estaNoCarrinho, toggleCarrinho, quantidadeProduto, alterarQuantidade, removerProduto, adicionarProduto } from "../../services/carrinhoService.js";
+import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
+import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto, removerProduto, toggleCarrinho } from "../../services/carrinhoService.js";
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
-import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
 // #endregion
 
 const searchForm = document.querySelector('.search-form');
@@ -12,7 +12,7 @@ const btnMicrofone = document.querySelector('.mic-btn');
 
 searchForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    
+
     const busca = inputBusca.value.trim();
 
     if (busca) {
@@ -23,7 +23,7 @@ searchForm.addEventListener('submit', (event) => {
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-if (SpeechRecognition) {    
+if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
     recognition.lang = 'pt-BR';
     recognition.continuous = false;
@@ -69,6 +69,7 @@ if (window.lucide) {
 // #region Seleção de elementos do DOM
 const banner        = document.querySelector('.promo-banner');
 const btnVoltar     = document.getElementById('btn-voltar');
+const header    = document.querySelector('.header');
 let bannerFechado   = false;
 // #endregion
 
@@ -462,11 +463,11 @@ function configurarQuantidade(
     produto
 ) {
     if (estaNoCarrinho(produto.id)) {
-        valor.textContent = quantidadeProduto(produto.id);  
+        valor.textContent = quantidadeProduto(produto.id);
     } else {
         valor.textContent = 0
     }
-    
+
 
     btnMais.addEventListener(
         "click",

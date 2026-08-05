@@ -3,6 +3,7 @@ export default class Endereco {
     constructor(
         etiqueta,
         cep,
+        rua,
         uf,
         cidade,
         bairro,
@@ -16,6 +17,7 @@ export default class Endereco {
         this.id = id;
         this.etiqueta = etiqueta;
         this.cep = cep;
+        this.rua = rua;
         this.uf = uf;
         this.cidade = cidade;
         this.bairro = bairro;
@@ -31,6 +33,7 @@ export default class Endereco {
             id: this.id,
             etiqueta: this.etiqueta,
             cep: this.cep,
+            rua: this.rua,
             uf: this.uf,
             cidade: this.cidade,
             bairro: this.bairro,
