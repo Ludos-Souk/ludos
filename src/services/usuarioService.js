@@ -130,6 +130,7 @@ export async function listarEnderecos(uid) {
             return new Endereco(
                 dadosEndereco.etiqueta,
                 dadosEndereco.cep,
+                dadosEndereco.rua,
                 dadosEndereco.uf,
                 dadosEndereco.cidade,
                 dadosEndereco.bairro,
