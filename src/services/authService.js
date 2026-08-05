@@ -148,3 +148,11 @@ export async function verificarAdmin() {
 export function obterUid() {
     return auth.currentUser?.uid;
 }
+
+export function aguardarUsuario() {
+    return new Promise((resolve) => {
+        onAuthStateChanged(auth, (usuario) => {
+            resolve(usuario);
+        });
+    });
+}
