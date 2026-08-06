@@ -163,7 +163,7 @@
 }
 
 .btn-comprar-detalhe {
-    background: var(--btn-yellow, #ffcc00);
+    background: var(--btn-yellow);
     border: none;
     border-radius: var(--radius-pill, 999px);
     padding: 18px 0;
@@ -177,7 +177,7 @@
 }
 
 .btn-comprar-detalhe:hover {
-    background: var(--btn-yellow-hover, #FFDC7A);
+    background: var(--btn-yellow-hover);
 }
 
 /* Coluna direita */

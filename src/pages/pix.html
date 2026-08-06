@@ -70,7 +70,6 @@
                 </ol>
 
                 <div class="pix-card__qr">
-                    <!-- Substituir src pelo QR gerado dinamicamente via JS -->
                     <img src="" alt="QR Code Pix para pagamento" id="qr-code-img">
                 </div>
 
@@ -80,7 +79,7 @@
                 </p>
             </section>
 
-            <!-- Coluna direita: Copia e Cola -->
+            <!-- Coluna direita: Copia e Cola + Botão -->
             <section class="pix-card" aria-labelledby="copy-title">
                 <h3 id="copy-title">Ou copie o código para fazer o pagamento</h3>
 
@@ -90,14 +89,13 @@
 
                 <div class="pix-copy-field">
                     <p id="pix-code"></p>
-                    <button type="button" class="pix-copy-btn" aria-label="Copiar código Pix">
+                    <button type="button" class="pix-copy-btn" aria-label="Copiar código Pix" onclick="copiarPix()">
                         <i data-lucide="copy" aria-hidden="true"></i>
                     </button>
                 </div>
 
+                <a href="#" class="btn-pix-pedidos">Ir para meus pedidos</a>
             </section>
-
-            <a href="#" class="btn-pix-pedidos">Ir para meus pedidos</a>
 
         </div>
     </main>

@@ -134,8 +134,8 @@
 
 
 .btn-status {
-    background: var(--btn-yellow-hover, #ffda79);
-    color: var(--btn-yellow-text, #333);
+    background: var(--btn-yellow);
+    color: var(--btn-yellow-text);
     border: none;
     border-radius: var(--radius-pill, 50px);
     padding: 16px 48px;
@@ -149,7 +149,7 @@
 
 .btn-status:hover,
 .btn-status:focus-visible {
-    background: var(--btn-yellow, #ffcd3c);
+    background: var(--btn-yellow-hover);
 }
 
 /* ============================================================
