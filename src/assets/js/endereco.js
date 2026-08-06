@@ -1,36 +1,41 @@
+// #region Imports
 import Endereco from "../../models/Endereco.js";
 import {
     buscarCep
 } from "../../services/cepService.js";
 import {
-    adicionarEndereco
+    adicionarEndereco,
+    buscarEnderecoPorId,
+    atualizarEndereco
 } from "../../services/usuarioService.js";
-
 import {
-    obterUid
+    obterUid,
+    aguardarUsuario
 } from "../../services/authService.js";
+// #endregion
 
+
+// #region Variáveis
 if (window.lucide) {
     window.lucide.createIcons();
 }
 
+// Cabeçalho / busca
 const header = document.querySelector('.header');
-
-window.addEventListener("scroll", () => {
-    if (window.scrollY > 30) {
-        header?.classList.add("scrolled");
-        header?.classList.add("sem-banner");
-    } else {
-        header?.classList.remove("scrolled");
-    }
-});
-
-let temporizador;
 const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+// Navegação
+const btnVoltar = document.querySelector('.btn-back');
+
+// Inputs com botão de limpar
+const inputs = document.querySelectorAll('.input-wrapper input');
+
+// Formulário de endereço
 const formulario = document.getElementById('endereco-form');
-const botao = formulario.querySelector('button[type="submit"]');
+const botao = formulario ? formulario.querySelector('button[type="submit"]') : null;
 
 const inputEtiqueta = document.getElementById('etiqueta-input');
 const inputCep = document.getElementById('cep-input');
@@ -44,82 +49,173 @@ const inputInfoAdicionais = document.getElementById('infoAdicionais-input');
 const inputNome = document.getElementById('nome-input');
 const inputEmail = document.getElementById('email-input');
 
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Estado
+let editEndereco = null;
+let temporizador;
 
-if (SpeechRecognition) {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    recognition.continuous = false;
+// #endregion
 
-    recognition.onstart = function() {
-        btnMicrofone.style.color = 'blue';
-    };
 
-    recognition.onresult = function(event) {
-        const textoFalado = event.results[0][0].transcript;
-        inputBusca.value = textoFalado;
-    };
+// #region Métodos
 
-    recognition.onend = function() {
-        btnMicrofone.style.color = '#888';
-    };
-
-    recognition.onerror = function(event) {
-        alert("Erro no reconhecimento:" + event.error);
-    };
-
-    btnMicrofone.addEventListener('click', function() {
-        recognition.start();
-    });
-
-} else {
-    alert("Seu navegador não tem suporte para pesquisa por voz.");
+function inicializarIconesLucide() {
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 }
 
-const btnVoltar = document.querySelector('.btn-back');
 
-if (btnVoltar) {
-    btnVoltar.addEventListener('click', () => {
-        window.location.href = "home.html";
+// --- Edição de endereço selecionado ---
+
+function alterarEnderecoSelecionado() {
+    editEndereco = sessionStorage.getItem("edit-address");
+
+    if (!editEndereco) {
+        return;
+    }
+
+    carregarEnderecoParaEdicao(editEndereco);
+    sessionStorage.removeItem("edit-address");
+}
+
+async function carregarEnderecoParaEdicao(enderecoId) {
+    const usuario = await aguardarUsuario();
+
+    if (!usuario) {
+        console.log("Usuário não autenticado");
+        return;
+    }
+
+    const endereco = await buscarEnderecoPorId(
+        obterUid(),
+        enderecoId,
+    );
+
+    if (botao) botao.textContent = "Alterar";
+
+    if (inputEtiqueta) inputEtiqueta.value = endereco.etiqueta || "";
+    if (inputCep) inputCep.value = endereco.cep || "";
+    if (inputRua) inputRua.value = endereco.rua || "";
+    if (selectUf) selectUf.value = endereco.uf || "";
+    if (inputCidade) inputCidade.value = endereco.cidade || "";
+    if (inputBairro) inputBairro.value = endereco.bairro || "";
+    if (inputN) inputN.value = endereco.numero || "";
+    if (inputComplemento) inputComplemento.value = endereco.complemento || "";
+    if (inputInfoAdicionais) inputInfoAdicionais.value = endereco.informacoesAdicionais || "";
+    if (inputNome) inputNome.value = endereco.nome || "";
+    if (inputEmail) inputEmail.value = endereco.email || "";
+}
+
+
+// --- Cabeçalho (scroll) ---
+
+function inicializarScrollHeader() {
+    window.addEventListener("scroll", () => {
+        if (window.scrollY > 30) {
+            header?.classList.add("scrolled");
+            header?.classList.add("sem-banner");
+        } else {
+            header?.classList.remove("scrolled");
+            header?.classList.remove("sem-banner");
+        }
     });
 }
 
-const inputs = document.querySelectorAll('.input-wrapper input');
 
-inputs.forEach(input => {
-    const btnClear = input.parentElement.querySelector('.btn-clear-input');
+// --- Pesquisa por voz (Speech Recognition) ---
 
-    if (btnClear) {
-        input.addEventListener('input', () => {
-            if (input.value.length > 0) {
-                btnClear.classList.add('visible');
-            } else {
+function inicializarPesquisaPorVoz() {
+    if (!btnMicrofone) return;
+
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+
+        recognition.onstart = function() {
+            btnMicrofone.style.color = 'blue';
+        };
+
+        recognition.onresult = function(event) {
+            const textoFalado = event.results[0][0].transcript;
+            if (inputBusca) inputBusca.value = textoFalado;
+        };
+
+        recognition.onend = function() {
+            btnMicrofone.style.color = '#888';
+        };
+
+        recognition.onerror = function(event) {
+            alert("Erro no reconhecimento: " + event.error);
+        };
+
+        btnMicrofone.addEventListener('click', function() {
+            recognition.start();
+        });
+
+    } else {
+        alert("Seu navegador não tem suporte para pesquisa por voz.");
+    }
+}
+
+
+// --- Formulário de busca ---
+
+function inicializarFormularioBusca() {
+    if (!searchForm) return;
+
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const busca = inputBusca ? inputBusca.value.trim() : "";
+
+        if (busca) {
+            sessionStorage.setItem("href-pesquisa", busca);
+            window.location.href = "home.html";
+        }
+    });
+}
+
+
+// --- Navegação (voltar) ---
+
+function inicializarBtnVoltar() {
+    if (btnVoltar) {
+        btnVoltar.addEventListener('click', () => {
+            window.location.href = "home.html";
+        });
+    }
+}
+
+
+// --- Botões de limpar input ---
+
+function inicializarInputsClear() {
+    inputs.forEach(input => {
+        const btnClear = input.parentElement.querySelector('.btn-clear-input');
+
+        if (btnClear) {
+            input.addEventListener('input', () => {
+                if (input.value.length > 0) {
+                    btnClear.classList.add('visible');
+                } else {
+                    btnClear.classList.remove('visible');
+                }
+            });
+
+            btnClear.addEventListener('click', () => {
+                input.value = '';
                 btnClear.classList.remove('visible');
-            }
-        });
+                input.focus();
+            });
+        }
+    });
+}
 
 
-        btnClear.addEventListener('click', () => {
-            input.value = '';
-            btnClear.classList.remove('visible');
-            input.focus();
-        });
-    }
-});
-
-searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const busca = inputBusca.value.trim();
-
-    if (busca) {
-        sessionStorage.setItem("href-pesquisa", busca);
-        window.location.href = "home.html";
-    }
-});
+// --- Carregar Estados (IBGE) ---
 
 async function carregarEstados() {
-
     if (!selectUf) return;
 
     try {
@@ -145,74 +241,110 @@ async function carregarEstados() {
     }
 }
 
+
+// --- Preenchimento automático via CEP ---
+
 async function preencherEnderecoPeloCep(cep) {
     try {
-        const dados =
-            await buscarCep(cep);
+        const dados = await buscarCep(cep);
 
-        inputRua.value = dados.logradouro
-        selectUf.value = dados.uf
-        inputCidade.value = dados.localidade
-        inputBairro.value = dados.bairro
+        if (inputRua) inputRua.value = dados.logradouro || "";
+        if (selectUf) selectUf.value = dados.uf || "";
+        if (inputCidade) inputCidade.value = dados.localidade || "";
+        if (inputBairro) inputBairro.value = dados.bairro || "";
     } catch (erro) {
-        console.error(
-            erro.message
-        );
+        console.error(erro.message);
     }
 }
 
-inputCep.addEventListener("input", () => {
+function inicializarCepAutoPreenchimento() {
+    if (!inputCep) return;
 
-    clearTimeout(temporizador);
+    inputCep.addEventListener("input", () => {
+        clearTimeout(temporizador);
 
-    temporizador = setTimeout(() => {
-        preencherEnderecoPeloCep(inputCep.value);
-    }, 500);
-});
+        temporizador = setTimeout(() => {
+            preencherEnderecoPeloCep(inputCep.value);
+        }, 500);
+    });
+}
 
-formulario.addEventListener("submit", async function (event) {
-    event.preventDefault();
 
-    botao.textContent = "Adicionando...";
-    botao.disabled = true;
+// --- Envio do formulário de endereço ---
 
-    try {
-        const uid =
-            obterUid();
+function inicializarFormularioEndereco() {
+    if (!formulario) return;
 
-        if (!uid) {
-            console.log("Usuário não autenticado.")
+    formulario.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        if (botao) {
+            botao.textContent = editEndereco ? "Alterando..." : "Adicionando...";
+            botao.disabled = true;
         }
-        const endereco =
-            new Endereco(
-                inputEtiqueta.value,
-                inputCep.value,
-                selectUf.value,
-                inputCidade.value,
-                inputBairro.value,
-                inputN.value,
-                inputComplemento.value,
-                inputInfoAdicionais.value,
-                inputNome.value,
-                inputEmail.value
+
+        try {
+            const uid = obterUid();
+
+            if (!uid) {
+                console.log("Usuário não autenticado.");
+                return;
+            }
+
+            const endereco = new Endereco(
+                inputEtiqueta ? inputEtiqueta.value : "",
+                inputCep ? inputCep.value : "",
+                inputRua ? inputRua.value : "",
+                selectUf ? selectUf.value : "",
+                inputCidade ? inputCidade.value : "",
+                inputBairro ? inputBairro.value : "",
+                inputN ? inputN.value : "",
+                inputComplemento ? inputComplemento.value : "",
+                inputInfoAdicionais ? inputInfoAdicionais.value : "",
+                inputNome ? inputNome.value : "",
+                inputEmail ? inputEmail.value : ""
             );
 
-        await adicionarEndereco(
-            uid,
-            endereco
-        );
+            if (editEndereco) {
+                await atualizarEndereco(uid, editEndereco, endereco);
+            } else {
+                await adicionarEndereco(uid, endereco);
+            }
 
-        sessionStorage.setItem(
-            "href-endereco",
-            20
-        )
+            sessionStorage.setItem(
+                "href-endereco",
+                JSON.stringify({
+                    id: endereco.id,
+                    etiqueta: endereco.etiqueta
+                })
+            );
 
-        window.location.href = "home.html";
-    } catch (erro) {
-        console.error(erro);
-        botao.textContent = "Adicionar";
-        botao.disabled = false;
-    }
-})
+            window.location.href = "home.html";
+        } catch (erro) {
+            console.error(erro);
+            if (botao) {
+                botao.textContent = editEndereco ? "Alterar" : "Adicionar";
+                botao.disabled = false;
+            }
+        }
+    });
+}
 
+// #endregion
+
+
+// #region Métodos de inicialização
+
+inicializarIconesLucide();
+inicializarScrollHeader();
+inicializarPesquisaPorVoz();
+inicializarBtnVoltar();
+inicializarInputsClear();
+inicializarFormularioBusca();
+inicializarCepAutoPreenchimento();
+inicializarFormularioEndereco();
+
+alterarEnderecoSelecionado();
 carregarEstados();
+
+// #endregion

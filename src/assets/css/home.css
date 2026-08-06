@@ -77,12 +77,16 @@ html {
 
 body {
     font-family: var(--font-secondary);
+    font-family: var(--font-secondary);
     font-optical-sizing: auto;
+    background-color: var(--color-primary);
+    color: var(--text-dark);
     background-color: var(--color-primary);
     color: var(--text-dark);
     overflow-x: hidden;
 }
 
+/* Tipografia Montserrat para elementos de destaque */
 /* Tipografia Montserrat para elementos de destaque */
 h1, h2, h3, h4,
 .price,
@@ -96,11 +100,15 @@ h1, h2, h3, h4,
 .btn-orders,
 .btn-change-address {
     font-family: var(--font-primary);
+    font-family: var(--font-primary);
     font-optical-sizing: auto;
 }
 
 ul, menu {
     list-style: none;
+ul, menu {
+    list-style: none;
+}
 }
 
 address {
@@ -120,10 +128,23 @@ button, a, [role="button"] {
     cursor: pointer;
 }
 
+
+/* ============================================================
+   ACESSIBILIDADE
+   ============================================================ */
 /* ============================================================
    ACESSIBILIDADE
    ============================================================ */
 .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
     position: absolute;
     width: 1px;
     height: 1px;
@@ -138,6 +159,7 @@ button, a, [role="button"] {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
+    outline: 3px solid var(--color-primary-light);
     outline: 3px solid var(--color-primary-light);
     outline-offset: 3px;
     border-radius: 8px;
@@ -154,11 +176,16 @@ input:focus-visible {
 /* ============================================================
    HEADER
    ============================================================ */
+/* ============================================================
+   HEADER
+   ============================================================ */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
+    height: var(--header-height);
+    background-color: var(--color-primary);
     height: var(--header-height);
     background-color: var(--color-primary);
     z-index: 1000;
@@ -176,6 +203,7 @@ input:focus-visible {
     left: 0;
     width: 100%;
     height: 100px;
+    background-color: var(--color-primary);
     background-color: var(--color-primary);
     z-index: -1;
     pointer-events: none;
@@ -205,6 +233,7 @@ input:focus-visible {
 }
 
 /* Barra de busca */
+/* Barra de busca */
 .search-bar {
     flex-grow: 1;
     margin: 0 80px;
@@ -223,12 +252,17 @@ input:focus-visible {
     left: 25px;
     color: #000;
     font-size: 18px;
+
 }
 
 .mic-btn {
     position: absolute;
     right: 25px;
+    position: absolute;
+    right: 25px;
     background: none;
+    border: none;
+    color: #000;
     border: none;
     color: #000;
     font-size: 18px;
@@ -246,18 +280,26 @@ input:focus-visible {
 .header-icons ul {
     display: flex;
     gap: 16px;
+
 }
 
 .header-icons button {
     background: var(--btn-yellow);
     color: #3E3E43;
     width: 46px;
+    background: var(--btn-yellow);
+    color: #3E3E43;
+    width: 46px;
     height: 46px;
+    border: none;
+    border-radius: 50%;
     border: none;
     border-radius: 50%;
     display: flex;
     justify-content: center;
+    justify-content: center;
     align-items: center;
+    transition: var(--transition-default);
     transition: var(--transition-default);
     font-size: 24px;
 }
@@ -269,14 +311,29 @@ input:focus-visible {
 /* ============================================================
    BANNER PROMOCIONAL
    ============================================================ */
+/* ============================================================
+   BANNER PROMOCIONAL
+   ============================================================ */
 .promo-banner {
     position: fixed;
     top: var(--promo-top);
     left: var(--header-padding-x);
     right: var(--header-padding-x);
+    top: var(--promo-top);
+    left: var(--header-padding-x);
+    right: var(--header-padding-x);
     z-index: 900;
     background: var(--bg-white);
+    background: var(--bg-white);
     padding: 18px 34px;
+    border-radius: var(--radius-pill);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: var(--shadow-soft);
+    transition: top 0.35s ease;
     border-radius: var(--radius-pill);
     display: flex;
     justify-content: space-between;
@@ -294,6 +351,7 @@ input:focus-visible {
 
 .promo-banner.compact {
     top: var(--header-height);
+    top: var(--header-height);
 }
 
 .promo-banner p {
@@ -307,21 +365,32 @@ input:focus-visible {
     background: none;
     font-size: 24px;
     color: var(--text-muted);
+    border: none;
+    background: none;
+    font-size: 24px;
+    color: var(--text-muted);
     flex-shrink: 0;
 }
 
 /* ============================================================
    CONTEÚDO PRINCIPAL
    ============================================================ */
+/* ============================================================
+   CONTEÚDO PRINCIPAL
+   ============================================================ */
 .main-content {
+    background: var(--bg-body);
+    border-radius: var(--radius-xl);
     background: var(--bg-body);
     border-radius: var(--radius-xl);
     padding: 60px;
     padding-top: 40px;
     margin-top: var(--main-margin-top);
+    margin-top: var(--main-margin-top);
     min-height: 80vh;
     width: 100%;
     position: relative;
+    transition: margin-top var(--transition-slow);
     transition: margin-top var(--transition-slow);
 }
 
@@ -332,8 +401,12 @@ input:focus-visible {
     background: #d9dbe3;
     border-radius: 10px;
     margin: 0 auto 60px;
+    margin: 0 auto 60px;
 }
 
+/* ============================================================
+   DASHBOARD (cards de resumo)
+   ============================================================ */
 /* ============================================================
    DASHBOARD (cards de resumo)
    ============================================================ */
@@ -345,6 +418,10 @@ input:focus-visible {
 }
 
 .card {
+    background: var(--bg-white);
+    padding: 44px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
     background: var(--bg-white);
     padding: 44px;
     border-radius: var(--radius-md);
@@ -368,11 +445,13 @@ input:focus-visible {
 .orders-link {
     font-size: 15px;
     color: var(--text-muted);
+    color: var(--text-muted);
     font-weight: 600;
 }
 
 .arrow-icon {
     font-size: 24px;
+    color: var(--text-dark);
     color: var(--text-dark);
 }
 
@@ -388,14 +467,17 @@ input:focus-visible {
     border-radius: 30px;
     border: none;
     background: var(--bg-subtle);
+    background: var(--bg-subtle);
     font-weight: 600;
     font-size: 14px;
     margin-top: auto;
+    transition: var(--transition-default);
     transition: var(--transition-default);
 }
 
 .btn-orders:hover {
     background: var(--bg-hover);
+
 }
 
 /* Cards laterais */
@@ -403,6 +485,7 @@ input:focus-visible {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
+
 }
 
 .side-card {
@@ -418,6 +501,7 @@ input:focus-visible {
 .cart-card {
     overflow: visible;
     cursor: pointer;
+
 }
 
 .cart-badge {
@@ -428,10 +512,20 @@ input:focus-visible {
     color: var(--bg-white);
     font-size: 12px;
     font-weight: bold;
+    background: var(--color-primary-light);
+    color: var(--bg-white);
+    font-size: 12px;
+    font-weight: bold;
     width: 26px;
     height: 26px;
     display: flex;
+    height: 26px;
+    display: flex;
     justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    border: 3px solid var(--bg-white);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     align-items: center;
     border-radius: 50%;
     border: 3px solid var(--bg-white);
@@ -449,9 +543,10 @@ input:focus-visible {
     font-weight: 600;
     text-align: left;
     color: var(--text-dark);
-    line-height: 1.2;
+
 }
 
+/* Card de endereço */
 /* Card de endereço */
 .address-card {
     grid-column: span 2;
@@ -474,6 +569,7 @@ input:focus-visible {
     font-size: 13px;
     color: var(--text-muted);
     font-weight: 600;
+
 }
 
 .address-value {
@@ -481,22 +577,37 @@ input:focus-visible {
     font-size: 15px;
 }
 
+.address-value { 
+    font-weight: 700; 
+    font-size: 18px; 
+    display: flex;
+    align-items: center;
+    color: #111;
+    gap: 3px;
+}
+
 .address-value i {
     color: var(--text-body);
     margin-right: 5px;
 }
+
 
 .btn-change-address {
     padding: 10px 25px;
     border-radius: 20px;
     border: none;
     background: var(--bg-subtle);
+    background: var(--bg-subtle);
     font-weight: 600;
     font-size: 12px;
     flex-shrink: 0;
     transition: var(--transition-default);
+    transition: var(--transition-default);
 }
 
+/* ============================================================
+   GRID DE PRODUTOS
+   ============================================================ */
 /* ============================================================
    GRID DE PRODUTOS
    ============================================================ */
@@ -512,6 +623,11 @@ input:focus-visible {
     border-radius: var(--radius-lg);
     position: relative;
     box-shadow: var(--shadow-card);
+    background: var(--bg-white);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    position: relative;
+    box-shadow: var(--shadow-card);
 }
 
 .product-top {
@@ -522,11 +638,13 @@ input:focus-visible {
     min-height: 35px;
 }
 
+
 .product-image {
     width: 100%;
     height: 320px;
     object-fit: contain;
     display: block;
+    margin-bottom: 20px;
     margin-bottom: 20px;
 }
 
@@ -543,6 +661,7 @@ input:focus-visible {
     font-weight: bold;
 }
 
+
 .actions {
     display: flex;
     gap: 10px;
@@ -554,6 +673,8 @@ input:focus-visible {
     width: 46px;
     height: 46px;
     border: none;
+    display: flex;
+    justify-content: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -571,12 +692,22 @@ input:focus-visible {
     background: var(--color-fav);
 }
 
+
+.btn-icon:hover {
+    background: var(--bg-hover);
+}
+
+.btn-icon.is-favorite {
+    background: var(--color-fav);
+}
+
 .btn-icon.is-cart {
     background: var(--color-cart);
 }
 
 .product-info {
     padding: 5px 15px;
+
 }
 
 .brand {
@@ -584,6 +715,7 @@ input:focus-visible {
     color: var(--text-muted);
     text-transform: uppercase;
     font-weight: 600;
+
 }
 
 .title {
@@ -592,7 +724,9 @@ input:focus-visible {
     line-height: 1.4;
     margin: 10px 0 25px;
     color: var(--text-dark);
+
 }
+
 
 .price {
     font-size: 20px;
@@ -606,9 +740,18 @@ input:focus-visible {
     align-items: center;
     gap: 18px;
     margin-top: 25px;
+
 }
 
 .btn-buy {
+    width: 100%;
+    padding: 15px 0;
+    border: none;
+    border-radius: 30px;
+    background: var(--btn-yellow);
+    font-size: 14px;
+    font-weight: 700;
+    transition: var(--transition-default);
     width: 100%;
     padding: 15px 0;
     border: none;
@@ -621,6 +764,7 @@ input:focus-visible {
 
 .btn-buy:hover {
     background: var(--btn-yellow-hover);
+
 }
 
 .btn-arrow {
@@ -633,16 +777,23 @@ input:focus-visible {
     display: grid;
     place-items: center;
     transition: var(--transition-default);
+
 }
 
 .btn-arrow:hover {
     color: #000;
+
 }
 
 /* ============================================================
    FOOTER
    ============================================================ */
+/* ============================================================
+   FOOTER
+   ============================================================ */
 .footer-wrapper {
+    background: var(--color-primary);
+    color: var(--bg-white);
     background: var(--color-primary);
     color: var(--bg-white);
     padding: 90px 90px 35px;
@@ -659,11 +810,13 @@ input:focus-visible {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    justify-content: flex-start;
 }
 
 .footer-logo {
     width: 150px;
     height: auto;
+    margin-bottom: 55px;
     margin-bottom: 55px;
 }
 
@@ -671,16 +824,21 @@ input:focus-visible {
     padding-top: 150px;
 }
 
+
 .footer-col h4 {
     font-size: 18px;
     font-weight: 600;
     color: var(--color-accent);
+    color: var(--color-accent);
     margin: 0 0 35px;
 }
+
 
 .footer-col p {
     font-size: 16px;
     margin-bottom: 28px;
+    color: var(--text-footer);
+    line-height: 1.6;
     color: var(--text-footer);
     line-height: 1.6;
 }
@@ -689,26 +847,32 @@ input:focus-visible {
     margin-right: 16px;
     color: var(--color-primary-soft);
     font-size: 18px;
+    color: var(--color-primary-soft);
+    font-size: 18px;
 }
 
 .footer-link {
     color: #ddd;
     transition: color var(--transition-default);
+
 }
 
 .footer-link:hover {
     color: var(--bg-white);
+
 }
 
 .icon-small {
     font-size: 24px;
     margin-left: 5px;
+
 }
 
 .footer-divider {
     width: 100%;
     margin: 70px auto 35px;
     border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.22);
     border-top: 1px solid rgba(255, 255, 255, 0.22);
 }
 
@@ -720,15 +884,22 @@ input:focus-visible {
 .footer-bottom p {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.55);
+    color: rgba(255, 255, 255, 0.55);
 }
 
 /* ============================================================
    MODAL DE ENDEREÇO
    ============================================================ */
+/* ============================================================
+   MODAL DE ENDEREÇO
+   ============================================================ */
 .modal-endereco {
+    margin: auto;
     margin: auto;
     padding: 0;
     border: none;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
     border-radius: var(--radius-sm);
     background-color: transparent;
     max-width: 520px;
@@ -740,6 +911,8 @@ input:focus-visible {
 }
 
 .modal-content {
+    background-color: var(--bg-white);
+    border-radius: var(--radius-sm);
     background-color: var(--bg-white);
     border-radius: var(--radius-sm);
     padding: 50px;
@@ -759,10 +932,12 @@ input:focus-visible {
     color: #888;
     font-size: 24px;
     transition: color var(--transition-default);
+    transition: color var(--transition-default);
 }
 
 .btn-close-modal:hover,
 .btn-close-modal:focus-visible {
+    color: var(--text-dark);
     color: var(--text-dark);
 }
 
@@ -771,6 +946,7 @@ input:focus-visible {
     font-weight: 600;
     color: #111;
     margin-bottom: 20px;
+    padding-right: 30px;
     padding-right: 30px;
 }
 
@@ -803,9 +979,12 @@ input:focus-visible {
     font-weight: 600;
     font-size: 15px;
     transition: background-color var(--transition-default);
+    transition: background-color var(--transition-default);
 }
 
 .btn-confirmar {
+    background-color: var(--btn-yellow);
+    color: var(--btn-yellow-text);
     background-color: var(--btn-yellow);
     color: var(--btn-yellow-text);
 }
@@ -813,10 +992,12 @@ input:focus-visible {
 .btn-confirmar:hover,
 .btn-confirmar:focus-visible {
     background-color: var(--btn-yellow-hover);
+    background-color: var(--btn-yellow-hover);
 }
 
 .btn-adicionar {
     background-color: #efefef;
+    color: var(--btn-yellow-text);
     color: var(--btn-yellow-text);
 }
 
@@ -828,9 +1009,15 @@ input:focus-visible {
 /* ============================================================
    PÁGINA DE FORMULÁRIO (endereço)
    ============================================================ */
+/* ============================================================
+   PÁGINA DE FORMULÁRIO (endereço)
+   ============================================================ */
 .form-page-content {
     background: var(--bg-body);
+    background: var(--bg-body);
     width: 100%;
+    margin: var(--header-height) auto 0;
+    min-height: calc(100vh - var(--header-height));
     margin: var(--header-height) auto 0;
     min-height: calc(100vh - var(--header-height));
     border-radius: 50px;
@@ -839,6 +1026,12 @@ input:focus-visible {
 }
 
 .page-header {
+    position: relative;
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: flex-start;
     position: relative;
     width: 100%;
     max-width: 920px;
@@ -854,9 +1047,24 @@ input:focus-visible {
     margin: 0 auto;
     padding: 0 20px;
     box-sizing: border-box;
+
 }
 
 .btn-back {
+    position: absolute;
+    left: -72px;
+    top: 6px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: var(--transition-default);
     position: absolute;
     left: -72px;
     top: 6px;
@@ -881,6 +1089,7 @@ input:focus-visible {
 
 .page-title-group {
     width: 100%;
+
 }
 
 .page-title-group h2 {
@@ -888,6 +1097,7 @@ input:focus-visible {
     font-weight: 700;
     margin: 0;
     line-height: 1.2;
+
 }
 
 .page-title-group p,
@@ -896,11 +1106,13 @@ input:focus-visible {
     color: #666;
     margin-top: 6px;
     line-height: 1.4;
+
 }
 
 .section-header h3 {
     font-size: 26px;
     font-weight: 700;
+
 }
 
 .address-form {
@@ -908,6 +1120,7 @@ input:focus-visible {
     flex-direction: column;
     gap: 38px;
     padding-left: 0;
+    margin-top: 26px;
     margin-top: 26px;
 }
 
@@ -927,18 +1140,21 @@ input:focus-visible {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 28px;
+
 }
 
 .grid-uf-cidade {
     display: grid;
     grid-template-columns: 90px 1fr;
     gap: 28px;
+
 }
 
 .grid-3-cols {
     display: grid;
     grid-template-columns: 1.5fr 0.55fr 1fr;
     gap: 28px;
+
 }
 
 /* Inputs do formulário */
@@ -950,19 +1166,23 @@ input:focus-visible {
     background: var(--bg-subtle);
     border: 2px solid transparent;
     transition: var(--transition-default);
+
 }
 
 .input-wrapper {
     border-radius: var(--radius-pill);
+
 }
 
 .textarea-wrapper {
     border-radius: 65px;
+
 }
 
 .textarea-wrapper:focus-within {
     border-color: var(--color-primary-light);
     background: var(--bg-white);
+
 }
 
 .input-wrapper input,
@@ -974,6 +1194,7 @@ input:focus-visible {
     color: var(--text-dark);
     font-family: inherit;
     padding: 24px 26px;
+
 }
 
 .input-wrapper input:focus,
@@ -985,13 +1206,36 @@ input:focus-visible {
     height: 72px;
     padding: 0 52px 0 26px;
 }
+.input-wrapper input {
+    height: 72px;
+    padding: 0 52px 0 26px;
+}
 
 .input-wrapper:focus-within {
+    border-color: var(--color-primary-light);
+    background-color: var(--bg-white);
     border-color: var(--color-primary-light);
     background-color: var(--bg-white);
 }
 
 .input-wrapper select {
+    width: 100%;
+    height: 68px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-align-last: center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-size: 15px;
+    color: var(--text-body);
+    cursor: pointer;
     width: 100%;
     height: 68px;
     padding: 0;
@@ -1026,6 +1270,7 @@ select {
 .active-field {
     border-color: #3b82f6;
     background-color: var(--bg-white);
+    background-color: var(--bg-white);
 }
 
 .input-label-floating {
@@ -1047,9 +1292,13 @@ select {
     border-color: var(--color-error);
     background-color: var(--bg-white);
     margin-bottom: 24px;
+    border-color: var(--color-error);
+    background-color: var(--bg-white);
+    margin-bottom: 24px;
 }
 
 .error-text {
+    color: var(--color-error);
     color: var(--color-error);
 }
 
@@ -1058,6 +1307,7 @@ select {
     bottom: -22px;
     left: 10px;
     font-size: 12px;
+    color: var(--color-error);
     color: var(--color-error);
 }
 
@@ -1071,10 +1321,12 @@ select {
     color: #888;
     font-size: 18px;
     display: none;
+    display: none;
     cursor: pointer;
 }
 
 .btn-clear-input.visible {
+    display: flex;
     display: flex;
 }
 
@@ -1083,9 +1335,15 @@ select {
     height: 145px;
     padding: 60px 28px 0;
     line-height: 1.4;
+
 }
 
 .char-count {
+    position: absolute;
+    right: 16px;
+    bottom: -22px;
+    font-size: 12px;
+    color: #888;
     position: absolute;
     right: 16px;
     bottom: -22px;
@@ -1104,11 +1362,14 @@ select {
     color: var(--btn-yellow-text);
     border: none;
     border-radius: var(--radius-pill);
+    border-radius: var(--radius-pill);
     padding: 16px 40px;
     font-weight: 600;
     font-size: 15px;
     transition: var(--transition-default);
+    transition: var(--transition-default);
     width: 180px;
+    height: 52px;
     height: 52px;
 }
 
@@ -1127,23 +1388,34 @@ select {
 /* ============================================================
    TOAST DO CARRINHO
    ============================================================ */
+/* ============================================================
+   TOAST DO CARRINHO
+   ============================================================ */
 .cart-toast {
     position: fixed;
     top: var(--promo-top);
     left: var(--header-padding-x);
     right: var(--header-padding-x);
+    top: var(--promo-top);
+    left: var(--header-padding-x);
+    right: var(--header-padding-x);
     z-index: 900;
     background: var(--bg-white);
+    background: var(--bg-white);
     padding: 16px 26px;
+    border-radius: var(--radius-pill);
     border-radius: var(--radius-pill);
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-soft);
     transition: top 0.35s ease, transform 0.35s ease, opacity 0.35s ease;
+    box-shadow: var(--shadow-soft);
+    transition: top 0.35s ease, transform 0.35s ease, opacity 0.35s ease;
 }
 
 .cart-toast.compact {
+    top: var(--header-height);
     top: var(--header-height);
 }
 
@@ -1157,6 +1429,8 @@ select {
     width: 28px;
     height: 28px;
     flex-shrink: 0;
+    background: var(--color-success);
+    color: #000;
     background: var(--color-success);
     color: #000;
     border-radius: 50%;
@@ -1189,9 +1463,12 @@ select {
     border: none;
     background: #efefef;
     color: var(--btn-yellow-text);
+    color: var(--btn-yellow-text);
     font-weight: 600;
     font-size: 14px;
     padding: 12px 22px;
+    border-radius: var(--radius-pill);
+    transition: var(--transition-default);
     border-radius: var(--radius-pill);
     transition: var(--transition-default);
 }
