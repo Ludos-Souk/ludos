@@ -16,6 +16,9 @@ import {
 
 
 // #region Variáveis
+if (window.lucide) {
+    window.lucide.createIcons();
+}
 
 // Cabeçalho / busca
 const header = document.querySelector('.header');
@@ -32,7 +35,7 @@ const inputs = document.querySelectorAll('.input-wrapper input');
 
 // Formulário de endereço
 const formulario = document.getElementById('endereco-form');
-const botao = formulario.querySelector('button[type="submit"]');
+const botao = formulario ? formulario.querySelector('button[type="submit"]') : null;
 
 const inputEtiqueta = document.getElementById('etiqueta-input');
 const inputCep = document.getElementById('cep-input');
@@ -73,7 +76,6 @@ function alterarEnderecoSelecionado() {
 
     carregarEnderecoParaEdicao(editEndereco);
     sessionStorage.removeItem("edit-address");
-    console.log("entrou aqui")
 }
 
 async function carregarEnderecoParaEdicao(enderecoId) {
@@ -89,19 +91,19 @@ async function carregarEnderecoParaEdicao(enderecoId) {
         enderecoId,
     );
 
-    botao.textContent = "Alterar";
+    if (botao) botao.textContent = "Alterar";
 
-    inputEtiqueta.value = endereco.etiqueta;
-    inputCep.value = endereco.cep;
-    inputRua.value = endereco.rua;
-    selectUf.value = endereco.uf;
-    inputCidade.value = endereco.cidade;
-    inputBairro.value = endereco.bairro;
-    inputN.value = endereco.numero;
-    inputComplemento.value = endereco.complemento;
-    inputInfoAdicionais.value = endereco.informacoesAdicionais;
-    inputNome.value = endereco.nome;
-    inputEmail.value = endereco.email;
+    if (inputEtiqueta) inputEtiqueta.value = endereco.etiqueta || "";
+    if (inputCep) inputCep.value = endereco.cep || "";
+    if (inputRua) inputRua.value = endereco.rua || "";
+    if (selectUf) selectUf.value = endereco.uf || "";
+    if (inputCidade) inputCidade.value = endereco.cidade || "";
+    if (inputBairro) inputBairro.value = endereco.bairro || "";
+    if (inputN) inputN.value = endereco.numero || "";
+    if (inputComplemento) inputComplemento.value = endereco.complemento || "";
+    if (inputInfoAdicionais) inputInfoAdicionais.value = endereco.informacoesAdicionais || "";
+    if (inputNome) inputNome.value = endereco.nome || "";
+    if (inputEmail) inputEmail.value = endereco.email || "";
 }
 
 
@@ -114,6 +116,7 @@ function inicializarScrollHeader() {
             header?.classList.add("sem-banner");
         } else {
             header?.classList.remove("scrolled");
+            header?.classList.remove("sem-banner");
         }
     });
 }
@@ -122,6 +125,8 @@ function inicializarScrollHeader() {
 // --- Pesquisa por voz (Speech Recognition) ---
 
 function inicializarPesquisaPorVoz() {
+    if (!btnMicrofone) return;
+
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.lang = 'pt-BR';
@@ -133,7 +138,7 @@ function inicializarPesquisaPorVoz() {
 
         recognition.onresult = function(event) {
             const textoFalado = event.results[0][0].transcript;
-            inputBusca.value = textoFalado;
+            if (inputBusca) inputBusca.value = textoFalado;
         };
 
         recognition.onend = function() {
@@ -141,7 +146,7 @@ function inicializarPesquisaPorVoz() {
         };
 
         recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
+            alert("Erro no reconhecimento: " + event.error);
         };
 
         btnMicrofone.addEventListener('click', function() {
@@ -153,11 +158,16 @@ function inicializarPesquisaPorVoz() {
     }
 }
 
+
+// --- Formulário de busca ---
+
 function inicializarFormularioBusca() {
+    if (!searchForm) return;
+
     searchForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const busca = inputBusca.value.trim();
+        const busca = inputBusca ? inputBusca.value.trim() : "";
 
         if (busca) {
             sessionStorage.setItem("href-pesquisa", busca);
@@ -193,7 +203,6 @@ function inicializarInputsClear() {
                 }
             });
 
-
             btnClear.addEventListener('click', () => {
                 input.value = '';
                 btnClear.classList.remove('visible');
@@ -204,10 +213,9 @@ function inicializarInputsClear() {
 }
 
 
-// --- Estados (IBGE) ---
+// --- Carregar Estados (IBGE) ---
 
 async function carregarEstados() {
-
     if (!selectUf) return;
 
     try {
@@ -238,23 +246,21 @@ async function carregarEstados() {
 
 async function preencherEnderecoPeloCep(cep) {
     try {
-        const dados =
-            await buscarCep(cep);
+        const dados = await buscarCep(cep);
 
-        inputRua.value = dados.logradouro
-        selectUf.value = dados.uf
-        inputCidade.value = dados.localidade
-        inputBairro.value = dados.bairro
+        if (inputRua) inputRua.value = dados.logradouro || "";
+        if (selectUf) selectUf.value = dados.uf || "";
+        if (inputCidade) inputCidade.value = dados.localidade || "";
+        if (inputBairro) inputBairro.value = dados.bairro || "";
     } catch (erro) {
-        console.error(
-            erro.message
-        );
+        console.error(erro.message);
     }
 }
 
 function inicializarCepAutoPreenchimento() {
-    inputCep.addEventListener("input", () => {
+    if (!inputCep) return;
 
+    inputCep.addEventListener("input", () => {
         clearTimeout(temporizador);
 
         temporizador = setTimeout(() => {
@@ -267,48 +273,42 @@ function inicializarCepAutoPreenchimento() {
 // --- Envio do formulário de endereço ---
 
 function inicializarFormularioEndereco() {
+    if (!formulario) return;
+
     formulario.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        if (editEndereco) {
-            botao.textContent = "Alterando..."
-        } else {
-            botao.textContent = "Adicionando...";
+        if (botao) {
+            botao.textContent = editEndereco ? "Alterando..." : "Adicionando...";
+            botao.disabled = true;
         }
-        botao.disabled = true;
 
         try {
             const uid = obterUid();
 
             if (!uid) {
-                console.log("Usuário não autenticado.")
+                console.log("Usuário não autenticado.");
+                return;
             }
-            const endereco =
-                new Endereco(
-                    inputEtiqueta.value,
-                    inputCep.value,
-                    inputRua.value,
-                    selectUf.value,
-                    inputCidade.value,
-                    inputBairro.value,
-                    inputN.value,
-                    inputComplemento.value,
-                    inputInfoAdicionais.value,
-                    inputNome.value,
-                    inputEmail.value
-                );
+
+            const endereco = new Endereco(
+                inputEtiqueta ? inputEtiqueta.value : "",
+                inputCep ? inputCep.value : "",
+                inputRua ? inputRua.value : "",
+                selectUf ? selectUf.value : "",
+                inputCidade ? inputCidade.value : "",
+                inputBairro ? inputBairro.value : "",
+                inputN ? inputN.value : "",
+                inputComplemento ? inputComplemento.value : "",
+                inputInfoAdicionais ? inputInfoAdicionais.value : "",
+                inputNome ? inputNome.value : "",
+                inputEmail ? inputEmail.value : ""
+            );
 
             if (editEndereco) {
-                await atualizarEndereco(
-                    uid,
-                    editEndereco,
-                    endereco
-                );
+                await atualizarEndereco(uid, editEndereco, endereco);
             } else {
-                await adicionarEndereco(
-                    uid,
-                    endereco
-                );
+                await adicionarEndereco(uid, endereco);
             }
 
             sessionStorage.setItem(
@@ -317,26 +317,17 @@ function inicializarFormularioEndereco() {
                     id: endereco.id,
                     etiqueta: endereco.etiqueta
                 })
-            )
-
-            if (editEndereco) {
-                botao.textContent = "Alterar"
-            } else {
-                botao.textContent = "Adicionar";
-            }
-            botao.disabled = false;
+            );
 
             window.location.href = "home.html";
         } catch (erro) {
             console.error(erro);
-            if (editEndereco) {
-                botao.textContent = "Alterar"
-            } else {
-                botao.textContent = "Adicionar";
+            if (botao) {
+                botao.textContent = editEndereco ? "Alterar" : "Adicionar";
+                botao.disabled = false;
             }
-            botao.disabled = false;
         }
-    })
+    });
 }
 
 // #endregion
@@ -353,7 +344,7 @@ inicializarFormularioBusca();
 inicializarCepAutoPreenchimento();
 inicializarFormularioEndereco();
 
-carregarEstados();
 alterarEnderecoSelecionado();
+carregarEstados();
 
 // #endregion

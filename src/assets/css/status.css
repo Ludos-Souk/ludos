@@ -1,0 +1,172 @@
+   .status-page-content {
+    background: var(--bg-body);
+    width: 100%;
+    margin: var(--header-height) auto 0;
+    min-height: calc(100vh - var(--header-height));
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.status-card {
+    padding: 60px 80px;
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    position: relative;
+}
+
+/* Barra decorativa superior */
+.status-card::before {
+    content: "";
+    position: absolute;
+    top: 24px;
+    width: 200px;
+    height: 4px;
+}
+
+/* Conteúdo interno superior */
+.status-main {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+}
+
+
+.status-icon-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
+.status-icon-wrapper::before,
+.status-icon-wrapper::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+}
+
+/* Anel externo */
+.status-icon-wrapper::before {
+    width: 120px;
+    height: 120px;
+}
+
+/* Anel interno */
+.status-icon-wrapper::after {
+    width: 88px;
+    height: 88px;
+}
+
+/* Círculo central com o ícone */
+.status-icon {
+    position: relative;
+    z-index: 1;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* icon sucesso — verde com anéis preenchidos */
+.status-icon-wrapper--success::before {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.status-icon-wrapper--success::after {
+    background: rgba(34, 197, 94, 0.18);
+}
+
+.status-icon-wrapper--success .status-icon {
+    background: #22c55e;
+}
+
+/* icon erro — vermelho com anéis preenchidos */
+.status-icon-wrapper--error::before {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.status-icon-wrapper--error::after {
+    background: rgba(239, 68, 68, 0.18);
+}
+
+.status-icon-wrapper--error .status-icon {
+    background: #ef4444;
+}
+
+
+.status-body {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.status-body h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.2;
+}
+
+.status-body p {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 420px;
+}
+
+
+.btn-status {
+    background: var(--btn-yellow);
+    color: var(--btn-yellow-text);
+    border: none;
+    border-radius: var(--radius-pill, 50px);
+    padding: 16px 48px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: var(--transition-default, 0.3s);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-status:hover,
+.btn-status:focus-visible {
+    background: var(--btn-yellow-hover);
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+@media (max-width: 768px) {
+    .status-main {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .status-body {
+        text-align: center;
+    }
+
+    .status-card {
+        padding: 48px 24px;
+        gap: 32px;
+    }
+}
