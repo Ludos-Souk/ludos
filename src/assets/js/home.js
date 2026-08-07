@@ -15,7 +15,8 @@ import {
 } from "../../services/usuarioService.js";
 import {
     toggleCarrinho,
-    estaNoCarrinho
+    estaNoCarrinho,
+    quantidadeProdutos
 } from "../../services/carrinhoService.js";
 import {
     existeConfiguracao,
@@ -23,6 +24,9 @@ import {
     salvarConfiguracao,
     removerConfiguracao
 } from "../../services/configuracoesService.js";
+import {
+    listarPedidosUsuario
+} from "../../services/pedidoService.js"
 // #endregion
 
 
@@ -99,6 +103,28 @@ function configurarOrdem() {
     }
 }
 
+function configurarCarrinho() {
+    const card = document.querySelector('.card.side-card.cart-card');
+
+    if (!card) {
+        return;
+    }
+    
+    card.querySelector(".cart-badge")?.remove();
+
+    const valor = quantidadeProdutos();
+    
+    if (valor > 0) {
+        const badge = document.createElement("span");
+
+        badge.className = "cart-badge";
+        badge.id = "badge-carrinho-home";
+        badge.textContent = valor;
+
+        card.prepend(badge);
+    }
+}
+
 function inicializarIconesLucide() {
     if (window.lucide) {
         window.lucide.createIcons();
@@ -157,6 +183,12 @@ function inicializarBanner() {
             header?.classList.remove("scrolled");
         }
     });
+}
+
+function removeBanner() {
+    const uid = ''
+    console.log(usuarioJaFezPedido())
+    //aqui
 }
 
 
@@ -1342,6 +1374,7 @@ function inicializarListenersProdutos() {
         if (estaNoCarrinho(idProduto)) {
             mostrarToastCarrinho();
         }
+        configurarCarrinho();
     });
 
     // Navegação para a página de avaliação
@@ -1371,6 +1404,7 @@ verificarAcesso();
 inicializarNavegacaoCarrinho();
 configurarEndereco();
 configurarOrdem();
+configurarCarrinho();
 inicializarIconesLucide();
 
 await carregarCatalogo();

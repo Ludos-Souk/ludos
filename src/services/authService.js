@@ -108,7 +108,6 @@ export function usuarioLogado() {
 export function verificarLogin() {
 
     return new Promise((resolve) => {
-
         const cancelar =
             onAuthStateChanged(
                 auth,
@@ -119,10 +118,8 @@ export function verificarLogin() {
                     resolve(
                         usuario !== null
                     );
-
                 }
             );
-
     });
 
 }
