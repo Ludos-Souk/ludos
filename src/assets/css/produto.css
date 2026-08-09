@@ -13,6 +13,21 @@
 /* ============================================================
    CABEÇALHO
    ============================================================ */
+/* ============================================================
+   VARIÁVEIS — produto.css herda as do home.css a maioria
+   ============================================================ */
+   :root {
+    --produto-radius:      32px;
+    --produto-padding:     60px 40px;
+    --produto-gap:         45px;
+    --produto-img-col:     260px;
+    --avaliacao-max-h:     340px;
+    --avaliacao-radius:    20px;
+}
+
+/* ============================================================
+   CABEÇALHO
+   ============================================================ */
 .produto-page-header {
     display: flex;
     align-items: center;
@@ -22,8 +37,10 @@
 
 .produto-page-title {
     font-family: var(--font-primary, "Montserrat", sans-serif);
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 28px;
     font-weight: 700;
+    color: var(--text-dark, #222);
     color: var(--text-dark, #222);
 }
 
@@ -39,13 +56,18 @@
     font-size: 20px;
     flex-shrink: 0;
     transition: background var(--transition-default, 0.2s);
+    transition: background var(--transition-default, 0.2s);
 }
 
 .btn-back-icon:hover,
 .btn-back-icon:focus-visible {
     background: var(--bg-hover, #e2e2e2);
+
 }
 
+/* ============================================================
+   CARD PRINCIPAL DO PRODUTO
+   ============================================================ */
 /* ============================================================
    CARD PRINCIPAL DO PRODUTO
    ============================================================ */
@@ -54,13 +76,20 @@
     border-radius: var(--produto-radius);
     padding: var(--produto-padding);
     box-shadow: var(--shadow-card, 0 4px 24px rgba(0, 0, 0, 0.07));
+    background: var(--bg-white, #fff);
+    border-radius: var(--produto-radius);
+    padding: var(--produto-padding);
+    box-shadow: var(--shadow-card, 0 4px 24px rgba(0, 0, 0, 0.07));
     margin-bottom: 40px;
     display: grid;
+    grid-template-columns: var(--produto-img-col) 1fr 1fr;
+    gap: var(--produto-gap);
     grid-template-columns: var(--produto-img-col) 1fr 1fr;
     gap: var(--produto-gap);
     align-items: start;
 }
 
+/* Coluna esquerda */
 /* Coluna esquerda */
 .produto-col-imagem {
     display: flex;
@@ -78,12 +107,15 @@
 
 .produto-nome-detalhe {
     font-family: var(--font-primary, "Montserrat", sans-serif);
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 18px;
     font-weight: 700;
+    color: var(--text-dark, #222);
     color: var(--text-dark, #222);
     line-height: 1.3;
 }
 
+/*  Coluna central */
 /*  Coluna central */
 .produto-col-info {
     display: flex;
@@ -101,7 +133,10 @@
 .produto-badge-desconto {
     background: var(--color-primary-soft, #89a3ff);
     color: var(--bg-white, #fff);
+    background: var(--color-primary-soft, #89a3ff);
+    color: var(--bg-white, #fff);
     padding: 8px 20px;
+    border-radius: var(--radius-pill, 999px);
     border-radius: var(--radius-pill, 999px);
     font-size: 13px;
     font-weight: 700;
@@ -110,8 +145,10 @@
 
 .produto-preco-principal {
     font-family: var(--font-primary, "Montserrat", sans-serif);
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 32px;
     font-weight: 700;
+    color: var(--text-dark, #222);
     color: var(--text-dark, #222);
     line-height: 1;
 }
@@ -119,9 +156,11 @@
 .produto-preco-parcelado {
     font-size: 15px;
     color: var(--text-muted, #999);
+    color: var(--text-muted, #999);
     margin-top: -14px;
 }
 
+/* Controle de quantidade */
 /* Controle de quantidade */
 .produto-quantidade {
     display: flex;
@@ -141,32 +180,39 @@
     font-size: 20px;
     flex-shrink: 0;
     transition: background var(--transition-default, 0.2s);
+    transition: background var(--transition-default, 0.2s);
 }
 
 .btn-qtd:hover {
     background: var(--bg-hover, #e2e4ea);
+    background: var(--bg-hover, #e2e4ea);
 }
 
 .qtd-valor {
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 20px;
     font-weight: 700;
     min-width: 20px;
     text-align: center;
     color: var(--text-dark, #222);
+    color: var(--text-dark, #222);
 }
 
 .produto-estoque {
     font-size: 15px;
     color: var(--text-body, #555);
+    color: var(--text-body, #555);
     font-weight: 500;
 }
 
 .btn-comprar-detalhe {
-    background: var(--btn-yellow, #ffcc00);
+    background: var(--btn-yellow);
     border: none;
     border-radius: var(--radius-pill, 999px);
+    border-radius: var(--radius-pill, 999px);
     padding: 18px 0;
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 16px;
     font-weight: 700;
@@ -174,12 +220,15 @@
     max-width: 300px;
     color: var(--btn-yellow-text, #333);
     transition: background var(--transition-default, 0.2s);
+    color: var(--btn-yellow-text, #333);
+    transition: background var(--transition-default, 0.2s);
 }
 
 .btn-comprar-detalhe:hover {
-    background: var(--btn-yellow-hover, #FFDC7A);
+    background: var(--btn-yellow-hover);
 }
 
+/* Coluna direita */
 /* Coluna direita */
 .produto-col-avaliacoes {
     display: flex;
@@ -193,14 +242,17 @@
     align-items: center;
     gap: 10px;
     font-family: var(--font-primary, "Montserrat", sans-serif);
+    font-family: var(--font-primary, "Montserrat", sans-serif);
     font-size: 20px;
     font-weight: 700;
+    color: var(--text-dark, #222);
     color: var(--text-dark, #222);
     margin-bottom: 4px;
 }
 
 .avaliacoes-titulo .lucide {
     font-size: 22px;
+    color: var(--text-muted, #aaa);
     color: var(--text-muted, #aaa);
 }
 
@@ -209,10 +261,13 @@
     flex-direction: column;
     gap: 12px;
     max-height: var(--avaliacao-max-h);
+    max-height: var(--avaliacao-max-h);
     overflow-y: auto;
     padding-right: 6px;
 }
 
+.avaliacoes-lista::-webkit-scrollbar { width: 4px; }
+.avaliacoes-lista::-webkit-scrollbar-track { background: transparent; }
 .avaliacoes-lista::-webkit-scrollbar { width: 4px; }
 .avaliacoes-lista::-webkit-scrollbar-track { background: transparent; }
 .avaliacoes-lista::-webkit-scrollbar-thumb {
@@ -221,7 +276,10 @@
 }
 
 /* Card de avaliação */
+/* Card de avaliação */
 .avaliacao-card {
+    background: var(--bg-input, #f4f5f9);
+    border-radius: var(--avaliacao-radius);
     background: var(--bg-input, #f4f5f9);
     border-radius: var(--avaliacao-radius);
     padding: 18px 20px;
@@ -237,10 +295,12 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--text-dark, #333);
+    color: var(--text-dark, #333);
 }
 
 .avaliacao-autor .lucide {
     font-size: 18px;
+    color: var(--text-muted, #aaa);
     color: var(--text-muted, #aaa);
 }
 
@@ -250,6 +310,7 @@
     line-height: 1.5;
 }
 
+/* Estrelas */
 /* Estrelas */
 .avaliacao-estrelas {
     display: flex;
@@ -264,15 +325,20 @@
 
 .estrela.ativa {
     color: var(--btn-yellow, #ffcc00);
+    color: var(--btn-yellow, #ffcc00);
 }
 
 .sem-avaliacoes {
     font-size: 14px;
     color: var(--text-muted, #aaa);
+    color: var(--text-muted, #aaa);
     text-align: center;
     padding: 24px 0;
 }
 
+/* ============================================================
+   GRID DE PRODUTOS RELACIONADOS
+   ============================================================ */
 /* ============================================================
    GRID DE PRODUTOS RELACIONADOS
    ============================================================ */
@@ -294,7 +360,22 @@
 .products-grid--small .price          { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
 .products-grid--small .btn-buy        { font-size: 14px; padding: 10px 0; }
 .products-grid--small .btn-arrow      { font-size: 18px; }
+.products-grid--small .product-card   { padding: 16px; border-radius: 28px; }
+.products-grid--small .product-image  { height: 290px; }
+.products-grid--small .product-top    { margin-bottom: 10px; min-height: 15px; }
+.products-grid--small .discount-badge { font-size: 12px; padding: 4px 10px; }
+.products-grid--small .btn-icon       { width: 28px; height: 28px; font-size: 12px; }
+.products-grid--small .brand          { font-size: 12px; }
+.products-grid--small .title          { font-size: 14px; margin: 6px 0 12px; }
+.products-grid--small .price          { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+.products-grid--small .btn-buy        { font-size: 14px; padding: 10px 0; }
+.products-grid--small .btn-arrow      { font-size: 18px; }
 
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+
+/* Tablet largo */
 /* ============================================================
    RESPONSIVIDADE
    ============================================================ */
@@ -315,10 +396,12 @@
 }
 
 /* Tablet */
+/* Tablet */
 @media (max-width: 768px) {
     .produto-detalhe {
         grid-template-columns: 1fr;
         padding: 24px;
+        gap: 24px;
         gap: 24px;
     }
 
@@ -330,8 +413,40 @@
         max-width: 100%;
     }
 
+    .btn-comprar-detalhe {
+        max-width: 100%;
+    }
+
     .products-grid--small {
         grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .produto-page-title {
+        font-size: 22px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .produto-detalhe {
+        padding: 16px;
+    }
+
+    .produto-preco-principal {
+        font-size: 26px;
+    }
+
+    .avaliacoes-titulo {
+        font-size: 17px;
+    }
+
+    .products-grid--small {
+        grid-template-columns: 1fr;
+    }
+
+    .products-grid--small .product-image {
+        height: 200px;
         gap: 16px;
     }
 

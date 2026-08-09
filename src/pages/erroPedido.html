@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido não concluído | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="../assets/css/status.css">
+</head>
+<body id="topo">
+
+    <header class="header sem-banner">
+        <h1 class="logo">
+            <a href="home.html" aria-label="Voltar para a página inicial">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
+            </a>
+        </h1>
+        <search class="search-bar">
+            <form class="search-form" role="search">
+                <label for="search-input" class="sr-only">Buscar Boneco</label>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
+                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
+                    <i data-lucide="mic" aria-hidden="true"></i>
+                </button>
+            </form>
+        </search>
+        <nav class="header-icons" aria-label="Menu principal do usuário">
+            <ul>
+                <li><button aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="status-page-content">
+        <div class="status-card" role="alert">
+
+            <div class="status-main">
+                <div class="status-icon-wrapper status-icon-wrapper--error" aria-hidden="true">
+                    <div class="status-icon">
+                        <i data-lucide="x" aria-hidden="true"></i>
+                    </div>
+                </div>
+
+                <div class="status-body">
+                    <h2>Não foi possível concluir o pedido.</h2>
+                    <p>O produto foi encaminhado para seu carrinho. Verifique sua rede e tente novamente.</p>
+                </div>
+            </div>
+
+            <a href="#" class="btn-status">Ir para meu carrinho</a>
+
+        </div>
+    </main>
+
+    <footer class="footer-wrapper">
+        <section class="footer-grid">
+            <section class="footer-col">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" class="footer-logo">
+                <h4>INFORMAÇÕES DE CONTATO</h4>
+                <address>
+                    <p><i data-lucide="mail" aria-hidden="true"></i> ludosouk@gmail.com</p>
+                    <p><i data-lucide="phone" aria-hidden="true"></i> 11 99955-0603</p>
+                </address>
+            </section>
+            <nav class="footer-col" aria-label="Links Rápidos">
+                <h4>LINKS RÁPIDOS</h4>
+                <p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+            <nav class="footer-col" aria-label="Ajuda e Suporte">
+                <h4>AJUDA</h4>
+                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+        </section>
+        <hr class="footer-divider">
+        <section class="footer-bottom">
+            <p>Política de privacidade &copy; 2026</p>
+        </section>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) window.lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
