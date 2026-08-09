@@ -70,7 +70,12 @@ function iniciarSimulacaoPix(payload) {
     const valorExibido = formatarMoeda(payload.preco || 0);
 
     if (alertTexto) {
-        alertTexto.innerHTML = `Falta pouco! Pague <strong>${valorExibido}</strong> via Pix para concluir sua compra.`;
+        alertTexto.replaceChildren();
+        alertTexto.appendChild(document.createTextNode('Falta pouco! Pague '));
+        const destaque = document.createElement('strong');
+        destaque.textContent = valorExibido;
+        alertTexto.appendChild(destaque);
+        alertTexto.appendChild(document.createTextNode(' via Pix para concluir sua compra.'));
     }
 
     if (pixCodeElement) {

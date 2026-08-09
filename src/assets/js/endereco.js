@@ -121,7 +121,6 @@ function inicializarScrollHeader() {
     });
 }
 
-/* Header navigation helpers: cart and filter fallback */
 (function() {
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
     if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
@@ -253,7 +252,17 @@ async function carregarEstados() {
 
     } catch (erro) {
         console.error("Erro ao buscar os estados no IBGE:", erro);
-        selectUf.innerHTML += '<option value="SP">SP</option><option value="RJ">RJ</option>';
+        const fallbackOptions = [
+            { value: 'SP', label: 'SP' },
+            { value: 'RJ', label: 'RJ' }
+        ];
+
+        fallbackOptions.forEach(({ value, label }) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            selectUf.appendChild(option);
+        });
     }
 }
 

@@ -124,7 +124,7 @@ async function inicializar() {
 
 function renderCart() {
 
-    cartContainer.innerHTML = "";
+    cartContainer.replaceChildren();
 
     let todosSelecionados =
         cartData.length > 0;

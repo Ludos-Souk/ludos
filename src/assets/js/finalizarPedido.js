@@ -109,18 +109,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const method = optionSelecionada.dataset.method;
         paymentContainer.dataset.activeMethod = method; 
 
-        if(method === 'pix') {
-            resumoPagamento.innerHTML = `
-                <span>Pix</span>
-            `;
+        if (method === 'pix') {
+            renderizarResumoPagamento('pix');
         } else if (method === 'credit') {
             const activeInstallment = document.querySelector('.installment-btn.active');
             const installmentText = activeInstallment ? activeInstallment.textContent : '1x de R$ 104';
-            
-            resumoPagamento.innerHTML = `
-                <span>Cartão **** 1234</span>
-                <small>${installmentText}</small>
-            `;
+            renderizarResumoPagamento('credit', installmentText);
         }
     }
 
@@ -171,7 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     inicializarModalBodyListeners(modalBody);
 
-    /* Header navigation helpers: cart and filter fallback */
     (function() {
         const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
         if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
@@ -199,10 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btn.setAttribute('aria-pressed', 'true');
 
             if(paymentContainer.dataset.activeMethod === 'credit') {
-                resumoPagamento.innerHTML = `
-                    <span>Cartão **** 1234</span>
-                    <small>${btn.textContent}</small>
-                `;
+                renderizarResumoPagamento('credit', btn.textContent);
             }
         });
     });
@@ -264,6 +254,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+function renderizarResumoPagamento(method, installmentText = '') {
+    const resumoPagamento = document.getElementById('resumo-pagamento');
+    if (!resumoPagamento) {
+        return;
+    }
+
+    resumoPagamento.replaceChildren();
+
+    const label = document.createElement('span');
+    label.textContent = method === 'pix' ? 'Pix' : 'Cartão **** 1234';
+    resumoPagamento.appendChild(label);
+
+    if (method === 'credit' && installmentText) {
+        const small = document.createElement('small');
+        small.textContent = installmentText;
+        resumoPagamento.appendChild(small);
+    }
+}
+
+function criarMensagemEstado(texto, classe = 'sem-produtos') {
+    const mensagem = document.createElement('p');
+    mensagem.className = classe;
+    mensagem.textContent = texto;
+    return mensagem;
+}
+
 function montarPayloadPedido() {
     const produtosSelecionados = JSON.parse(sessionStorage.getItem('produtosSelecionados') || '[]');
     const metodoSelecionado = document.querySelector('.payment-option.active')?.dataset.method || 'credit';
@@ -315,7 +331,7 @@ async function carregarProdutosSelecionados(ehPrimeiraCompra) {
     const produtosSelecionados = JSON.parse(sessionStorage.getItem('produtosSelecionados') || '[]');
 
     if (!produtosSelecionados.length) {
-        listaContainer.innerHTML = `<p class="sem-produtos">Nenhum produto selecionado.</p>`;
+        listaContainer.replaceChildren(criarMensagemEstado('Nenhum produto selecionado.'));
         atualizarResumoCompra([], ehPrimeiraCompra);
         return;
     }
@@ -339,8 +355,7 @@ async function carregarProdutosSelecionados(ehPrimeiraCompra) {
         );
     }
 
-    listaContainer.innerHTML = '';
-    listaContainer.appendChild(fragment);
+    listaContainer.replaceChildren(fragment);
     atualizarResumoCompra(produtosCarregados, ehPrimeiraCompra);
 }
 
@@ -438,7 +453,7 @@ async function configurarEndereco() {
     }
 
     if (!existeConfiguracao('enderecoPadrao')) {
-        enderecoWrapper.innerHTML = criarEnderecoVazioHTML();
+        enderecoWrapper.replaceChildren(criarEnderecoVazioElemento());
         return;
     }
 
@@ -446,9 +461,9 @@ async function configurarEndereco() {
     const endereco = uid ? await buscarEnderecoPorId(uid, enderecoPadrao.id) : null;
 
     if (endereco) {
-        enderecoWrapper.innerHTML = criarEnderecoBoxHTML(endereco);
+        enderecoWrapper.replaceChildren(criarEnderecoBoxElemento(endereco));
     } else {
-        enderecoWrapper.innerHTML = criarEnderecoVazioHTML();
+        enderecoWrapper.replaceChildren(criarEnderecoVazioElemento());
     }
 
     if (window.lucide) {
@@ -456,19 +471,37 @@ async function configurarEndereco() {
     }
 }
 
-function criarEnderecoVazioHTML() {
-    return `
-        <address class="address-box address-box--empty">
-            <i data-lucide="map-pin" aria-hidden="true"></i>
-            <section class="address-details">
-                <h4>Endereço</h4>
-                <p>Ainda não há nenhum endereço selecionado</p>
-            </section>
-            <button type="button" class="btn-edit action-btn btn-change-address" aria-label="Cadastrar endereço">
-                <i data-lucide="plus" aria-hidden="true"></i>
-            </button>
-        </address>
-    `;
+function criarEnderecoVazioElemento() {
+    const address = document.createElement('address');
+    address.className = 'address-box address-box--empty';
+
+    const icon = document.createElement('i');
+    icon.setAttribute('data-lucide', 'map-pin');
+    icon.setAttribute('aria-hidden', 'true');
+
+    const details = document.createElement('section');
+    details.className = 'address-details';
+
+    const title = document.createElement('h4');
+    title.textContent = 'Endereço';
+
+    const text = document.createElement('p');
+    text.textContent = 'Ainda não há nenhum endereço selecionado';
+
+    details.append(title, text);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn-edit action-btn btn-change-address';
+    button.setAttribute('aria-label', 'Cadastrar endereço');
+
+    const buttonIcon = document.createElement('i');
+    buttonIcon.setAttribute('data-lucide', 'plus');
+    buttonIcon.setAttribute('aria-hidden', 'true');
+    button.appendChild(buttonIcon);
+
+    address.append(icon, details, button);
+    return address;
 }
 
 function abrirModalEndereco() {
@@ -528,7 +561,7 @@ function carregarListaEnderecos(enderecos) {
     if (!modalBody) return;
 
     modalBody.classList.remove('modal-body-empty');
-    modalBody.innerHTML = '';
+    modalBody.replaceChildren();
 
     const lista = document.createElement('ul');
     lista.className = 'address-list';
@@ -653,22 +686,14 @@ function criarCardEndereco(etiqueta) {
     const uid = obterUid();
 
     if (!enderecoPadrao || !uid) {
-        enderecoWrapper.innerHTML = `
-            <article class="card address-card">
-                <address class="address-info">
-                    <span class="address-label">Endereço</span>
-                    <span class="address-value sign">Ainda não há nenhum endereço selecionado</span>
-                </address>
-                <button type="button" class="btn-change-address" aria-label="Alterar endereço de entrega">Cadastrar</button>
-            </article>
-        `;
+        enderecoWrapper.replaceChildren(criarEnderecoVazioElemento());
         return;
     }
 
     buscarEnderecoPorId(uid, enderecoPadrao.id)
         .then(endereco => {
             if (endereco) {
-                enderecoWrapper.innerHTML = criarEnderecoBoxHTML(endereco);
+                enderecoWrapper.replaceChildren(criarEnderecoBoxElemento(endereco));
                 if (window.lucide) {
                     window.lucide.createIcons();
                 }
@@ -676,19 +701,41 @@ function criarCardEndereco(etiqueta) {
         });
 }
 
-function criarEnderecoBoxHTML(endereco) {
-    return `
-        <address class="address-box">
-            <i data-lucide="map-pin" aria-hidden="true"></i>
-            <section class="address-details">
-                <h4>${endereco.etiqueta}</h4>
-                <p>${endereco.nome}<br>${endereco.rua} Nº ${endereco.numero}<br>CEP: ${endereco.cep} - ${endereco.cidade}, ${endereco.uf}</p>
-            </section>
-            <button type="button" class="btn-edit action-btn" aria-label="Editar endereço de entrega">
-                <i data-lucide="pencil" aria-hidden="true"></i>
-            </button>
-        </address>
-    `;
+function criarEnderecoBoxElemento(endereco) {
+    const address = document.createElement('address');
+    address.className = 'address-box';
+
+    const icon = document.createElement('i');
+    icon.setAttribute('data-lucide', 'map-pin');
+    icon.setAttribute('aria-hidden', 'true');
+
+    const details = document.createElement('section');
+    details.className = 'address-details';
+
+    const title = document.createElement('h4');
+    title.textContent = endereco.etiqueta;
+
+    const text = document.createElement('p');
+    text.appendChild(document.createTextNode(endereco.nome));
+    text.appendChild(document.createElement('br'));
+    text.appendChild(document.createTextNode(`${endereco.rua} Nº ${endereco.numero}`));
+    text.appendChild(document.createElement('br'));
+    text.appendChild(document.createTextNode(`CEP: ${endereco.cep} - ${endereco.cidade}, ${endereco.uf}`));
+
+    details.append(title, text);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn-edit action-btn';
+    button.setAttribute('aria-label', 'Editar endereço de entrega');
+
+    const buttonIcon = document.createElement('i');
+    buttonIcon.setAttribute('data-lucide', 'pencil');
+    buttonIcon.setAttribute('aria-hidden', 'true');
+    button.appendChild(buttonIcon);
+
+    address.append(icon, details, button);
+    return address;
 }
 
 function formatarMoeda(valor) {

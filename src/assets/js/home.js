@@ -67,6 +67,13 @@ let timeoutToast = null;
 
 // #region Métodos
 
+function criarMensagemEstado(texto, classe = "estado-vazio") {
+    const mensagem = document.createElement("p");
+    mensagem.className = classe;
+    mensagem.textContent = texto;
+    return mensagem;
+}
+
 // --- Acesso / configurações salvas ---
 
 async function verificarAcesso() {
@@ -224,20 +231,41 @@ export function mostrarToastCarrinho(
     toast.setAttribute("aria-live", "polite");
     toast.setAttribute("aria-atomic", "true");
 
-    toast.innerHTML = `
-        <span class="cart-toast-content">
-            <span class="cart-toast-icon" aria-hidden="true">
-                <i data-lucide="check"></i>
-            </span>
-            <p>${mensagem}</p>
-        </span>
-        <span class="cart-toast-actions">
-            <button type="button" class="btn-go-cart">Ir para carrinho</button>
-            <button type="button" class="btn-close-toast" aria-label="Fechar aviso">
-                <i data-lucide="x"></i>
-            </button>
-        </span>
-    `;
+    const content = document.createElement("span");
+    content.className = "cart-toast-content";
+
+    const icon = document.createElement("span");
+    icon.className = "cart-toast-icon";
+    icon.setAttribute("aria-hidden", "true");
+
+    const iconCheck = document.createElement("i");
+    iconCheck.setAttribute("data-lucide", "check");
+    icon.appendChild(iconCheck);
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = mensagem;
+
+    content.append(icon, paragraph);
+
+    const actions = document.createElement("span");
+    actions.className = "cart-toast-actions";
+
+    const btnCart = document.createElement("button");
+    btnCart.type = "button";
+    btnCart.className = "btn-go-cart";
+    btnCart.textContent = "Ir para carrinho";
+
+    const btnClose = document.createElement("button");
+    btnClose.type = "button";
+    btnClose.className = "btn-close-toast";
+    btnClose.setAttribute("aria-label", "Fechar aviso");
+
+    const iconClose = document.createElement("i");
+    iconClose.setAttribute("data-lucide", "x");
+    btnClose.appendChild(iconClose);
+
+    actions.append(btnCart, btnClose);
+    toast.append(content, actions);
 
     header.appendChild(toast);
 
@@ -249,24 +277,20 @@ export function mostrarToastCarrinho(
         lucide.createIcons();
     }
 
-    toast
-        .querySelector(".btn-close-toast")
-        .addEventListener("click", () => { 
-            toast.remove();
-            
-            if (!bannerFechado) {
-                banner.classList.remove("oculto");
-            } else {
-                header.classList.add("sem-banner");
-                mainContent.style.marginTop = "160px"; 
-            }
-        });
+    btnClose.addEventListener("click", () => { 
+        toast.remove();
+        
+        if (!bannerFechado) {
+            banner.classList.remove("oculto");
+        } else {
+            header.classList.add("sem-banner");
+            mainContent.style.marginTop = "160px"; 
+        }
+    });
 
-    toast
-        .querySelector(".btn-go-cart")
-        .addEventListener("click", () => {
-            window.location.href = "carrinho.html";
-        });
+    btnCart.addEventListener("click", () => {
+        window.location.href = "carrinho.html";
+    });
 
     timeoutToast = setTimeout(() => {
         toast.remove();
@@ -680,7 +704,7 @@ function carregarListaEnderecos(enderecos) {
         "modal-body-empty"
     );
 
-    modalBody.innerHTML = "";
+    modalBody.replaceChildren();
 
     const lista =
         document.createElement(
@@ -1268,9 +1292,7 @@ async function carregarCatalogo() {
 
     try {
 
-        container.innerHTML = `
-            <p>Carregando produtos...</p>
-        `;
+        container.replaceChildren(criarMensagemEstado("Carregando produtos..."));
 
         const produtos =
             await buscarProdutosAtivos();
@@ -1318,12 +1340,7 @@ async function carregarCatalogo() {
             erro
         );
 
-        container.innerHTML = `
-            <p>
-                Não foi possível carregar
-                os produtos.
-            </p>
-        `;
+        container.replaceChildren(criarMensagemEstado("Não foi possível carregar os produtos."));
 
         return [];
     }
@@ -1331,7 +1348,7 @@ async function carregarCatalogo() {
 
 function renderCatalogo(lista, container) {
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     const fragment =
         document.createDocumentFragment();

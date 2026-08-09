@@ -6,6 +6,22 @@ import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
 // #endregion
 
+// #region Utilitários de UI
+function criarIcone(dataLucide) {
+    const icone = document.createElement("i");
+    icone.setAttribute("data-lucide", dataLucide);
+    icone.setAttribute("aria-hidden", "true");
+    return icone;
+}
+
+function criarMensagemEstado(texto, classe = "sem-avaliacoes") {
+    const mensagem = document.createElement("p");
+    mensagem.className = classe;
+    mensagem.textContent = texto;
+    return mensagem;
+}
+// #endregion
+
 const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
@@ -128,8 +144,10 @@ const [produto, todosProdutos] = await Promise.all([
 ]);
 
 if (!produto) {
-    document.getElementById("produto-detalhe").innerHTML =
-        `<p style="padding:40px;color:#888;">Produto não encontrado.</p>`;
+    const container = document.getElementById("produto-detalhe");
+    if (container) {
+        container.replaceChildren(criarMensagemEstado("Produto não encontrado."));
+    }
 } else {
     await renderProduto(produto);
     renderRelacionados(todosProdutos, idProduto);
@@ -142,7 +160,7 @@ async function renderProduto(produto) {
     const container =
         document.getElementById("produto-detalhe");
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     const colunaImagem =
         criarColunaImagem(produto);
@@ -316,8 +334,7 @@ function criarTopoAcoes(produto) {
         );
     }
 
-    btnFavorito.innerHTML =
-        `<i data-lucide="heart"></i>`;
+    btnFavorito.appendChild(criarIcone("heart"));
 
     const btnCarrinho =
         document.createElement("button");
@@ -337,8 +354,7 @@ function criarTopoAcoes(produto) {
         );
     }
 
-    btnCarrinho.innerHTML =
-        `<i data-lucide="shopping-cart"></i>`;
+    btnCarrinho.appendChild(criarIcone("shopping-cart"));
 
     topo.append(
         btnFavorito,
@@ -413,8 +429,7 @@ function criarControleQuantidade() {
     btnMenos.className =
         "btn-qtd";
 
-    btnMenos.innerHTML =
-        `<i data-lucide="minus"></i>`;
+    btnMenos.appendChild(criarIcone("minus"));
 
     const valor =
         document.createElement("span");
@@ -431,8 +446,7 @@ function criarControleQuantidade() {
     btnMais.className =
         "btn-qtd";
 
-    btnMais.innerHTML =
-        `<i data-lucide="plus"></i>`;
+    btnMais.appendChild(criarIcone("plus"));
 
     container.append(
         btnMenos,
@@ -465,8 +479,8 @@ function criarColunaAvaliacoes() {
     titulo.className =
         "avaliacoes-titulo";
 
-    titulo.innerHTML =
-        `<i data-lucide="message-circle"></i> Avaliações`;
+    titulo.appendChild(criarIcone("message-circle"));
+    titulo.appendChild(document.createTextNode(" Avaliações"));
 
     const lista =
         document.createElement("div");
@@ -477,8 +491,7 @@ function criarColunaAvaliacoes() {
     lista.id =
         "avaliacoes-lista";
 
-    lista.innerHTML =
-        `<p class="sem-avaliacoes">Carregando avaliações...</p>`;
+    lista.replaceChildren(criarMensagemEstado("Carregando avaliações..."));
 
     coluna.append(
         titulo,
@@ -611,11 +624,11 @@ async function carregarAvaliacoes(idProduto) {
         const avaliacoes = await listarAvaliacoesProduto(idProduto);
 
         if (!avaliacoes || avaliacoes.length === 0) {
-            lista.innerHTML = `<p class="sem-avaliacoes">Nenhuma avaliação encontrada.</p>`;
+            lista.replaceChildren(criarMensagemEstado("Nenhuma avaliação encontrada."));
             return;
         }
 
-        lista.innerHTML = "";
+        lista.replaceChildren();
 
         for (const avaliacao of avaliacoes) {
 
@@ -634,7 +647,7 @@ async function carregarAvaliacoes(idProduto) {
 
     } catch (erro) {
         console.error("Erro ao carregar avaliações:", erro);
-        lista.innerHTML = `<p class="sem-avaliacoes">Erro ao carregar avaliações.</p>`;
+        lista.replaceChildren(criarMensagemEstado("Erro ao carregar avaliações."));
     }
 }
 
@@ -686,10 +699,7 @@ async function criarCardAvaliacao(avaliacao) {
         `${avaliacao.nota} de 5 estrelas`
     );
 
-    estrelas.innerHTML =
-        renderEstrelas(
-            avaliacao.nota
-        );
+    estrelas.replaceChildren(...renderEstrelas(avaliacao.nota));
 
     artigo.append(
         autor,
@@ -702,9 +712,13 @@ async function criarCardAvaliacao(avaliacao) {
 }
 
 function renderEstrelas(nota) {
-    return Array.from({ length: 5 }, (_, i) =>
-        `<span class="estrela ${i < nota ? "ativa" : ""}" aria-hidden="true">★</span>`
-    ).join("");
+    return Array.from({ length: 5 }, (_, i) => {
+        const estrela = document.createElement("span");
+        estrela.className = `estrela ${i < nota ? "ativa" : ""}`;
+        estrela.setAttribute("aria-hidden", "true");
+        estrela.textContent = "★";
+        return estrela;
+    });
 }
 // #endregion
 
@@ -784,7 +798,7 @@ function criarCardRelacionado(produto) {
     btnFav.type = "button";
     btnFav.className = `btn-icon${ehFavorito(produto.id) ? " is-favorite" : ""}`;
     btnFav.setAttribute("aria-label", "Adicionar aos favoritos");
-    btnFav.innerHTML = `<i data-lucide="heart" aria-hidden="true"></i>`;
+    btnFav.appendChild(criarIcone("heart"));
     favLi.appendChild(btnFav);
 
     const cartLi = document.createElement("li");
@@ -792,7 +806,7 @@ function criarCardRelacionado(produto) {
     btnCart.type = "button";
     btnCart.className = `btn-icon${estaNoCarrinho(produto.id) ? " is-cart" : ""}`;
     btnCart.setAttribute("aria-label", "Adicionar ao carrinho");
-    btnCart.innerHTML = `<i data-lucide="shopping-cart" aria-hidden="true"></i>`;
+    btnCart.appendChild(criarIcone("shopping-cart"));
     cartLi.appendChild(btnCart);
 
     actions.append(favLi, cartLi);
@@ -826,13 +840,15 @@ function criarCardRelacionado(produto) {
     const btnComprar = document.createElement("button");
     btnComprar.type = "button";
     btnComprar.className = "btn-buy";
-    btnComprar.innerHTML = `<span>Comprar</span>`;
+    const textoComprar = document.createElement("span");
+    textoComprar.textContent = "Comprar";
+    btnComprar.appendChild(textoComprar);
 
     const btnSeta = document.createElement("button");
     btnSeta.type = "button";
     btnSeta.className = "btn-arrow";
     btnSeta.setAttribute("aria-label", `Ver ${produto.nome}`);
-    btnSeta.innerHTML = `<i data-lucide="chevron-right" aria-hidden="true"></i>`;
+    btnSeta.appendChild(criarIcone("chevron-right"));
 
     footer.append(btnComprar, btnSeta);
     info.append(marca, titulo, preco, footer);
