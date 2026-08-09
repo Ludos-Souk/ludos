@@ -165,7 +165,6 @@ input:focus-visible {
     border-radius: 8px;
 }
 
-/* Ícones Lucide */
 .lucide {
     width: 1em;
     height: 1em;
@@ -225,7 +224,6 @@ input:focus-visible {
     border-bottom-right-radius: 50px;
 }
 
-/* Logo */
 .logo img {
     height: 110px;
     width: auto;
@@ -532,9 +530,9 @@ input:focus-visible {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.side-icon {
+.side-icon { 
     font-size: 32px;
-    color: var(--text-muted);
+    color: #ccc;
     margin-bottom: 40px;
 }
 
@@ -649,15 +647,15 @@ input:focus-visible {
 }
 
 .discount-badge {
-    background: var(--color-primary-soft);
-    color: var(--bg-white);
-    padding: 0 14px;
-    height: 28px;
+    background: #89a3ff;
+    color: white; 
+    padding: 0 14px; 
+    height: 28px; 
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-pill);
-    font-size: 11px;
+    border-radius: 999px;
+    font-size: 11px; 
     font-weight: bold;
 }
 
@@ -669,9 +667,9 @@ input:focus-visible {
 }
 
 .btn-icon {
-    background: var(--bg-input);
-    width: 46px;
-    height: 46px;
+    background: #f4f5f9; 
+    width: 46px;  
+    height: 46px; 
     border: none;
     display: flex;
     justify-content: center;
@@ -1491,18 +1489,15 @@ select {
     pointer-events: none;
 }
 
-/* ============================================================
-   POPUP DE FILTRO
-   ============================================================ */
 .filter-wrapper {
     position: relative;
 }
 
 .filter-popup {
     position: absolute;
-    top: calc(100% + 15px);
-    right: 0;
-    background-color: var(--bg-white);
+    top: calc(100% + 15px); 
+    right: 0; 
+    background-color: #ffffff;
     border-radius: 28px;
     padding: 24px;
     width: 230px;
@@ -1527,8 +1522,9 @@ select {
 .filter-popup h3 {
     font-size: 16px;
     font-weight: 700;
-    color: #000;
+    color: #000000;
     margin: 0;
+    text-align: left;
 }
 
 .filter-menu {
@@ -1539,11 +1535,11 @@ select {
 
 .header-icons .filter-popup .btn-filter-option {
     width: 100%;
-    height: auto;
+    height: auto; 
     padding: 14px 18px;
-    background-color: var(--bg-subtle);
+    background-color: #807E7D1A; 
     border: none;
-    border-radius: var(--radius-pill);
+    border-radius: 999px; 
     font-weight: 600;
     font-size: 14px;
     color: #4342428A;
