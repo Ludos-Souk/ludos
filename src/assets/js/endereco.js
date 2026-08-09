@@ -121,6 +121,22 @@ function inicializarScrollHeader() {
     });
 }
 
+/* Header navigation helpers: cart and filter fallback */
+(function() {
+    const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
+    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
+
+    const btnFiltro = document.getElementById('btn-filter');
+    if (btnFiltro) {
+        btnFiltro.addEventListener('click', (e) => {
+            if (!window.location.pathname.endsWith('home.html')) {
+                sessionStorage.setItem('open-filter', 'true');
+                window.location.href = 'home.html';
+            }
+        });
+    }
+})();
+
 
 // --- Pesquisa por voz (Speech Recognition) ---
 

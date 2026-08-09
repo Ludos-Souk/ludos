@@ -52,12 +52,7 @@
             <h2 class="checkout-page-title">Finalize sua compra</h2>
         </header>
 
-        <section class="checkout-product-strip" aria-label="Produto selecionado">
-            <figure class="product-images">
-                <span class="img-placeholder" aria-hidden="true"></span>
-            </figure>
-            <h3 class="checkout-product-name">Boneco Funko Pop João Maldonado Vergonha</h3>
-        </section>
+        <section class="checkout-products-list" aria-label="Produtos selecionados"></section>
 
         <section class="checkout-layout">
             
@@ -73,18 +68,19 @@
                         <li><button type="button" data-type="retirar" aria-pressed="false">Retirar na loja</button></li>
                     </menu>
 
-                    <address class="address-box">
-                        <i data-lucide="map-pin" aria-hidden="true"></i>
-                        <section class="address-details">
-                            <h4>Casa</h4>
-                            <p>Gabriela<br>Av. Franz Voegeli Nº 900<br>CEP: 06020190 - Osasco, São Paulo</p>
-                        </section>
-                        <button type="button" class="btn-edit action-btn" aria-label="Editar endereço de entrega"><i data-lucide="pencil" aria-hidden="true"></i></button>
-                    </address>
+                    <div id="checkout-address-wrapper" class="checkout-address-wrapper">
+                        <article class="card address-card">
+                            <address class="address-info">
+                                <span class="address-label">Endereço</span>
+                                <span class="address-value sign" id="checkout-address-value">Ainda não há nenhum endereço selecionado</span>
+                            </address>
+                            <button type="button" class="btn-change-address" aria-label="Alterar endereço de entrega">Cadastrar</button>
+                        </article>
+                    </div>
 
                     <footer class="delivery-footer">
-                        <span class="delivery-estimate"><i data-lucide="truck" aria-hidden="true"></i> Chegará em 5 dias úteis</span>
-                        <span>Frete <span class="destaque-azul">grátis</span></span>
+                        <span class="delivery-estimate"><i data-lucide="truck" aria-hidden="true"></i> <span id="delivery-estimate-text">Chegará em 5 dias úteis</span></span>
+                        <span>Frete <span class="destaque-azul" id="delivery-frete-text">grátis</span></span>
                     </footer>
                 </article>
 
@@ -148,16 +144,16 @@
                     
                     <dl class="summary-details">
                         <dt>Produto</dt>
-                        <dd>R$ 129.99</dd>
+                        <dd id="resumo-produto">R$ 0,00</dd>
                         
                         <dt>Desconto</dt>
                         <dd class="summary-multiline-col">
-                            <span>R$ 25.99</span>
-                            <small>20% na 1ª compra</small>
+                            <span id="resumo-desconto">R$ 0,00</span>
+                            <small id="resumo-desconto-text"></small>
                         </dd>
                         
                         <dt>Frete</dt>
-                        <dd class="destaque-azul">Grátis</dd>
+                        <dd class="destaque-azul" id="resumo-frete">Grátis</dd>
                         
                         <dt>Pagamento</dt>
                         <dd class="summary-multiline-col" id="resumo-pagamento">
@@ -166,12 +162,12 @@
                         </dd>
                         
                         <dt>Chegará em</dt>
-                        <dd class="borda-inferior">5 dias úteis</dd>
+                        <dd class="borda-inferior" id="resumo-chegara">5 dias úteis</dd>
                     </dl>
                     
                     <dl class="summary-total">
                         <dt>Total</dt>
-                        <dd>R$ 104</dd>
+                        <dd id="resumo-total">R$ 0,00</dd>
                     </dl>
                     
                     <button class="btn-buy btn-continue" type="button">Pagar e finalizar</button>
@@ -205,6 +201,26 @@
             <p>Política de privacidade &copy; 2026</p>
         </section>
     </footer>
+
+    <dialog id="modal-endereco" class="modal-endereco" aria-labelledby="modal-titulo">
+        <article class="modal-content">
+            <header class="modal-header">
+                <h3 id="modal-titulo" class="modal-title">Escolha um endereço de entrega</h3>
+                <button type="button" class="btn-close-modal" id="btn-fechar-modal" aria-label="Fechar pop-up de endereço">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </header>
+            
+            <section class="modal-body modal-body-empty">
+                <p>Cadastre um endereço de entrega</p>
+            </section>
+            
+            <footer class="modal-footer">
+                <button type="button" class="btn-confirmar">Confirmar</button>
+                <button type="button" class="btn-adicionar">Adicionar endereço</button>
+            </footer>
+        </article>
+    </dialog>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../assets/js/finalizarPedido.js"></script>

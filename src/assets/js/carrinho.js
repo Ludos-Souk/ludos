@@ -24,6 +24,7 @@ if (window.lucide) {
 
 const header = document.querySelector('.header');
 const searchForm = document.querySelector('.search-form');
+const btnContinuar = document.querySelector(".btn-continue");
 const inputBusca = document.getElementById('search-input');
 const btnMicrofone = document.querySelector('.mic-btn');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -36,6 +37,16 @@ searchForm.addEventListener('submit', (event) => {
         window.location.href = "home.html";
     }
 });
+
+// botão de filtro no cabeçalho: quando clicado redireciona para a home e abre o popup de filtro
+const btnFiltro = document.getElementById('btn-filter');
+if (btnFiltro) {
+    btnFiltro.addEventListener('click', (e) => {
+        e.preventDefault();
+        sessionStorage.setItem('open-filter', 'true');
+        window.location.href = 'home.html';
+    });
+}
 
 window.addEventListener("scroll", () => {
     if (window.scrollY > 30) {
@@ -585,7 +596,9 @@ function renderCart() {
             } else {
                 selectAll.classList.remove('selecionado');
             }
-            selectAllCheckbox.checked = verificarTodosSelecionados()
+            selectAllCheckbox.checked = verificarTodosSelecionados();
+            calcularTotal();
+            habilitarContinuar();
         });
 
         btnFavorito.addEventListener("click", (event) => {
@@ -696,6 +709,7 @@ selectAllCheckbox.addEventListener('change', (e) => {
         });
     
     const selectAll =  document.querySelector(".select-all-wrapper");
+    habilitarContinuar();
     if (isChecked) {
         selectAll.classList.add('selecionado');
         return;
@@ -788,19 +802,47 @@ function formatarMoeda(valor) {
     return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-document.querySelectorAll(".sr-only.item-checkbox").forEach(checkbox => {
-    checkbox.addEventListener("change", (event) => {
+function habilitarContinuar() {
+    const cardsSelecionados =
+        document.querySelectorAll(
+            ".cart-product-card.selecionado"
+        );
 
-        console.log('oi')
-        const article = event.target.closest(".cart-product-card");
+    btnContinuar.disabled = !cardsSelecionados
+}
 
-        if (event.target.checked) {
-            article.classList.add("selecionado");
-        } else {
-            article.classList.remove("selecionado");
-        }
+btnContinuar.addEventListener("click", () => {
 
-    });
+    const cardsSelecionados =
+        document.querySelectorAll(
+            ".cart-product-card.selecionado"
+        );
+
+    const produtosSelecionados =
+        [...cardsSelecionados].map(card => {
+
+            const index =
+                Number(card.dataset.index);
+
+            const produto =
+                cartData[index];
+
+            return {
+                id: produto.id,
+                quantidade: quantidadeProduto(produto.id)
+            };
+
+        });
+
+    if (produtosSelecionados.length === 0) {
+        return;
+    }
+
+    sessionStorage.setItem(
+        "produtosSelecionados",
+        JSON.stringify(produtosSelecionados)
+    );
+    window.location.href = "finalizarPedido.html";
 });
 
 // Renderiza a lista assim que o script carregar

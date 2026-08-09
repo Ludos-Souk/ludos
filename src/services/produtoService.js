@@ -12,7 +12,8 @@ import {
     doc,
     query,
     where,
-    documentId
+    documentId,
+    increment
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -110,25 +111,27 @@ export async function buscarProdutosAtivos() {
     const snapshot =
         await getDocs(consulta);
 
-    return snapshot.docs.map(documento => {
+    return snapshot.docs
+        .map(documento => {
 
-        const dados =
-            documento.data();
+            const dados =
+                documento.data();
 
-        return new Produto(
-            documento.id,
-            dados.ativo,
-            dados.criadoEm,
-            dados.descricao,
-            dados.desconto,
-            dados.estoque,
-            dados.franquia,
-            dados.imagem,
-            dados.nome,
-            dados.preco
-        );
+            return new Produto(
+                documento.id,
+                dados.ativo,
+                dados.criadoEm,
+                dados.descricao,
+                dados.desconto,
+                dados.estoque,
+                dados.franquia,
+                dados.imagem,
+                dados.nome,
+                dados.preco
+            );
 
-    });
+        })
+        .filter(produto => produto.estoque > 0);
 
 }
 
@@ -225,6 +228,19 @@ export async function excluirProduto(id) {
         )
     );
 
+}
+
+export async function reduzirEstoqueProduto(id, quantidade) {
+    const referencia =
+        doc(
+            db,
+            "produtos",
+            id
+        );
+
+    await updateDoc(referencia, {
+        estoque: increment(-quantidade)
+    });
 }
 
 export async function buscarProdutosPorIds(ids) {

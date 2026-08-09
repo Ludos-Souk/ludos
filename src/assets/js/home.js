@@ -16,7 +16,8 @@ import {
 import {
     toggleCarrinho,
     estaNoCarrinho,
-    quantidadeProdutos
+    quantidadeProdutos,
+    buscarItemCarrinho
 } from "../../services/carrinhoService.js";
 import {
     existeConfiguracao,
@@ -465,6 +466,15 @@ function hrefEndereco() {
     carregarEnderecos();
 
     sessionStorage.removeItem("href-endereco");
+}
+
+function hrefFiltro() {
+    const abrirFiltro = sessionStorage.getItem('open-filter');
+    if (!abrirFiltro) return;
+
+    // garante que o popup e listeners já existem
+    abrirPopupFiltro();
+    sessionStorage.removeItem('open-filter');
 }
 
 
@@ -1170,6 +1180,24 @@ function criarCard(produto) {
         textoComprar
     );
 
+    btnComprar.addEventListener("click", () => {
+        const itemCarrinho = buscarItemCarrinho(produto.id);
+        const quantidade = itemCarrinho?.quantidade ?? 1;
+
+        const produtosSelecionados = [
+            {
+                id: produto.id,
+                quantidade
+            }
+        ];
+
+        sessionStorage.setItem(
+            "produtosSelecionados",
+            JSON.stringify(produtosSelecionados)
+        );
+
+        window.location.href = "finalizarPedido.html";
+    });
 
     const btnAvaliacoes =
         document.createElement("button");
@@ -1410,6 +1438,7 @@ inicializarIconesLucide();
 await carregarCatalogo();
 hrefPesquisa();
 hrefEndereco();
+hrefFiltro();
 
 inicializarBanner();
 inicializarPesquisaPorVoz();

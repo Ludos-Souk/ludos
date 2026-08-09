@@ -53,6 +53,22 @@ if (SpeechRecognition) {
     alert("Seu navegador não tem suporte para pesquisa por voz.");
 }
 
+/* Header navigation helpers: cart and filter fallback */
+(function() {
+    const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
+    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
+
+    const btnFiltro = document.getElementById('btn-filter');
+    if (btnFiltro) {
+        btnFiltro.addEventListener('click', (e) => {
+            if (!window.location.pathname.endsWith('home.html')) {
+                sessionStorage.setItem('open-filter', 'true');
+                window.location.href = 'home.html';
+            }
+        });
+    }
+})();
+
 // #region Verificação de acesso
 const usuario = await verificarLogin();
 if (!usuario) {
@@ -124,9 +140,7 @@ if (!produto) {
 async function renderProduto(produto) {
 
     const container =
-        document.getElementById(
-            "produto-detalhe"
-        );
+        document.getElementById("produto-detalhe");
 
     container.innerHTML = "";
 
@@ -166,10 +180,35 @@ async function renderProduto(produto) {
         produto
     );
 
-    await carregarAvaliacoes(
+    configurarComprar(
+        info.btnComprar,
         produto.id
     );
 
+    await carregarAvaliacoes(
+        produto.id
+    );
+}
+
+function configurarComprar(btnComprar, produtoId) {
+
+    btnComprar.addEventListener("click", () => {
+        const quantidade = quantidadeProduto(produtoId);
+        if (quantidade <= 0) {
+            return;
+        }
+        const produtosSelecionados = [
+            {
+                id: produtoId,
+                quantidade: quantidade
+            }
+        ];
+        sessionStorage.setItem(
+            "produtosSelecionados",
+            JSON.stringify(produtosSelecionados)
+        );
+        window.location.href = "finalizarPedido.html";
+    });
 }
 
 function criarColunaInfo(produto) {
@@ -220,24 +259,18 @@ function criarColunaInfo(produto) {
     );
 
     return {
-
         elemento: coluna,
-
         btnFavorito:
             topo.btnFavorito,
-
         btnCarrinho:
             topo.btnCarrinho,
-
         btnMais:
             quantidade.btnMais,
-
         btnMenos:
             quantidade.btnMenos,
-
         valorQuantidade:
-            quantidade.valor
-
+            quantidade.valor,
+        btnComprar
     };
 
 }
@@ -807,4 +840,5 @@ function criarCardRelacionado(produto) {
 
     return card;
 }
+
 // #endregion

@@ -10,9 +10,8 @@ import {
     doc,
     query,
     where
-}
-from
-"https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
 
 export async function criarPedido(pedido) {
 
@@ -23,8 +22,8 @@ export async function criarPedido(pedido) {
         );
 
     return referencia.id;
-
 }
+
 
 export async function buscarPedido(id) {
 
@@ -43,12 +42,18 @@ export async function buscarPedido(id) {
     return new Pedido(
         snapshot.id,
         dados.produtos,
+        dados.preco,
+        dados.desconto,
+        dados.endereco,
+        dados.formaEntrega,
+        dados.metodo,
+        dados.parcelas,
         dados.status,
         dados.usuarioId,
         dados.criadoEm
     );
-
 }
+
 
 export async function listarPedidos() {
 
@@ -65,14 +70,20 @@ export async function listarPedidos() {
         return new Pedido(
             documento.id,
             dados.produtos,
+            dados.preco,
+            dados.desconto,
+            dados.endereco,
+            dados.formaEntrega,
+            dados.metodo,
+            dados.parcelas,
             dados.status,
             dados.usuarioId,
             dados.criadoEm
         );
 
     });
-
 }
+
 
 export async function listarPedidosUsuario(
     usuarioId
@@ -92,22 +103,36 @@ export async function listarPedidosUsuario(
         await getDocs(consulta);
 
     return snapshot.docs.map(documento => {
+
         const dados =
             documento.data();
+
         return new Pedido(
             documento.id,
             dados.produtos,
+            dados.preco,
+            dados.desconto,
+            dados.endereco,
+            dados.formaEntrega,
+            dados.metodo,
+            dados.parcelas,
             dados.status,
             dados.usuarioId,
             dados.criadoEm
         );
+
     });
 }
 
-export async function usuarioJaFezPedido(usuarioId) {
+
+export async function usuarioJaFezPedido(
+    usuarioId
+) {
+
     if (!usuarioId) {
         return false;
     }
+
     const consulta =
         query(
             collection(db, "pedidos"),
@@ -117,21 +142,22 @@ export async function usuarioJaFezPedido(usuarioId) {
                 usuarioId
             )
         );
+
     const snapshot =
         await getDocs(consulta);
+
     return !snapshot.empty;
 }
+
 
 export async function atualizarStatusPedido(
     id,
     status
 ) {
-
     await updateDoc(
         doc(db, "pedidos", id),
         {
             status: status
         }
     );
-
 }
