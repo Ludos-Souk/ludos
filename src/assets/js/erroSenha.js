@@ -1,27 +1,9 @@
-import { 
-    verificarLogin 
-} from "../../services/authService.js";
-
-async function verificarAcesso() {
-
-    const usuario =
-        await verificarLogin();
-
-    if (usuario) {
-        window.location.href =
-            "home.html";
-
-        return;
-    }
-}
-
-verificarAcesso();
-
+import { ROTAS } from "../../config/rotas.js";
 const formulario = document.getElementById("erroSenha-form");
 const botao = formulario.querySelector('button[type="submit"]');
 
 formulario.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    window.location.href = "esqueciSenha.html";
+    window.location.href = ROTAS.ESQUECI_SENHA;
 })

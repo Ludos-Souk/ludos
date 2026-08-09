@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import {
     buscarProdutosAtivos
@@ -6,17 +7,15 @@ import {
     toggleFavorito,
     ehFavorito
 } from "../../services/favoritosService.js";
-import {
-    verificarLogin,
-    obterUid
-} from "../../services/authService.js";
+import { obterUid } from "../../services/authService.js";
 import {
     listarEnderecos
 } from "../../services/usuarioService.js";
 import {
     toggleCarrinho,
     estaNoCarrinho,
-    quantidadeProdutos
+    quantidadeProdutos,
+    buscarItemCarrinho
 } from "../../services/carrinhoService.js";
 import {
     existeConfiguracao,
@@ -66,19 +65,14 @@ let timeoutToast = null;
 
 // #region Métodos
 
-// --- Acesso / configurações salvas ---
-
-async function verificarAcesso() {
-    const usuario =
-        await verificarLogin();
-
-    if (!usuario) {
-        window.location.href =
-            "login.html";
-
-        return;
-    }
+function criarMensagemEstado(texto, classe = "estado-vazio") {
+    const mensagem = document.createElement("p");
+    mensagem.className = classe;
+    mensagem.textContent = texto;
+    return mensagem;
 }
+
+// --- Acesso / configurações salvas ---
 
 function configurarEndereco() {
     if (existeConfiguracao("enderecoPadrao")) {
@@ -140,7 +134,7 @@ function inicializarNavegacaoCarrinho() {
         
     if (btnHeaderCarrinho) {
         btnHeaderCarrinho.addEventListener('click', () => {
-            window.location.href = "carrinho.html";
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 
@@ -149,7 +143,7 @@ function inicializarNavegacaoCarrinho() {
         
     if (cartCard) {
         cartCard.addEventListener('click', () => {
-            window.location.href = "carrinho.html";
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 }
@@ -223,20 +217,41 @@ export function mostrarToastCarrinho(
     toast.setAttribute("aria-live", "polite");
     toast.setAttribute("aria-atomic", "true");
 
-    toast.innerHTML = `
-        <span class="cart-toast-content">
-            <span class="cart-toast-icon" aria-hidden="true">
-                <i data-lucide="check"></i>
-            </span>
-            <p>${mensagem}</p>
-        </span>
-        <span class="cart-toast-actions">
-            <button type="button" class="btn-go-cart">Ir para carrinho</button>
-            <button type="button" class="btn-close-toast" aria-label="Fechar aviso">
-                <i data-lucide="x"></i>
-            </button>
-        </span>
-    `;
+    const content = document.createElement("span");
+    content.className = "cart-toast-content";
+
+    const icon = document.createElement("span");
+    icon.className = "cart-toast-icon";
+    icon.setAttribute("aria-hidden", "true");
+
+    const iconCheck = document.createElement("i");
+    iconCheck.setAttribute("data-lucide", "check");
+    icon.appendChild(iconCheck);
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = mensagem;
+
+    content.append(icon, paragraph);
+
+    const actions = document.createElement("span");
+    actions.className = "cart-toast-actions";
+
+    const btnCart = document.createElement("button");
+    btnCart.type = "button";
+    btnCart.className = "btn-go-cart";
+    btnCart.textContent = "Ir para carrinho";
+
+    const btnClose = document.createElement("button");
+    btnClose.type = "button";
+    btnClose.className = "btn-close-toast";
+    btnClose.setAttribute("aria-label", "Fechar aviso");
+
+    const iconClose = document.createElement("i");
+    iconClose.setAttribute("data-lucide", "x");
+    btnClose.appendChild(iconClose);
+
+    actions.append(btnCart, btnClose);
+    toast.append(content, actions);
 
     header.appendChild(toast);
 
@@ -248,24 +263,20 @@ export function mostrarToastCarrinho(
         lucide.createIcons();
     }
 
-    toast
-        .querySelector(".btn-close-toast")
-        .addEventListener("click", () => { 
-            toast.remove();
-            
-            if (!bannerFechado) {
-                banner.classList.remove("oculto");
-            } else {
-                header.classList.add("sem-banner");
-                mainContent.style.marginTop = "160px"; 
-            }
-        });
+    btnClose.addEventListener("click", () => { 
+        toast.remove();
+        
+        if (!bannerFechado) {
+            banner.classList.remove("oculto");
+        } else {
+            header.classList.add("sem-banner");
+            mainContent.style.marginTop = "160px"; 
+        }
+    });
 
-    toast
-        .querySelector(".btn-go-cart")
-        .addEventListener("click", () => {
-            window.location.href = "carrinho.html";
-        });
+    btnCart.addEventListener("click", () => {
+        window.location.href = ROTAS.CARRINHO;
+    });
 
     timeoutToast = setTimeout(() => {
         toast.remove();
@@ -467,6 +478,15 @@ function hrefEndereco() {
     sessionStorage.removeItem("href-endereco");
 }
 
+function hrefFiltro() {
+    const abrirFiltro = sessionStorage.getItem('open-filter');
+    if (!abrirFiltro) return;
+
+    // garante que o popup e listeners já existem
+    abrirPopupFiltro();
+    sessionStorage.removeItem('open-filter');
+}
+
 
 // --- Modal de endereço ---
 
@@ -528,7 +548,7 @@ function inicializarModalEndereco() {
 
     if (btnIrParaCadastro) {
         btnIrParaCadastro.addEventListener('click', () => {
-            window.location.href = "endereco.html";
+            window.location.href = ROTAS.ENDERECO;
         });
     }
 }
@@ -670,7 +690,7 @@ function carregarListaEnderecos(enderecos) {
         "modal-body-empty"
     );
 
-    modalBody.innerHTML = "";
+    modalBody.replaceChildren();
 
     const lista =
         document.createElement(
@@ -919,7 +939,7 @@ function inicializarModalBodyListeners() {
         const id = botao.dataset.id;
         sessionStorage.setItem('edit-address', id);
 
-        window.location.href = "endereco.html";
+        window.location.href = ROTAS.ENDERECO;
     });
 }
 
@@ -1170,6 +1190,24 @@ function criarCard(produto) {
         textoComprar
     );
 
+    btnComprar.addEventListener("click", () => {
+        const itemCarrinho = buscarItemCarrinho(produto.id);
+        const quantidade = itemCarrinho?.quantidade ?? 1;
+
+        const produtosSelecionados = [
+            {
+                id: produto.id,
+                quantidade
+            }
+        ];
+
+        sessionStorage.setItem(
+            "produtosSelecionados",
+            JSON.stringify(produtosSelecionados)
+        );
+
+        window.location.href = ROTAS.FINALIZAR_PEDIDO;
+    });
 
     const btnAvaliacoes =
         document.createElement("button");
@@ -1240,9 +1278,7 @@ async function carregarCatalogo() {
 
     try {
 
-        container.innerHTML = `
-            <p>Carregando produtos...</p>
-        `;
+        container.replaceChildren(criarMensagemEstado("Carregando produtos..."));
 
         const produtos =
             await buscarProdutosAtivos();
@@ -1290,12 +1326,7 @@ async function carregarCatalogo() {
             erro
         );
 
-        container.innerHTML = `
-            <p>
-                Não foi possível carregar
-                os produtos.
-            </p>
-        `;
+        container.replaceChildren(criarMensagemEstado("Não foi possível carregar os produtos."));
 
         return [];
     }
@@ -1303,7 +1334,7 @@ async function carregarCatalogo() {
 
 function renderCatalogo(lista, container) {
 
-    container.innerHTML = "";
+    container.replaceChildren();
 
     const fragment =
         document.createDocumentFragment();
@@ -1390,7 +1421,7 @@ function inicializarListenersProdutos() {
 
         sessionStorage.setItem("produtoId", idProduto);
 
-        window.location.href = `avaliacaoProduto.html`;
+        window.location.href = ROTAS.AVALIACAO_PRODUTO;
     });
 }
 
@@ -1399,7 +1430,6 @@ function inicializarListenersProdutos() {
 
 // #region Métodos de inicialização
 
-verificarAcesso();
 
 inicializarNavegacaoCarrinho();
 configurarEndereco();
@@ -1410,6 +1440,7 @@ inicializarIconesLucide();
 await carregarCatalogo();
 hrefPesquisa();
 hrefEndereco();
+hrefFiltro();
 
 inicializarBanner();
 inicializarPesquisaPorVoz();

@@ -27,7 +27,7 @@
         </search>
         <nav class="header-icons" aria-label="Menu principal do usuário">
             <ul>
-                <li><button aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li><button id="btn-filter" aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
                 <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
                 <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
                 <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
@@ -82,10 +82,7 @@
     </footer>
 
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        window.addEventListener('DOMContentLoaded', function () {
-            if (window.lucide) window.lucide.createIcons();
-        });
-    </script>
+    <script type="module" src="../routes/router.js"></script>
+    <script type="module" src="../assets/js/erroPedido.js"></script>
 </body>
 </html>

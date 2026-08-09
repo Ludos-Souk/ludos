@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import Endereco from "../../models/Endereco.js";
 import {
@@ -121,6 +122,21 @@ function inicializarScrollHeader() {
     });
 }
 
+(function() {
+    const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
+    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
+
+    const btnFiltro = document.getElementById('btn-filter');
+    if (btnFiltro) {
+        btnFiltro.addEventListener('click', (e) => {
+            if (!window.location.pathname.endsWith(ROTAS.HOME)) {
+                sessionStorage.setItem('open-filter', 'true');
+                window.location.href = ROTAS.HOME;
+            }
+        });
+    }
+})();
+
 
 // --- Pesquisa por voz (Speech Recognition) ---
 
@@ -171,7 +187,7 @@ function inicializarFormularioBusca() {
 
         if (busca) {
             sessionStorage.setItem("href-pesquisa", busca);
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         }
     });
 }
@@ -182,7 +198,7 @@ function inicializarFormularioBusca() {
 function inicializarBtnVoltar() {
     if (btnVoltar) {
         btnVoltar.addEventListener('click', () => {
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         });
     }
 }
@@ -237,7 +253,17 @@ async function carregarEstados() {
 
     } catch (erro) {
         console.error("Erro ao buscar os estados no IBGE:", erro);
-        selectUf.innerHTML += '<option value="SP">SP</option><option value="RJ">RJ</option>';
+        const fallbackOptions = [
+            { value: 'SP', label: 'SP' },
+            { value: 'RJ', label: 'RJ' }
+        ];
+
+        fallbackOptions.forEach(({ value, label }) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            selectUf.appendChild(option);
+        });
     }
 }
 
@@ -319,7 +345,7 @@ function inicializarFormularioEndereco() {
                 })
             );
 
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         } catch (erro) {
             console.error(erro);
             if (botao) {

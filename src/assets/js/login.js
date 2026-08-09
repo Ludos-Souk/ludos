@@ -1,23 +1,6 @@
+import { ROTAS } from "../../config/rotas.js";
 import { login } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
-import { 
-    verificarLogin 
-} from "../../services/authService.js";
-
-async function verificarAcesso() {
-
-    const usuario =
-        await verificarLogin();
-
-    if (usuario) {
-        window.location.href =
-            "home.html";
-
-        return;
-    }
-}
-
-verificarAcesso();
 
 const formulario = document.getElementById("login-form");
 const botao = formulario.querySelector('button[type="submit"]');
@@ -74,5 +57,5 @@ function exibirErroDeLogin(erro) {
 }
 
 function irParaHome() {
-    window.location.href = "home.html";
+    window.location.href = ROTAS.HOME;
 }
