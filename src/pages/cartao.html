@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Cartão | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/home.css">
+</head>
+<body id="topo">
+
+    <header class="header sem-banner">
+        <h1 class="logo">
+            <a href="home.html" aria-label="Voltar para a página inicial">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
+            </a>
+        </h1>
+
+        <search class="search-bar">
+            <form class="search-form" role="search">
+                <label for="search-input" class="sr-only">Buscar Boneco</label>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
+                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
+                    <i data-lucide="mic" aria-hidden="true"></i>
+                </button>
+            </form>
+        </search>
+
+        <nav class="header-icons" aria-label="Menu principal do usuário">
+            <ul>
+                <li><button aria-label="Abrir menu de categorias"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
+                <li><button aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="form-page-content">
+        <span class="content-handle" aria-hidden="true"></span>
+
+        <header class="page-header">
+            <button type="button" class="btn-back" aria-label="Voltar para a tela anterior" onclick="history.back()">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+            </button>
+            <hgroup class="page-title-group">
+                <h2>Novo cartão de crédito</h2>
+            </hgroup>
+        </header>
+
+        <div class="card-page-grid">
+
+            <!-- Formulário -->
+            <form id="cartao-form" class="address-form card-form" aria-label="Formulário de novo cartão de crédito">
+
+                <fieldset class="form-section">
+                    <legend class="sr-only">Dados do cartão</legend>
+
+                    <label class="input-wrapper">
+                        <span class="sr-only">Número do cartão</span>
+                        <input type="text" id="numero-cartao" name="numero" placeholder="Número do cartão"
+                               maxlength="19" inputmode="numeric" autocomplete="cc-number">
+                        <button type="button" class="btn-clear-input" aria-label="Limpar campo">
+                            <i data-lucide="x" aria-hidden="true"></i>
+                        </button>
+                    </label>
+
+                    <label class="input-wrapper">
+                        <span class="sr-only">Nome do titular</span>
+                        <input type="text" id="nome-titular" name="nome" placeholder="Nome do titular"
+                               autocomplete="cc-name">
+                        <button type="button" class="btn-clear-input" aria-label="Limpar campo">
+                            <i data-lucide="x" aria-hidden="true"></i>
+                        </button>
+                    </label>
+                    <small class="card-hint">Conforme aparece no cartão</small>
+
+                    <div class="grid-2-cols grid-vencimento-cvv">
+                        <label class="input-wrapper">
+                            <span class="sr-only">Vencimento</span>
+                            <input type="text" id="vencimento" name="vencimento" placeholder="Vencimento"
+                                   maxlength="7" inputmode="numeric" autocomplete="cc-exp">
+                            <button type="button" class="btn-clear-input" aria-label="Limpar campo">
+                                <i data-lucide="x" aria-hidden="true"></i>
+                            </button>
+                        </label>
+
+                        <label class="input-wrapper">
+                            <span class="sr-only">CVV</span>
+                            <input type="text" id="cvv" name="cvv" placeholder="CVV"
+                                   maxlength="4" inputmode="numeric" autocomplete="cc-csc">
+                            <button type="button" class="btn-clear-input" aria-label="Limpar campo">
+                                <i data-lucide="x" aria-hidden="true"></i>
+                            </button>
+                        </label>
+                    </div>
+
+                    <label class="input-wrapper">
+                        <span class="sr-only">CPF/CIN do titular</span>
+                        <input type="text" id="cpf-titular" name="cpf" placeholder="CPF/CIN do titular"
+                               maxlength="14" inputmode="numeric" autocomplete="off">
+                        <button type="button" class="btn-clear-input" aria-label="Limpar campo">
+                            <i data-lucide="x" aria-hidden="true"></i>
+                        </button>
+                    </label>
+                </fieldset>
+
+                <!-- Botão visível só no mobile (abaixo do form) -->
+                <footer class="form-footer card-form-footer--mobile">
+                    <button type="submit" class="btn-submit-address btn-add-card">
+                        Adicionar e voltar ao pedido
+                    </button>
+                </footer>
+
+            </form>
+
+            <!-- Preview do cartão -->
+            <aside class="card-preview-col" aria-label="Pré-visualização do cartão">
+                <div class="card-visual" id="card-visual" aria-hidden="true">
+                    <div class="card-visual__brand">
+                        <!-- Bandeira injetada via JS; padrão vazio -->
+                        <span class="card-brand-icon" id="card-brand-icon"></span>
+                    </div>
+                    <p class="card-visual__cvv-placeholder">****</p>
+                    <p class="card-visual__number" id="card-display-number">**** <span id="card-last4"></span></p>
+                </div>
+
+                <!-- Botão visível só no desktop (ao lado do preview) -->
+                <button type="submit" form="cartao-form" class="btn-submit-address btn-add-card btn-add-card--desktop">
+                    Adicionar e voltar ao pedido
+                </button>
+            </aside>
+
+        </div>
+    </main>
+
+    <footer class="footer-wrapper">
+        <section class="footer-grid">
+            <section class="footer-col">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" class="footer-logo">
+                <h4>INFORMAÇÕES DE CONTATO</h4>
+                <address>
+                    <p><i data-lucide="mail" aria-hidden="true"></i> ludosouk@gmail.com</p>
+                    <p><i data-lucide="phone" aria-hidden="true"></i> 11 99955-0603</p>
+                </address>
+            </section>
+            <nav class="footer-col" aria-label="Links Rápidos">
+                <h4>LINKS RÁPIDOS</h4>
+                <p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+            <nav class="footer-col" aria-label="Ajuda e Suporte">
+                <h4>AJUDA</h4>
+                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+        </section>
+        <hr class="footer-divider">
+        <section class="footer-bottom">
+            <p>Política de privacidade &copy; 2026</p>
+        </section>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) window.lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

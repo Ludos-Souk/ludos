@@ -92,10 +92,8 @@ export async function listarPedidosUsuario(
         await getDocs(consulta);
 
     return snapshot.docs.map(documento => {
-
         const dados =
             documento.data();
-
         return new Pedido(
             documento.id,
             dados.produtos,
@@ -103,9 +101,25 @@ export async function listarPedidosUsuario(
             dados.usuarioId,
             dados.criadoEm
         );
-
     });
+}
 
+export async function usuarioJaFezPedido(usuarioId) {
+    if (!usuarioId) {
+        return false;
+    }
+    const consulta =
+        query(
+            collection(db, "pedidos"),
+            where(
+                "usuarioId",
+                "==",
+                usuarioId
+            )
+        );
+    const snapshot =
+        await getDocs(consulta);
+    return !snapshot.empty;
 }
 
 export async function atualizarStatusPedido(

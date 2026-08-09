@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalize sua compra | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="../assets/css/finalizarPedido.css">
+</head>
+<body id="topo">
+
+    <!-- Header Semântico e Alinhado -->
+    <header class="header sem-banner header-arredondado">
+        <h1 class="logo">
+            <a href="#topo" aria-label="Voltar ao topo da página inicial">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
+            </a>
+        </h1>
+
+        <search class="search-bar">
+            <form class="search-form" role="search">
+                <label for="search-input" class="sr-only">Buscar Boneco</label>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
+                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
+                    <i data-lucide="mic" aria-hidden="true"></i>
+                </button>
+            </form>
+        </search>
+
+        <nav class="header-icons" aria-label="Menu principal do usuário">
+            <menu class="header-icons-list">
+                <li class="filter-wrapper">
+                    <button type="button" id="btn-filter" aria-label="Abrir menu de filtros">
+                        <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+                    </button>
+                </li>
+                <li><button type="button" aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></button></li>
+                <li><button type="button" aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></button></li>
+                <li><button type="button" aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></button></li>
+            </menu>
+        </nav>
+    </header>
+
+    <main class="main-content checkout-main-wrapper">
+        <span class="content-handle" aria-hidden="true"></span>
+        
+        <header class="checkout-page-header">
+            <button class="btn-back-icon" aria-label="Voltar à página anterior" onclick="history.back()">
+                <i data-lucide="arrow-left" aria-hidden="true"></i>
+            </button>
+            <h2 class="checkout-page-title">Finalize sua compra</h2>
+        </header>
+
+        <section class="checkout-product-strip" aria-label="Produto selecionado">
+            <figure class="product-images">
+                <span class="img-placeholder" aria-hidden="true"></span>
+            </figure>
+            <h3 class="checkout-product-name">Boneco Funko Pop João Maldonado Vergonha</h3>
+        </section>
+
+        <section class="checkout-layout">
+            
+            <section class="checkout-settings-section">
+                
+                <article class="checkout-card" aria-labelledby="title-entrega">
+                    <header>
+                        <h3 id="title-entrega" class="checkout-card-title">Forma de entrega</h3>
+                    </header>
+                    
+                    <menu class="delivery-toggle" aria-label="Escolha a forma de entrega">
+                        <li><button type="button" class="active" data-type="receber" aria-pressed="true">Receber</button></li>
+                        <li><button type="button" data-type="retirar" aria-pressed="false">Retirar na loja</button></li>
+                    </menu>
+
+                    <address class="address-box">
+                        <i data-lucide="map-pin" aria-hidden="true"></i>
+                        <section class="address-details">
+                            <h4>Casa</h4>
+                            <p>Gabriela<br>Av. Franz Voegeli Nº 900<br>CEP: 06020190 - Osasco, São Paulo</p>
+                        </section>
+                        <button type="button" class="btn-edit action-btn" aria-label="Editar endereço de entrega"><i data-lucide="pencil" aria-hidden="true"></i></button>
+                    </address>
+
+                    <footer class="delivery-footer">
+                        <span class="delivery-estimate"><i data-lucide="truck" aria-hidden="true"></i> Chegará em 5 dias úteis</span>
+                        <span>Frete <span class="destaque-azul">grátis</span></span>
+                    </footer>
+                </article>
+
+                <article class="checkout-card" aria-labelledby="title-pagamento">
+                    <header>
+                        <h3 id="title-pagamento" class="checkout-card-title">Meios de pagamento</h3>
+                    </header>
+                    
+                    <menu class="payment-options" aria-label="Escolha o meio de pagamento">
+                        
+                        <li class="payment-group">
+                            <button type="button" class="payment-option pill-btn" data-method="pix" aria-pressed="false">
+                                <span class="payment-radio" aria-hidden="true"></span>
+                                <figure class="payment-icon pix-img-wrapper" aria-hidden="true">
+                                    <img src="../assets/images/pix.png" alt="" class="pix-icon-img">
+                                </figure>
+                                <section class="payment-info">
+                                    <h4>Pix</h4>
+                                    <p>Ao finalizar, daremos instruções para pagar</p>
+                                </section>
+                            </button>
+                        </li>
+
+                        <li class="payment-group">
+                            <button type="button" class="payment-option pill-btn active" data-method="credit" aria-pressed="true">
+                                <span class="payment-radio" aria-hidden="true"></span>
+                                <figure class="payment-icon mc" aria-hidden="true">
+                                    <span class="mc-logo">
+                                        <span class="mc-red"></span>
+                                        <span class="mc-orange"></span>
+                                    </span>
+                                </figure>
+                                <section class="payment-info card-info">
+                                    <h4>**** 1234</h4>
+                                    <span class="installments-label">Parcelas <i data-lucide="chevron-down" aria-hidden="true"></i></span>
+                                </section>
+                            </button>
+                            
+                            <menu class="installments-grid" aria-label="Opções de parcelamento">
+                                <li><button class="installment-btn active" type="button" aria-pressed="true">1x de R$ 104</button></li>
+                                <li><button class="installment-btn" type="button" aria-pressed="false">2x de R$ 105</button></li>
+                                <li><button class="installment-btn" type="button" aria-pressed="false">3x de R$ 106</button></li>
+                            </menu>
+                        </li>
+
+                        <li class="payment-group">
+                            <button class="btn-add-card" type="button">
+                                <span class="add-icon-circle"><i data-lucide="plus" aria-hidden="true"></i></span>
+                                Adicionar cartão de crédito
+                            </button>
+                        </li>
+                    </menu>
+                </article>
+            </section>
+
+            <aside class="checkout-summary" aria-label="Resumo do pedido">
+                <article class="summary-card">
+                    <header class="summary-header">
+                        <h3><i data-lucide="notebook-pen" aria-hidden="true"></i> Resumo do pedido</h3>
+                    </header>
+                    
+                    <dl class="summary-details">
+                        <dt>Produto</dt>
+                        <dd>R$ 129.99</dd>
+                        
+                        <dt>Desconto</dt>
+                        <dd class="summary-multiline-col">
+                            <span>R$ 25.99</span>
+                            <small>20% na 1ª compra</small>
+                        </dd>
+                        
+                        <dt>Frete</dt>
+                        <dd class="destaque-azul">Grátis</dd>
+                        
+                        <dt>Pagamento</dt>
+                        <dd class="summary-multiline-col" id="resumo-pagamento">
+                            <span>Cartão **** 1234</span>
+                            <small>1x de R$ 104</small>
+                        </dd>
+                        
+                        <dt>Chegará em</dt>
+                        <dd class="borda-inferior">5 dias úteis</dd>
+                    </dl>
+                    
+                    <dl class="summary-total">
+                        <dt>Total</dt>
+                        <dd>R$ 104</dd>
+                    </dl>
+                    
+                    <button class="btn-buy btn-continue" type="button">Pagar e finalizar</button>
+                </article>
+            </aside>
+            
+        </section>
+    </main>
+
+    <footer class="footer-wrapper checkout-footer">
+        <section class="footer-grid">
+            <section class="footer-col">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" class="footer-logo">
+                <h4>INFORMAÇÕES DE CONTATO</h4>
+                <address>
+                    <p><i data-lucide="mail" aria-hidden="true"></i> ludos.loja@gmail.com</p>
+                    <p><i data-lucide="phone" aria-hidden="true"></i> (11) 99250-0693</p>
+                </address>
+            </section>
+            <nav class="footer-col" aria-label="Links Rápidos">
+                <h4>LINKS RÁPIDOS</h4>
+                <p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+            <nav class="footer-col" aria-label="Ajuda e Suporte">
+                <h4>AJUDA</h4>
+                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+            </nav>
+        </section>
+        <hr class="footer-divider">
+        <section class="footer-bottom">
+            <p>Política de privacidade &copy; 2026</p>
+        </section>
+    </footer>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="../assets/js/finalizarPedido.js"></script>
+</body>
+</html>

@@ -240,3 +240,7 @@ export async function calcularTotal() {
     );
 
 }
+
+export function quantidadeProdutos() {
+    return listarItens().length;
+}

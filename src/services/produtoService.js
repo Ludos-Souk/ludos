@@ -256,12 +256,12 @@ export async function buscarProdutosPorIds(ids) {
             dados.ativo,
             dados.criadoEm,
             dados.descricao,
+            dados.desconto,
             dados.estoque,
             dados.franquia,
             dados.imagem,
             dados.nome,
             dados.preco,
-            dados.desconto
         );
 
     });
