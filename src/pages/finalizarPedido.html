@@ -44,7 +44,7 @@
 
     <main class="main-content checkout-main-wrapper">
         <span class="content-handle" aria-hidden="true"></span>
-        
+
         <header class="checkout-page-header">
             <button class="btn-back-icon" aria-label="Voltar à página anterior" onclick="history.back()">
                 <i data-lucide="arrow-left" aria-hidden="true"></i>
@@ -55,14 +55,14 @@
         <section class="checkout-products-list" aria-label="Produtos selecionados"></section>
 
         <section class="checkout-layout">
-            
+
             <section class="checkout-settings-section">
-                
+
                 <article class="checkout-card" aria-labelledby="title-entrega">
                     <header>
                         <h3 id="title-entrega" class="checkout-card-title">Forma de entrega</h3>
                     </header>
-                    
+
                     <menu class="delivery-toggle" aria-label="Escolha a forma de entrega">
                         <li><button type="button" class="active" data-type="receber" aria-pressed="true">Receber</button></li>
                         <li><button type="button" data-type="retirar" aria-pressed="false">Retirar na loja</button></li>
@@ -88,9 +88,9 @@
                     <header>
                         <h3 id="title-pagamento" class="checkout-card-title">Meios de pagamento</h3>
                     </header>
-                    
+
                     <menu class="payment-options" aria-label="Escolha o meio de pagamento">
-                        
+
                         <li class="payment-group">
                             <button type="button" class="payment-option pill-btn" data-method="pix" aria-pressed="false">
                                 <span class="payment-radio" aria-hidden="true"></span>
@@ -118,7 +118,7 @@
                                     <span class="installments-label">Parcelas <i data-lucide="chevron-down" aria-hidden="true"></i></span>
                                 </section>
                             </button>
-                            
+
                             <menu class="installments-grid" aria-label="Opções de parcelamento">
                                 <li><button class="installment-btn active" type="button" aria-pressed="true">1x de R$ 104</button></li>
                                 <li><button class="installment-btn" type="button" aria-pressed="false">2x de R$ 105</button></li>
@@ -127,7 +127,7 @@
                         </li>
 
                         <li class="payment-group">
-                            <button class="btn-add-card" type="button">
+                            <button class="btn-add-card" type="button" onclick="window.location.href='cartao.html'">
                                 <span class="add-icon-circle"><i data-lucide="plus" aria-hidden="true"></i></span>
                                 Adicionar cartão de crédito
                             </button>
@@ -141,39 +141,39 @@
                     <header class="summary-header">
                         <h3><i data-lucide="notebook-pen" aria-hidden="true"></i> Resumo do pedido</h3>
                     </header>
-                    
+
                     <dl class="summary-details">
                         <dt>Produto</dt>
                         <dd id="resumo-produto">R$ 0,00</dd>
-                        
+
                         <dt>Desconto</dt>
                         <dd class="summary-multiline-col">
                             <span id="resumo-desconto">R$ 0,00</span>
                             <small id="resumo-desconto-text"></small>
                         </dd>
-                        
+
                         <dt>Frete</dt>
                         <dd class="destaque-azul" id="resumo-frete">Grátis</dd>
-                        
+
                         <dt>Pagamento</dt>
                         <dd class="summary-multiline-col" id="resumo-pagamento">
                             <span>Cartão **** 1234</span>
                             <small>1x de R$ 104</small>
                         </dd>
-                        
+
                         <dt>Chegará em</dt>
                         <dd class="borda-inferior" id="resumo-chegara">5 dias úteis</dd>
                     </dl>
-                    
+
                     <dl class="summary-total">
                         <dt>Total</dt>
                         <dd id="resumo-total">R$ 0,00</dd>
                     </dl>
-                    
+
                     <button class="btn-buy btn-continue" type="button">Pagar e finalizar</button>
                 </article>
             </aside>
-            
+
         </section>
     </main>
 
@@ -210,11 +210,11 @@
                     <i data-lucide="x" aria-hidden="true"></i>
                 </button>
             </header>
-            
+
             <section class="modal-body modal-body-empty">
                 <p>Cadastre um endereço de entrega</p>
             </section>
-            
+
             <footer class="modal-footer">
                 <button type="button" class="btn-confirmar">Confirmar</button>
                 <button type="button" class="btn-adicionar">Adicionar endereço</button>

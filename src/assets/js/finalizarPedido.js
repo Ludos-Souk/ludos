@@ -69,12 +69,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregarProdutosSelecionados(ehPrimeiraCompra);
 
     const deliveryBtns = document.querySelectorAll('.delivery-toggle button');
-    
+
     deliveryBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             deliveryBtns.forEach(b => {
                 b.classList.remove('active');
-                b.setAttribute('aria-pressed', 'false'); 
+                b.setAttribute('aria-pressed', 'false');
             });
             btn.classList.add('active');
             btn.setAttribute('aria-pressed', 'true');
@@ -85,7 +85,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const paymentOptions = document.querySelectorAll('.payment-option');
     const paymentContainer = document.querySelector('.payment-options');
+    const btnAddCard = document.querySelector('.btn-add-card');
     const resumoPagamento = document.getElementById('resumo-pagamento');
+
+    if (btnAddCard) {
+        btnAddCard.addEventListener('click', () => {
+            window.location.href = 'cartao.html';
+        });
+    }
     const btnChangeAddress = document.querySelector('.btn-change-address');
     const modalEndereco = document.getElementById('modal-endereco');
     const btnFecharModal = document.getElementById('btn-fechar-modal');
@@ -102,12 +109,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             opt.classList.remove('active');
             opt.setAttribute('aria-pressed', 'false');
         });
-        
+
         optionSelecionada.classList.add('active');
         optionSelecionada.setAttribute('aria-pressed', 'true');
-        
+
         const method = optionSelecionada.dataset.method;
-        paymentContainer.dataset.activeMethod = method; 
+        paymentContainer.dataset.activeMethod = method;
 
         if (method === 'pix') {
             renderizarResumoPagamento('pix');
@@ -181,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     })();
 
     const installmentBtns = document.querySelectorAll('.installment-btn');
-    
+
     installmentBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             installmentBtns.forEach(b => {

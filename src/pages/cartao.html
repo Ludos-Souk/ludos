@@ -118,11 +118,10 @@
             <aside class="card-preview-col" aria-label="Pré-visualização do cartão">
                 <div class="card-visual" id="card-visual" aria-hidden="true">
                     <div class="card-visual__brand">
-                        <!-- Bandeira injetada via JS; padrão vazio -->
-                        <span class="card-brand-icon" id="card-brand-icon"></span>
+                        <img id="card-brand-img" class="card-brand-img" src="" alt="Bandeira do cartão" aria-hidden="true">
                     </div>
-                    <p class="card-visual__cvv-placeholder">****</p>
-                    <p class="card-visual__number" id="card-display-number">**** <span id="card-last4"></span></p>
+                    <p class="card-visual__cvv-placeholder" id="card-display-cvv">***</p>
+                    <p class="card-visual__number" id="card-display-number">•••• •••• •••• ••••</p>
                 </div>
 
                 <!-- Botão visível só no desktop (ao lado do preview) -->
@@ -165,5 +164,6 @@
             if (window.lucide) window.lucide.createIcons();
         });
     </script>
+    <script type="module" src="../assets/js/cartao.js"></script>
 </body>
 </html>
