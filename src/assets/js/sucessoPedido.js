@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 document.addEventListener('DOMContentLoaded', function () {
     if (window.lucide) {
         window.lucide.createIcons();
@@ -7,21 +8,21 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnStatus) {
         btnStatus.addEventListener('click', function (event) {
             event.preventDefault();
-            window.location.href = 'home.html';
+            window.location.href = ROTAS.HOME;
         });
     }
 
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
     if (btnCart) {
         btnCart.addEventListener('click', function () {
-            window.location.href = 'carrinho.html';
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 
     const btnPerfil = document.querySelector('button[aria-label="Acessar meu perfil"]');
     if (btnPerfil) {
         btnPerfil.addEventListener('click', function () {
-            window.location.href = 'home.html';
+            window.location.href = ROTAS.HOME;
         });
     }
 
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnFiltro) {
         btnFiltro.addEventListener('click', function () {
             sessionStorage.setItem('open-filter', 'true');
-            window.location.href = 'home.html';
+            window.location.href = ROTAS.HOME;
         });
     }
 
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const busca = inputBusca?.value.trim();
             if (busca) {
                 sessionStorage.setItem('href-pesquisa', busca);
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         });
     }
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const textoFalado = event.results[0][0].transcript;
             if (textoFalado && textoFalado.trim()) {
                 sessionStorage.setItem('href-pesquisa', textoFalado.trim());
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         };
 

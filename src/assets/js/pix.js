@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 import Pedido from "../../models/Pedido.js";
 import { criarPedido } from "../../services/pedidoService.js";
 import { aguardarUsuario } from "../../services/authService.js";
@@ -21,7 +22,7 @@ function copiarPix() {
 async function processarPedidoPix(payload) {
     const usuario = await aguardarUsuario();
     if (!usuario?.uid) {
-        window.location.href = 'erroPedido.html';
+        window.location.href = ROTAS.ERRO_PEDIDO;
         return;
     }
 
@@ -56,10 +57,10 @@ async function processarPedidoPix(payload) {
         });
 
         sessionStorage.removeItem('produtosSelecionados');
-        window.location.href = 'sucessoPedido.html';
+        window.location.href = ROTAS.SUCESSO_PEDIDO;
     } catch (erro) {
         console.error('Erro ao criar pedido Pix:', erro);
-        window.location.href = 'erroPedido.html';
+        window.location.href = ROTAS.ERRO_PEDIDO;
     }
 }
 
@@ -112,7 +113,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const payloadJson = sessionStorage.getItem('pedidoFinalizacao');
     const payload = payloadJson ? JSON.parse(payloadJson) : null;
     if (!payload) {
-        window.location.href = 'erroPedido.html';
+        window.location.href = ROTAS.ERRO_PEDIDO;
         return;
     }
 
@@ -120,7 +121,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (btnPedidos) {
         btnPedidos.addEventListener('click', (event) => {
             event.preventDefault();
-            window.location.href = 'carrinho.html';
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 

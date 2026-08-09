@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import Endereco from "../../models/Endereco.js";
 import {
@@ -123,14 +124,14 @@ function inicializarScrollHeader() {
 
 (function() {
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
-    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
+    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
 
     const btnFiltro = document.getElementById('btn-filter');
     if (btnFiltro) {
         btnFiltro.addEventListener('click', (e) => {
-            if (!window.location.pathname.endsWith('home.html')) {
+            if (!window.location.pathname.endsWith(ROTAS.HOME)) {
                 sessionStorage.setItem('open-filter', 'true');
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         });
     }
@@ -186,7 +187,7 @@ function inicializarFormularioBusca() {
 
         if (busca) {
             sessionStorage.setItem("href-pesquisa", busca);
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         }
     });
 }
@@ -197,7 +198,7 @@ function inicializarFormularioBusca() {
 function inicializarBtnVoltar() {
     if (btnVoltar) {
         btnVoltar.addEventListener('click', () => {
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         });
     }
 }
@@ -344,7 +345,7 @@ function inicializarFormularioEndereco() {
                 })
             );
 
-            window.location.href = "home.html";
+            window.location.href = ROTAS.HOME;
         } catch (erro) {
             console.error(erro);
             if (botao) {

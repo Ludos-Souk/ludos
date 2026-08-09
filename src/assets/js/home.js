@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import {
     buscarProdutosAtivos
@@ -6,10 +7,7 @@ import {
     toggleFavorito,
     ehFavorito
 } from "../../services/favoritosService.js";
-import {
-    verificarLogin,
-    obterUid
-} from "../../services/authService.js";
+import { obterUid } from "../../services/authService.js";
 import {
     listarEnderecos
 } from "../../services/usuarioService.js";
@@ -76,18 +74,6 @@ function criarMensagemEstado(texto, classe = "estado-vazio") {
 
 // --- Acesso / configurações salvas ---
 
-async function verificarAcesso() {
-    const usuario =
-        await verificarLogin();
-
-    if (!usuario) {
-        window.location.href =
-            "login.html";
-
-        return;
-    }
-}
-
 function configurarEndereco() {
     if (existeConfiguracao("enderecoPadrao")) {
         const enderecoPadrao = obterConfiguracao("enderecoPadrao");
@@ -148,7 +134,7 @@ function inicializarNavegacaoCarrinho() {
         
     if (btnHeaderCarrinho) {
         btnHeaderCarrinho.addEventListener('click', () => {
-            window.location.href = "carrinho.html";
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 
@@ -157,7 +143,7 @@ function inicializarNavegacaoCarrinho() {
         
     if (cartCard) {
         cartCard.addEventListener('click', () => {
-            window.location.href = "carrinho.html";
+            window.location.href = ROTAS.CARRINHO;
         });
     }
 }
@@ -289,7 +275,7 @@ export function mostrarToastCarrinho(
     });
 
     btnCart.addEventListener("click", () => {
-        window.location.href = "carrinho.html";
+        window.location.href = ROTAS.CARRINHO;
     });
 
     timeoutToast = setTimeout(() => {
@@ -562,7 +548,7 @@ function inicializarModalEndereco() {
 
     if (btnIrParaCadastro) {
         btnIrParaCadastro.addEventListener('click', () => {
-            window.location.href = "endereco.html";
+            window.location.href = ROTAS.ENDERECO;
         });
     }
 }
@@ -953,7 +939,7 @@ function inicializarModalBodyListeners() {
         const id = botao.dataset.id;
         sessionStorage.setItem('edit-address', id);
 
-        window.location.href = "endereco.html";
+        window.location.href = ROTAS.ENDERECO;
     });
 }
 
@@ -1220,7 +1206,7 @@ function criarCard(produto) {
             JSON.stringify(produtosSelecionados)
         );
 
-        window.location.href = "finalizarPedido.html";
+        window.location.href = ROTAS.FINALIZAR_PEDIDO;
     });
 
     const btnAvaliacoes =
@@ -1435,7 +1421,7 @@ function inicializarListenersProdutos() {
 
         sessionStorage.setItem("produtoId", idProduto);
 
-        window.location.href = `avaliacaoProduto.html`;
+        window.location.href = ROTAS.AVALIACAO_PRODUTO;
     });
 }
 
@@ -1444,7 +1430,6 @@ function inicializarListenersProdutos() {
 
 // #region Métodos de inicialização
 
-verificarAcesso();
 
 inicializarNavegacaoCarrinho();
 configurarEndereco();

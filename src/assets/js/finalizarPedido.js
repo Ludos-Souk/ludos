@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 import { buscarProdutoPorId, reduzirEstoqueProduto } from "../../services/produtoService.js";
 import Pedido from "../../models/Pedido.js";
 import { criarPedido, usuarioJaFezPedido } from "../../services/pedidoService.js";
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const busca = inputBusca?.value.trim();
             if (busca) {
                 sessionStorage.setItem('href-pesquisa', busca);
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         });
     }
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const textoFalado = event.results[0][0].transcript;
             if (textoFalado && textoFalado.trim()) {
                 sessionStorage.setItem('href-pesquisa', textoFalado.trim());
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         };
 
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (btnAddCard) {
         btnAddCard.addEventListener('click', () => {
-            window.location.href = 'cartao.html';
+            window.location.href = ROTAS.CARTAO;
         });
     }
     const btnChangeAddress = document.querySelector('.btn-change-address');
@@ -174,14 +175,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     (function() {
         const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
-        if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
+        if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
 
         const btnFiltro = document.getElementById('btn-filter');
         if (btnFiltro) {
             btnFiltro.addEventListener('click', (e) => {
-                if (!window.location.pathname.endsWith('home.html')) {
+                if (!window.location.pathname.endsWith(ROTAS.HOME)) {
                     sessionStorage.setItem('open-filter', 'true');
-                    window.location.href = 'home.html';
+                    window.location.href = ROTAS.HOME;
                 }
             });
         }
@@ -211,13 +212,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             sessionStorage.setItem('pedidoFinalizacao', JSON.stringify(payload));
 
             if (payload.metodo === 'Pix') {
-                window.location.href = 'pix.html';
+                window.location.href = ROTAS.PIX;
                 return;
             }
 
             const usuario = await aguardarUsuario();
             if (!usuario?.uid) {
-                window.location.href = 'erroPedido.html';
+                window.location.href = ROTAS.ERRO_PEDIDO;
                 return;
             }
 
@@ -252,10 +253,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 sessionStorage.removeItem('produtosSelecionados');
-                window.location.href = 'sucessoPedido.html';
+                window.location.href = ROTAS.SUCESSO_PEDIDO;
             } catch (erro) {
                 console.error('Erro ao criar pedido:', erro);
-                window.location.href = 'erroPedido.html';
+                window.location.href = ROTAS.ERRO_PEDIDO;
             }
         });
     }
@@ -558,7 +559,7 @@ function inicializarModalEndereco(modalEndereco, btnFecharModal, modalBody, btnC
 
     if (btnIrParaCadastro) {
         btnIrParaCadastro.addEventListener('click', () => {
-            window.location.href = 'endereco.html';
+            window.location.href = ROTAS.ENDERECO;
         });
     }
 }
@@ -679,7 +680,7 @@ function inicializarModalBodyListeners(modalBody) {
 
         const id = botao.dataset.id;
         sessionStorage.setItem('edit-address', id);
-        window.location.href = 'endereco.html';
+        window.location.href = ROTAS.ENDERECO;
     });
 }
 

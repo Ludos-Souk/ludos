@@ -1,23 +1,6 @@
+import { ROTAS } from "../../config/rotas.js";
 import { cadastro } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
-import { 
-    verificarLogin 
-} from "../../services/authService.js";
-
-async function verificarAcesso() {
-
-    const usuario =
-        await verificarLogin();
-
-    if (usuario) {
-        window.location.href =
-            "home.html";
-
-        return;
-    }
-}
-
-verificarAcesso();
 
 const formulario = document.getElementById("cadastro-form");
 const botao = formulario.querySelector('button[type="submit"]');
@@ -70,5 +53,5 @@ function validarCampos(nome, email, senha) {
 }
 
 function irParaHome() {
-    window.location.href = "home.html"
+    window.location.href = ROTAS.HOME
 }

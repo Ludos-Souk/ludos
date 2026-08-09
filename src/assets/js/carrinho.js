@@ -1,3 +1,4 @@
+import { ROTAS } from "../../config/rotas.js";
 import {
     buscarProdutosPorIds
 } from "../../services/produtoService.js";
@@ -34,7 +35,7 @@ searchForm.addEventListener('submit', (event) => {
     const busca = inputBusca.value.trim();
     if (busca) {
         sessionStorage.setItem("href-pesquisa", busca);
-        window.location.href = "home.html";
+        window.location.href = ROTAS.HOME;
     }
 });
 
@@ -44,7 +45,7 @@ if (btnFiltro) {
     btnFiltro.addEventListener('click', (e) => {
         e.preventDefault();
         sessionStorage.setItem('open-filter', 'true');
-        window.location.href = 'home.html';
+        window.location.href = ROTAS.HOME;
     });
 }
 
@@ -842,7 +843,7 @@ btnContinuar.addEventListener("click", () => {
         "produtosSelecionados",
         JSON.stringify(produtosSelecionados)
     );
-    window.location.href = "finalizarPedido.html";
+    window.location.href = ROTAS.FINALIZAR_PEDIDO;
 });
 
 // Renderiza a lista assim que o script carregar

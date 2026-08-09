@@ -1,5 +1,5 @@
+import { ROTAS } from "../../config/rotas.js";
 // #region Imports
-import { verificarLogin } from "../../services/authService.js";
 import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
 import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto, removerProduto, toggleCarrinho } from "../../services/carrinhoService.js";
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
@@ -33,7 +33,7 @@ searchForm.addEventListener('submit', (event) => {
 
     if (busca) {
         sessionStorage.setItem("href-pesquisa", busca);
-        window.location.href = "home.html";
+        window.location.href = ROTAS.HOME;
     }
 });
 
@@ -72,24 +72,20 @@ if (SpeechRecognition) {
 /* Header navigation helpers: cart and filter fallback */
 (function() {
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
-    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = 'carrinho.html'; });
+    if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
 
     const btnFiltro = document.getElementById('btn-filter');
     if (btnFiltro) {
         btnFiltro.addEventListener('click', (e) => {
-            if (!window.location.pathname.endsWith('home.html')) {
+            if (!window.location.pathname.endsWith(ROTAS.HOME)) {
                 sessionStorage.setItem('open-filter', 'true');
-                window.location.href = 'home.html';
+                window.location.href = ROTAS.HOME;
             }
         });
     }
 })();
 
 // #region Verificação de acesso
-const usuario = await verificarLogin();
-if (!usuario) {
-    window.location.href = "login.html";
-}
 // #endregion
 
 // #region Inicialização de ícones
@@ -135,7 +131,7 @@ btnVoltar.addEventListener('click', () => {
 const idProduto = sessionStorage.getItem("produtoId");
 
 if (!idProduto) {
-    window.location.href = "home.html";
+    window.location.href = ROTAS.HOME;
 }
 
 const [produto, todosProdutos] = await Promise.all([
@@ -225,7 +221,7 @@ function configurarComprar(btnComprar, produtoId) {
             "produtosSelecionados",
             JSON.stringify(produtosSelecionados)
         );
-        window.location.href = "finalizarPedido.html";
+        window.location.href = ROTAS.FINALIZAR_PEDIDO;
     });
 }
 
@@ -752,7 +748,7 @@ function renderRelacionados(lista, idAtual) {
         if (!botao) return;
         const article = botao.closest(".product-card");
         sessionStorage.setItem("produtoId", article.dataset.id);
-        window.location.href = `avaliacaoProduto.html`;
+        window.location.href = ROTAS.AVALIACAO_PRODUTO;
     });
 
     // Favorito nos cards relacionados
