@@ -5,6 +5,8 @@ import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto,
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
+import { mostrarFeedbackGlobal } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
 // #endregion
 
 // #region Utilitários de UI
@@ -23,52 +25,16 @@ function criarMensagemEstado(texto, classe = "sem-avaliacoes") {
 }
 // #endregion
 
-const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
-const btnMicrofone = document.querySelector('.mic-btn');
 
-searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const busca = inputBusca.value.trim();
-
-    if (busca) {
+configurarPesquisaCabecalho({
+    input: inputBusca,
+    aoPesquisar: (busca) => {
+        if (!busca) return;
         sessionStorage.setItem("href-pesquisa", busca);
         window.location.href = ROTAS.HOME;
     }
 });
-
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (SpeechRecognition) {
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'pt-BR';
-    recognition.continuous = false;
-
-    recognition.onstart = function() {
-        btnMicrofone.style.color = 'blue';
-    };
-
-    recognition.onresult = function(event) {
-        const textoFalado = event.results[0][0].transcript;
-        inputBusca.value = textoFalado;
-    };
-
-    recognition.onend = function() {
-        btnMicrofone.style.color = '#888';
-    };
-
-    recognition.onerror = function(event) {
-        alert("Erro no reconhecimento:" + event.error);
-    };
-
-    btnMicrofone.addEventListener('click', function() {
-        recognition.start();
-    });
-
-} else {
-    alert("Seu navegador não tem suporte para pesquisa por voz.");
-}
 
 /* Header navigation helpers: cart and filter fallback */
 (function() {
@@ -140,19 +106,24 @@ if (!idProduto) {
     window.location.href = ROTAS.HOME;
 }
 
-const [produto, todosProdutos] = await Promise.all([
-    buscarProdutoPorId(idProduto),
-    buscarProdutosAtivos()
-]);
+try {
+    const [produto, todosProdutos] = await Promise.all([
+        buscarProdutoPorId(idProduto),
+        buscarProdutosAtivos()
+    ]);
 
-if (!produto) {
-    const container = document.getElementById("produto-detalhe");
-    if (container) {
-        container.replaceChildren(criarMensagemEstado("Produto não encontrado."));
+    if (!produto) {
+        const container = document.getElementById("produto-detalhe");
+        container?.replaceChildren(criarMensagemEstado("Produto não encontrado."));
+    } else {
+        await renderProduto(produto);
+        renderRelacionados(todosProdutos, idProduto);
     }
-} else {
-    await renderProduto(produto);
-    renderRelacionados(todosProdutos, idProduto);
+} catch (erro) {
+    console.error("Não foi possível carregar o produto:", erro);
+    const container = document.getElementById("produto-detalhe");
+    container?.replaceChildren(criarMensagemEstado("Não foi possível carregar este produto. Tente novamente."));
+    mostrarFeedbackGlobal("Não foi possível carregar os dados do produto.", "error");
 }
 // #endregion
 
@@ -621,6 +592,8 @@ function configurarCarrinho(botaoCarrinho, produto) {
 // #region Avaliações
 async function carregarAvaliacoes(idProduto) {
     const lista = document.getElementById("avaliacoes-lista");
+    lista.setAttribute("aria-busy", "true");
+    lista.replaceChildren(criarMensagemEstado("Carregando avaliações..."));
 
     try {
         const avaliacoes = await listarAvaliacoesProduto(idProduto);
@@ -630,18 +603,8 @@ async function carregarAvaliacoes(idProduto) {
             return;
         }
 
-        lista.replaceChildren();
-
-        for (const avaliacao of avaliacoes) {
-
-            const card =
-                await criarCardAvaliacao(
-                    avaliacao
-                );
-
-            lista.append(card);
-
-        }
+        const cards = await Promise.all(avaliacoes.map(criarCardAvaliacao));
+        lista.replaceChildren(...cards);
 
         if (window.lucide) {
             window.lucide.createIcons();
@@ -650,6 +613,9 @@ async function carregarAvaliacoes(idProduto) {
     } catch (erro) {
         console.error("Erro ao carregar avaliações:", erro);
         lista.replaceChildren(criarMensagemEstado("Erro ao carregar avaliações."));
+        mostrarFeedbackGlobal("Não foi possível carregar as avaliações deste produto.", "error");
+    } finally {
+        lista.setAttribute("aria-busy", "false");
     }
 }
 

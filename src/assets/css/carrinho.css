@@ -415,6 +415,11 @@ input[type="checkbox"]:checked + .custom-checkbox {
     background-color: var(--bg-hover);
 }
 
+.cart-state { grid-column: 1 / -1; width: 100%; padding: 34px 24px; border-radius: 30px; background: var(--bg-white); color: var(--text-muted); text-align: center; box-shadow: var(--shadow-card); }
+.cart-state.empty { display: grid; gap: 8px; }
+.cart-state.empty strong { color: var(--text-dark); font-size: 18px; }
+.cart-state.error { color: var(--color-error); }
+
 /* Responsividade do carrinho */
 @media (max-width: 1100px) {
     .cart-layout { grid-template-columns: minmax(0, 1fr); }

@@ -1,11 +1,21 @@
 import { identificarBandeira, obterImagemBandeira } from "../../services/bandeiraCartaoService.js";
+import { configurarPesquisaCabecalho, debounce } from "./utils/ui.js";
 
 document.addEventListener('DOMContentLoaded', function () {
+    configurarPesquisaCabecalho({
+        aoPesquisar: (busca) => {
+            if (!busca) return;
+            sessionStorage.setItem("href-pesquisa", busca);
+            window.location.href = "home.html";
+        }
+    });
+
     const inputNumero = document.getElementById('numero-cartao');
     const inputCvv = document.getElementById('cvv');
     const brandImg = document.getElementById('card-brand-img');
     const displayNumero = document.getElementById('card-display-number');
     const displayCvv = document.getElementById('card-display-cvv');
+    const feedbackBandeira = document.getElementById('card-brand-feedback');
     let consultaBandeiraAtual = 0;
 
     if (!inputNumero) return;
@@ -40,7 +50,48 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Evento de input no número do cartão
-    inputNumero.addEventListener('input', async function () {
+    const consultarBandeira = debounce(async (digits, idConsulta) => {
+        try {
+            if (feedbackBandeira) {
+                feedbackBandeira.textContent = 'Identificando bandeira...';
+                feedbackBandeira.classList.remove('error');
+            }
+            const [url, bandeira] = await Promise.all([
+                obterImagemBandeira(digits),
+                identificarBandeira(digits)
+            ]);
+
+            if (idConsulta !== consultaBandeiraAtual) return;
+
+            if (url && brandImg) {
+                brandImg.src = url;
+                brandImg.alt = bandeira ? `Bandeira ${bandeira}` : 'Bandeira do cartão';
+                brandImg.hidden = false;
+                brandImg.classList.add('visible');
+                if (feedbackBandeira) feedbackBandeira.textContent = `Bandeira ${bandeira} identificada.`;
+            } else if (brandImg) {
+                brandImg.removeAttribute('src');
+                brandImg.alt = '';
+                brandImg.hidden = true;
+                brandImg.classList.remove('visible');
+                if (feedbackBandeira) feedbackBandeira.textContent = 'Bandeira ainda não identificada.';
+            }
+        } catch {
+            if (idConsulta !== consultaBandeiraAtual) return;
+            if (feedbackBandeira) {
+                feedbackBandeira.textContent = 'Não foi possível identificar a bandeira agora.';
+                feedbackBandeira.classList.add('error');
+            }
+            if (brandImg) {
+                brandImg.removeAttribute('src');
+                brandImg.alt = '';
+                brandImg.hidden = true;
+                brandImg.classList.remove('visible');
+            }
+        }
+    }, 300);
+
+    inputNumero.addEventListener('input', function () {
         const rawValue = inputNumero.value;
         const formatted = formatarNumeroCartao(rawValue);
         inputNumero.value = formatted;
@@ -51,6 +102,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Limpa bandeira se número for curto
         if (digits.length < 6) {
+            if (feedbackBandeira) {
+                feedbackBandeira.textContent = '';
+                feedbackBandeira.classList.remove('error');
+            }
             if (brandImg) {
                 brandImg.removeAttribute('src');
                 brandImg.alt = '';
@@ -60,33 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        try {
-            const url = await obterImagemBandeira(digits);
-            const bandeira = await identificarBandeira(digits);
-
-            if (idConsulta !== consultaBandeiraAtual) return;
-
-            if (url && brandImg) {
-                brandImg.src = url;
-                brandImg.alt = bandeira ? `Bandeira ${bandeira}` : 'Bandeira do cartão';
-                brandImg.hidden = false;
-                brandImg.classList.add('visible');
-            } else if (brandImg) {
-                brandImg.removeAttribute('src');
-                brandImg.alt = '';
-                brandImg.hidden = true;
-                brandImg.classList.remove('visible');
-            }
-        } catch (err) {
-            if (idConsulta !== consultaBandeiraAtual) return;
-            console.error('Erro ao obter bandeira:', err);
-            if (brandImg) {
-                brandImg.removeAttribute('src');
-                brandImg.alt = '';
-                brandImg.hidden = true;
-                brandImg.classList.remove('visible');
-            }
-        }
+        consultarBandeira(digits, idConsulta);
     });
 
     // Evento no CVV

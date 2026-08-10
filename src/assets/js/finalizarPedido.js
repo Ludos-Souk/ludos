@@ -10,6 +10,13 @@ import {
     salvarConfiguracao
 } from "../../services/configuracoesService.js";
 import { removerProduto } from "../../services/carrinhoService.js";
+import { buscarCupomValidoPorCodigo } from "../../services/cupomService.js";
+import { mostrarFeedbackGlobal, salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
+
+let produtosDoResumo = [];
+let primeiraCompraDoResumo = false;
+let cupomAplicado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -17,57 +24,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         lucide.createIcons();
     }
 
-    await configurarEndereco();
+    try {
+        await configurarEndereco();
+    } catch (erro) {
+        console.error("Não foi possível configurar o endereço:", erro);
+        mostrarFeedbackGlobal("Não foi possível carregar o endereço padrão.", "error");
+    }
 
     // Inicializa busca do cabeçalho (submit -> redireciona para home com termo)
-    const searchForm = document.querySelector('.search-form');
     const inputBusca = document.getElementById('search-input');
-    const btnMicrofone = document.querySelector('.mic-btn');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    configurarPesquisaCabecalho({
+        input: inputBusca,
+        aoPesquisar: (busca) => {
+            if (!busca) return;
+            sessionStorage.setItem('href-pesquisa', busca);
+            window.location.href = ROTAS.HOME;
+        }
+    });
 
-    if (searchForm) {
-        searchForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const busca = inputBusca?.value.trim();
-            if (busca) {
-                sessionStorage.setItem('href-pesquisa', busca);
-                window.location.href = ROTAS.HOME;
-            }
-        });
+    let ehPrimeiraCompra = false;
+    try {
+        ehPrimeiraCompra = await verificarPrimeiraCompra();
+    } catch (erro) {
+        console.error("Não foi possível verificar a promoção:", erro);
+        mostrarFeedbackGlobal("Não foi possível validar o desconto de primeira compra.", "error");
     }
-
-    if (SpeechRecognition && btnMicrofone) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            if (textoFalado && textoFalado.trim()) {
-                sessionStorage.setItem('href-pesquisa', textoFalado.trim());
-                window.location.href = ROTAS.HOME;
-            }
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-    }
-
-    const ehPrimeiraCompra = await verificarPrimeiraCompra();
     await carregarProdutosSelecionados(ehPrimeiraCompra);
+    configurarCupomCheckout();
 
     const deliveryBtns = document.querySelectorAll('.delivery-toggle button');
 
@@ -128,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const initialActive = document.querySelector('.payment-option.active');
     if (initialActive) {
-        paymentContainer.dataset.activeMethod = initialActive.dataset.method;
+        selecionarMetodoPagamento(initialActive);
     }
 
     const initialDelivery = document.querySelector('.delivery-toggle button.active');
@@ -208,21 +191,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnFinalizarPedido = document.querySelector('.btn-buy.btn-continue');
     if (btnFinalizarPedido) {
         btnFinalizarPedido.addEventListener('click', async () => {
+            const textoOriginal = btnFinalizarPedido.textContent;
+            btnFinalizarPedido.disabled = true;
+            btnFinalizarPedido.textContent = 'Finalizando pedido...';
             const payload = montarPayloadPedido();
             sessionStorage.setItem('pedidoFinalizacao', JSON.stringify(payload));
 
             if (payload.metodo === 'Pix') {
+                btnFinalizarPedido.textContent = 'Abrindo pagamento Pix...';
                 window.location.href = ROTAS.PIX;
                 return;
             }
 
-            const usuario = await aguardarUsuario();
-            if (!usuario?.uid) {
-                window.location.href = ROTAS.ERRO_PEDIDO;
-                return;
-            }
-
             try {
+                const usuario = await aguardarUsuario();
+                if (!usuario?.uid) {
+                    throw new Error('Sua sessão expirou. Entre novamente para concluir o pedido.');
+                }
+
                 const pedido = new Pedido(
                     null,
                     payload.produtos,
@@ -256,6 +242,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.location.href = ROTAS.SUCESSO_PEDIDO;
             } catch (erro) {
                 console.error('Erro ao criar pedido:', erro);
+                salvarFeedbackNavegacao(
+                    erro.message || 'Não foi possível finalizar o pedido. Tente novamente.',
+                    'error'
+                );
+                btnFinalizarPedido.disabled = false;
+                btnFinalizarPedido.textContent = textoOriginal;
                 window.location.href = ROTAS.ERRO_PEDIDO;
             }
         });
@@ -344,27 +336,33 @@ async function carregarProdutosSelecionados(ehPrimeiraCompra) {
         return;
     }
 
-    const fragment = document.createDocumentFragment();
-    const produtosCarregados = [];
-
-    for (const item of produtosSelecionados) {
-        if (!item?.id) {
-            continue;
-        }
-
-        const produto = await buscarProdutoPorId(item.id);
-        if (!produto) {
-            continue;
-        }
-
-        produtosCarregados.push({ produto, quantidade: item.quantidade ?? 1 });
-        fragment.appendChild(
-            criarCheckoutProductStrip(produto, item.quantidade ?? 1)
+    listaContainer.setAttribute("aria-busy", "true");
+    listaContainer.replaceChildren(criarMensagemEstado("Carregando produtos selecionados..."));
+    try {
+        const itensValidos = produtosSelecionados.filter(item => item?.id);
+        const produtos = await Promise.all(
+            itensValidos.map(item => buscarProdutoPorId(item.id))
         );
-    }
+        const produtosCarregados = produtos
+            .map((produto, indice) => produto
+                ? { produto, quantidade: itensValidos[indice].quantidade ?? 1 }
+                : null)
+            .filter(Boolean);
+        const fragment = document.createDocumentFragment();
+        produtosCarregados.forEach(({ produto, quantidade }) => {
+            fragment.appendChild(criarCheckoutProductStrip(produto, quantidade));
+        });
 
-    listaContainer.replaceChildren(fragment);
-    atualizarResumoCompra(produtosCarregados, ehPrimeiraCompra);
+        listaContainer.replaceChildren(fragment);
+        atualizarResumoCompra(produtosCarregados, ehPrimeiraCompra);
+    } catch (erro) {
+        console.error("Não foi possível carregar os produtos selecionados:", erro);
+        listaContainer.replaceChildren(criarMensagemEstado("Não foi possível carregar os produtos selecionados."));
+        atualizarResumoCompra([], ehPrimeiraCompra);
+        mostrarFeedbackGlobal("Não foi possível preparar os produtos do pedido.", "error");
+    } finally {
+        listaContainer.setAttribute("aria-busy", "false");
+    }
 }
 
 async function verificarPrimeiraCompra() {
@@ -376,9 +374,12 @@ async function verificarPrimeiraCompra() {
 }
 
 function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
+    produtosDoResumo = produtos;
+    primeiraCompraDoResumo = ehPrimeiraCompra;
     const resumoProduto = document.getElementById('resumo-produto');
     const resumoDesconto = document.getElementById('resumo-desconto');
     const resumoDescontoText = document.getElementById('resumo-desconto-text');
+    const resumoCupomText = document.getElementById('resumo-cupom-text');
     const resumoTotal = document.getElementById('resumo-total');
 
     const precoBruto = produtos.reduce((total, item) => {
@@ -386,13 +387,17 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
     }, 0);
 
     const descontoProduto = produtos.reduce((total, item) => {
-        return total + item.produto.preco * item.quantidade * (item.produto.desconto / 100);
+        return total + item.produto.preco * item.quantidade * (Number(item.produto.desconto || 0) / 100);
     }, 0);
 
     const precoComDescontoProduto = precoBruto - descontoProduto;
     const descontoPrimeiraCompra = ehPrimeiraCompra ? precoComDescontoProduto * 0.1 : 0;
-    const descontoTotal = descontoProduto + descontoPrimeiraCompra;
-    const total = precoComDescontoProduto - descontoPrimeiraCompra;
+    const precoAposDescontosAutomaticos = precoComDescontoProduto - descontoPrimeiraCompra;
+    const descontoCupom = cupomAplicado
+        ? precoAposDescontosAutomaticos * (cupomAplicado.desconto / 100)
+        : 0;
+    const descontoTotal = descontoProduto + descontoPrimeiraCompra + descontoCupom;
+    const total = Math.max(0, precoAposDescontosAutomaticos - descontoCupom);
 
     if (resumoProduto) {
         resumoProduto.textContent = formatarMoeda(precoBruto);
@@ -401,11 +406,108 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
         resumoDesconto.textContent = formatarMoeda(descontoTotal);
     }
     if (resumoDescontoText) {
-        resumoDescontoText.textContent = ehPrimeiraCompra ? '10% na 1ª compra' : '';
+        const detalhes = [];
+        if (descontoProduto > 0) detalhes.push('Ofertas dos produtos');
+        if (ehPrimeiraCompra) detalhes.push('10% na 1ª compra');
+        resumoDescontoText.textContent = detalhes.length
+            ? `${detalhes.join(' + ')} · ${formatarMoeda(descontoProduto + descontoPrimeiraCompra)}`
+            : 'Sem desconto automático';
     }
+    if (resumoCupomText) {
+        resumoCupomText.textContent = cupomAplicado
+            ? `${cupomAplicado.codigo} · ${cupomAplicado.desconto}% · ${formatarMoeda(descontoCupom)}`
+            : '';
+    }
+    document.getElementById('btn-adicionar-cupom')?.toggleAttribute('hidden', Boolean(cupomAplicado));
+    document.getElementById('resumo-cupom-aplicado')?.toggleAttribute('hidden', !cupomAplicado);
     if (resumoTotal) {
         resumoTotal.textContent = formatarMoeda(total);
     }
+    atualizarValoresParcelas(total);
+}
+
+function atualizarValoresParcelas(total) {
+    const botoes = [...document.querySelectorAll('.installment-btn')];
+    botoes.forEach((botao, indice) => {
+        const parcelas = indice + 1;
+        botao.textContent = `${parcelas}x de ${formatarMoeda(total / parcelas)}`;
+    });
+
+    const parcelaAtiva = botoes.find(botao => botao.classList.contains('active'));
+    const metodoAtivo = document.querySelector('.payment-options')?.dataset.activeMethod;
+    if (parcelaAtiva && metodoAtivo === 'credit') {
+        renderizarResumoPagamento('credit', parcelaAtiva.textContent);
+    }
+}
+
+function configurarCupomCheckout() {
+    const dialogo = document.getElementById('modal-cupom');
+    const formulario = document.getElementById('form-aplicar-cupom');
+    const campoCodigo = document.getElementById('codigo-cupom');
+    const feedback = document.getElementById('coupon-checkout-feedback');
+    const botaoAbrir = document.getElementById('btn-adicionar-cupom');
+    const botaoAlterar = document.getElementById('btn-alterar-cupom');
+    const botaoRemover = document.getElementById('btn-remover-cupom');
+    if (!dialogo || !formulario || !campoCodigo || !feedback) return;
+
+    const fechar = () => dialogo.open && dialogo.close();
+    const abrir = () => {
+        campoCodigo.value = cupomAplicado?.codigo || '';
+        feedback.textContent = '';
+        feedback.className = 'coupon-checkout-feedback';
+        botaoRemover.hidden = !cupomAplicado;
+        dialogo.showModal();
+        requestAnimationFrame(() => campoCodigo.focus());
+    };
+
+    botaoAbrir?.addEventListener('click', abrir);
+    botaoAlterar?.addEventListener('click', abrir);
+    dialogo.querySelector('[data-close-coupon]')?.addEventListener('click', fechar);
+    dialogo.addEventListener('click', evento => {
+        if (evento.target === dialogo) fechar();
+    });
+    campoCodigo.addEventListener('input', () => {
+        campoCodigo.value = campoCodigo.value.toUpperCase().replace(/\s+/g, '');
+        feedback.textContent = '';
+        feedback.className = 'coupon-checkout-feedback';
+    });
+
+    formulario.addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const botao = formulario.querySelector('[type="submit"]');
+        const textoOriginal = botao.textContent;
+        botao.disabled = true;
+        campoCodigo.disabled = true;
+        botao.textContent = 'Validando...';
+        formulario.setAttribute('aria-busy', 'true');
+        feedback.textContent = 'Verificando cupom...';
+        feedback.className = 'coupon-checkout-feedback';
+
+        try {
+            cupomAplicado = await buscarCupomValidoPorCodigo(campoCodigo.value);
+            atualizarResumoCompra(produtosDoResumo, primeiraCompraDoResumo);
+            feedback.textContent = `Cupom ${cupomAplicado.codigo} aplicado com sucesso.`;
+            feedback.classList.add('success');
+            mostrarFeedbackGlobal(`Cupom ${cupomAplicado.codigo} aplicado com sucesso.`);
+            setTimeout(fechar, 450);
+        } catch (erro) {
+            feedback.textContent = erro.message || 'Não foi possível aplicar este cupom.';
+            feedback.classList.add('error');
+            campoCodigo.focus();
+        } finally {
+            formulario.setAttribute('aria-busy', 'false');
+            botao.disabled = false;
+            campoCodigo.disabled = false;
+            botao.textContent = textoOriginal;
+        }
+    });
+
+    botaoRemover?.addEventListener('click', () => {
+        cupomAplicado = null;
+        atualizarResumoCompra(produtosDoResumo, primeiraCompraDoResumo);
+        fechar();
+        mostrarFeedbackGlobal('Cupom removido do pedido.');
+    });
 }
 
 function atualizarResumoEntrega(tipo) {
@@ -462,6 +564,7 @@ async function configurarEndereco() {
 
     if (!existeConfiguracao('enderecoPadrao')) {
         enderecoWrapper.replaceChildren(criarEnderecoVazioElemento());
+        atualizarIconesLucide();
         return;
     }
 
@@ -474,6 +577,10 @@ async function configurarEndereco() {
         enderecoWrapper.replaceChildren(criarEnderecoVazioElemento());
     }
 
+    atualizarIconesLucide();
+}
+
+function atualizarIconesLucide() {
     if (window.lucide) {
         window.lucide.createIcons();
     }

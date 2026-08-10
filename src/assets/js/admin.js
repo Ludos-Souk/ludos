@@ -10,6 +10,12 @@ import {
 import { uploadImagem } from "../../services/cloudinaryService.js";
 import Cupom from "../../models/Cupom.js";
 import { cadastrarCupom } from "../../services/cupomService.js";
+import {
+    aplicarConfiguracoesAcessibilidade,
+    obterConfiguracoesAcessibilidade,
+    salvarConfiguracoesAcessibilidade
+} from "../../services/configuracoesService.js";
+import { configurarPesquisaCabecalho, debounce } from "./utils/ui.js";
 
 const corpoTabela = document.getElementById("admin-products-body");
 const feedback = document.getElementById("admin-feedback");
@@ -27,12 +33,38 @@ const formularioCupom = document.getElementById("create-coupon-form");
 const dialogoCadastro = document.getElementById("product-dialog");
 const dialogoEdicao = document.getElementById("edit-dialog");
 const dialogoExclusao = document.getElementById("delete-dialog");
+const controleFonteAdmin = document.getElementById("admin-font-size");
+const previaFonteAdmin = document.getElementById("admin-font-preview");
+const controleDislexiaAdmin = document.getElementById("admin-dyslexic-font");
+const controleEyeTrackingAdmin = document.getElementById("admin-eye-tracking");
 
 let produtos = [];
 let produtoSelecionado = null;
 let urlTemporariaPreview = null;
 let temporizadorFeedback = null;
 let ordenacaoAtual = "alfabetica";
+
+function atualizarPreviaFonteAdmin(valor) {
+    const numero = Number(valor);
+    previaFonteAdmin.textContent = numero > 105 ? "Aa+" : numero < 95 ? "Aa-" : "Aa";
+    controleFonteAdmin.setAttribute("aria-valuetext", `${numero}% do tamanho padrão`);
+    const progresso = ((numero - Number(controleFonteAdmin.min))
+        / (Number(controleFonteAdmin.max) - Number(controleFonteAdmin.min))) * 100;
+    controleFonteAdmin.style.setProperty("--admin-range-progress", `${progresso}%`);
+}
+
+function sincronizarAcessibilidadeAdmin() {
+    const configuracoes = obterConfiguracoesAcessibilidade();
+    controleFonteAdmin.value = configuracoes.tamanhoTexto;
+    controleDislexiaAdmin.checked = Boolean(configuracoes.fonteDislexia);
+    controleEyeTrackingAdmin.checked = Boolean(configuracoes.eyeTracking);
+    atualizarPreviaFonteAdmin(configuracoes.tamanhoTexto);
+}
+
+function atualizarAcessibilidadeAdmin(alteracoes) {
+    const configuracoes = salvarConfiguracoesAcessibilidade(alteracoes);
+    aplicarConfiguracoesAcessibilidade(configuracoes);
+}
 
 function atualizarIcones() {
     window.lucide?.createIcons();
@@ -192,14 +224,28 @@ function renderizarProdutos(lista) {
     atualizarIcones();
 }
 
+function renderizarEstadoTabela(mensagem, tipo = "status") {
+    corpoTabela.replaceChildren();
+    const linha = document.createElement("tr");
+    const celula = criarCelula("", mensagem, `table-state${tipo === "error" ? " error" : ""}`);
+    celula.colSpan = 10;
+    celula.setAttribute("role", tipo === "error" ? "alert" : "status");
+    linha.append(celula);
+    corpoTabela.append(linha);
+}
+
 async function carregarProdutos() {
-    corpoTabela.innerHTML = '<tr><td colspan="10" class="table-state">Carregando produtos...</td></tr>';
+    corpoTabela.setAttribute("aria-busy", "true");
+    renderizarEstadoTabela("Carregando produtos...");
     try {
         produtos = await listarProdutos();
         atualizarListaVisivel();
     } catch (erro) {
         console.error("Erro ao carregar produtos:", erro);
-        corpoTabela.innerHTML = '<tr><td colspan="10" class="table-state error">Não foi possível carregar os produtos.</td></tr>';
+        renderizarEstadoTabela("Não foi possível carregar os produtos. Atualize a página e tente novamente.", "error");
+        mostrarFeedback("Não foi possível carregar os produtos.", "error");
+    } finally {
+        corpoTabela.setAttribute("aria-busy", "false");
     }
 }
 
@@ -408,6 +454,11 @@ function tratarClique(evento) {
             formularioCadastro.reset();
             formularioCadastro.elements.criacao.value = new Date().toISOString().slice(0, 10);
             atualizarPreview(formularioCadastro);
+        } else if (abrir.dataset.openDialog === "coupon-dialog") {
+            formularioCupom.reset();
+            formularioCupom.elements.validade.min = new Date().toISOString().slice(0, 10);
+        } else if (abrir.dataset.openDialog === "admin-accessibility-dialog") {
+            sincronizarAcessibilidadeAdmin();
         }
         document.getElementById(abrir.dataset.openDialog)?.showModal();
         return;
@@ -470,25 +521,50 @@ function atualizarListaVisivel() {
 }
 
 async function autorizarAdministrador() {
-    const usuario = await aguardarUsuario();
-    if (!usuario) {
-        window.location.replace(ROTAS.LOGIN);
+    document.body.setAttribute("aria-busy", "true");
+    try {
+        const usuario = await aguardarUsuario();
+        if (!usuario) {
+            window.location.replace(ROTAS.LOGIN);
+            return false;
+        }
+        if (!await verificarAdmin()) {
+            window.location.replace(ROTAS.HOME);
+            return false;
+        }
+        return true;
+    } catch (erro) {
+        console.error("Não foi possível validar o acesso administrativo:", erro);
+        mostrarFeedback("Não foi possível validar seu acesso. Tente novamente.", "error");
         return false;
+    } finally {
+        document.body.setAttribute("aria-busy", "false");
     }
-    if (!await verificarAdmin()) {
-        window.location.replace(ROTAS.HOME);
-        return false;
-    }
-    return true;
 }
 
 document.addEventListener("click", tratarClique);
-formularioBusca.addEventListener("submit", evento => { evento.preventDefault(); atualizarListaVisivel(); });
-campoBusca.addEventListener("input", atualizarListaVisivel);
+campoBusca.addEventListener("input", debounce(atualizarListaVisivel, 250));
+configurarPesquisaCabecalho({
+    formulario: formularioBusca,
+    input: campoBusca,
+    botaoVoz: formularioBusca.querySelector(".mic-btn"),
+    aoPesquisar: atualizarListaVisivel
+});
 formularioCadastro.addEventListener("submit", cadastrarNovoProduto);
 formularioEdicao.addEventListener("submit", salvarEdicao);
 formularioExclusao.addEventListener("submit", confirmarExclusao);
 formularioCupom.addEventListener("submit", cadastrarNovoCupom);
+controleFonteAdmin.addEventListener("input", ({ target }) => {
+    const tamanhoTexto = Number(target.value);
+    atualizarPreviaFonteAdmin(tamanhoTexto);
+    atualizarAcessibilidadeAdmin({ tamanhoTexto });
+});
+controleDislexiaAdmin.addEventListener("change", ({ target }) => {
+    atualizarAcessibilidadeAdmin({ fonteDislexia: target.checked });
+});
+controleEyeTrackingAdmin.addEventListener("change", ({ target }) => {
+    atualizarAcessibilidadeAdmin({ eyeTracking: target.checked });
+});
 [formularioCadastro, formularioEdicao].forEach(formulario => {
     formulario.addEventListener("input", () => atualizarPreview(
         formulario,
@@ -497,10 +573,21 @@ formularioCupom.addEventListener("submit", cadastrarNovoCupom);
 });
 document.querySelector('a[aria-label="Sair da área administrativa"]')?.addEventListener("click", async evento => {
     evento.preventDefault();
-    await logout();
-    window.location.replace(ROTAS.LOGIN);
+    const link = evento.currentTarget;
+    link.setAttribute("aria-busy", "true");
+    link.setAttribute("aria-disabled", "true");
+    try {
+        await logout();
+        window.location.replace(ROTAS.LOGIN);
+    } catch (erro) {
+        console.error("Não foi possível sair da área administrativa:", erro);
+        mostrarFeedback("Não foi possível sair da conta. Tente novamente.", "error");
+        link.removeAttribute("aria-disabled");
+        link.setAttribute("aria-busy", "false");
+    }
 });
 
+sincronizarAcessibilidadeAdmin();
 atualizarIcones();
 popupFiltro.querySelector('[data-sort="alfabetica"]')?.classList.add("selected");
 if (await autorizarAdministrador()) await carregarProdutos();

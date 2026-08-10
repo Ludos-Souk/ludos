@@ -26,6 +26,8 @@ a { color:inherit; text-decoration:none; }
 .fields-grid input:-webkit-autofill,.fields-grid input:-webkit-autofill:hover,.fields-grid input:-webkit-autofill:focus{-webkit-text-fill-color:#333;caret-color:#333;box-shadow:0 0 0 1000px #f1f1f2 inset;border-radius:20px;transition:background-color 9999s ease-out 0s}
 .admin-search input:autofill{background:#fff;color:#222;filter:none}.fields-grid input:autofill{background:#f1f1f2;color:#333;filter:none}
 .admin-search button { position:absolute; right:12px; display:grid; place-items:center; border:0; background:none; }
+.admin-search .mic-btn.listening { color:var(--blue); transform:scale(1.12); }
+.admin-search .mic-btn[aria-disabled="true"] { cursor:not-allowed; opacity:.5; }
 .admin-header-actions { display:flex; justify-self:end; gap:14px; }
 .admin-header-actions button,.admin-header-actions a { display:grid; width:42px; height:42px; place-items:center; border:0; border-radius:50%; background:var(--yellow); transition:transform .2s ease,filter .2s ease; }
 .admin-header-actions button:hover,.admin-header-actions a:hover { transform:translateY(-2px); filter:brightness(.97); }
@@ -95,6 +97,71 @@ a { color:inherit; text-decoration:none; }
 .dialog-card { padding:42px; border-radius:48px; background:#fff; }
 .dialog-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:34px; }.dialog-header h2 { font:700 24px "Montserrat"; }.dialog-header button { display:grid; width:42px; height:42px; place-items:center; border:0; border-radius:50%; background:#f1f1f2; }
 .edit-layout { display:grid; grid-template-columns:minmax(0,1fr) 230px; gap:34px; }.fields-grid { display:grid; grid-template-columns:1fr 1fr; align-items:start; gap:18px; border:0; }.fields-grid label { display:flex; min-width:0; min-height:72px; padding:12px 18px; flex-direction:column; border-radius:28px; background:#f1f1f2; }.fields-grid .file-field { min-height:92px; }.fields-grid label:focus-within { box-shadow:0 0 0 2px #6b8cff; }.fields-grid label span { color:#777; font-size:11px; }.fields-grid input,.fields-grid textarea,.fields-grid select { width:100%; min-height:25px; border:0; outline:0; background:transparent; color:#333; }.fields-grid textarea { min-height:84px; resize:vertical; }.field-full { grid-column:1/-1; }.product-preview h3 { margin-bottom:18px; font-size:13px; }.product-preview article { display:flex; padding:18px; flex-direction:column; gap:9px; border-radius:28px; box-shadow:var(--shadow); }.preview-image { display:grid; height:170px; place-items:center; overflow:hidden; border-radius:18px; background:#f1f1f3; }.preview-image img { width:100%; height:100%; object-fit:contain; }.preview-image svg { width:50px; height:50px; color:#aaa; }.product-preview h4 { font-size:13px; }.product-preview button { height:36px; border:0; border-radius:999px; background:var(--yellow); }.dialog-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:34px; }.dialog-actions button:disabled{cursor:wait;opacity:.65}
+
+/* Acessibilidade administrativa. */
+.admin-accessibility-dialog { width:min(820px,calc(100% - 28px)); }
+.dialog-card.admin-accessibility-card { padding:38px; }
+.admin-accessibility-header { margin-bottom:28px; }
+.admin-accessibility-header .eyebrow { margin-bottom:5px; }
+.admin-accessibility-grid { display:grid; grid-template-columns:1.1fr 1fr; align-items:stretch; gap:24px; }
+.admin-font-card,.admin-setting-card { min-width:0; border:0; border-radius:34px; background:#fff; box-shadow:var(--shadow); }
+.admin-font-card { display:flex; min-height:270px; padding:30px; flex-direction:column; }
+.admin-font-card legend { color:#666; font-size:14px; }
+.admin-font-card output { margin:42px 0 auto; color:#222; font:500 38px "Montserrat",sans-serif; }
+.admin-font-card input[type="range"] { width:100%; height:20px; appearance:none; background:transparent; cursor:pointer; }
+.admin-font-card input[type="range"]::-webkit-slider-runnable-track { height:4px; border-radius:999px; background:linear-gradient(to right,#6b8cff 0 var(--admin-range-progress,33.33%),#dfe1e7 var(--admin-range-progress,33.33%) 100%); }
+.admin-font-card input[type="range"]::-webkit-slider-thumb { width:20px; height:20px; margin-top:-8px; appearance:none; border:0; border-radius:50%; background:#5b8cff; }
+.admin-font-card input[type="range"]::-moz-range-track { height:4px; border-radius:999px; background:#dfe1e7; }
+.admin-font-card input[type="range"]::-moz-range-progress { height:4px; border-radius:999px; background:#6b8cff; }
+.admin-font-card input[type="range"]::-moz-range-thumb { width:20px; height:20px; border:0; border-radius:50%; background:#5b8cff; }
+.admin-accessibility-toggles { display:grid; min-width:0; gap:24px; border:0; }
+.admin-setting-card { display:flex; min-height:123px; padding:28px 34px; align-items:center; justify-content:space-between; gap:20px; cursor:pointer; }
+.admin-setting-card>span:first-child { display:grid; gap:4px; color:#222; font-size:17px; font-weight:600; }
+.admin-setting-card small { color:#777; font-size:11px; font-weight:500; }
+.admin-setting-card input { position:absolute; width:1px; height:1px; opacity:0; }
+.admin-setting-card input:focus-visible+.admin-access-switch { outline:3px solid #6b8cff; outline-offset:4px; }
+.admin-access-switch { display:block; position:relative; width:54px; height:30px; flex:0 0 54px; padding:0; border-radius:999px; background:#e5e5e7; transition:background .2s; }
+.admin-access-switch::after { content:""; position:absolute; top:4px; left:4px; width:22px; height:22px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.22); transition:transform .2s; }
+.admin-setting-card input:checked+.admin-access-switch { background:#6b8cff; }
+.admin-setting-card input:checked+.admin-access-switch::after { transform:translateX(24px); }
+
+@media(max-width:700px){
+    .dialog-card.admin-accessibility-card{padding:26px 18px}
+    .admin-accessibility-grid{grid-template-columns:1fr}
+    .admin-font-card{min-height:220px}
+    .admin-setting-card{min-height:100px;padding:24px}
+}
+
+/* Cadastro de cupom: visual próprio sem alterar os campos consumidos por admin.js. */
+.coupon-dialog { width:min(430px,calc(100% - 28px)); border-radius:52px; }
+.dialog-card.coupon-dialog-card { position:relative; display:flex; min-height:600px; padding:44px 46px 42px; align-items:center; flex-direction:column; border-radius:52px; }
+.coupon-dialog-close { position:absolute; top:28px; right:28px; display:grid; width:44px; height:44px; place-items:center; border:0; border-radius:50%; background:#f1f1f2; color:#222; transition:background .2s,transform .2s; }
+.coupon-dialog-close:hover { background:#e5e5e8; transform:rotate(8deg); }
+.coupon-dialog-close:focus-visible { outline:3px solid #6b8cff; outline-offset:3px; }
+.coupon-dialog-close svg { width:21px; height:21px; }
+.coupon-dialog-icon { display:grid; width:96px; height:96px; margin-top:66px; place-items:center; border-radius:50%; background:#f2f2f3; color:#444; }
+.coupon-dialog-icon svg { width:38px; height:38px; stroke-width:2.2; }
+.coupon-dialog-card h2 { margin:30px 0 28px; color:#222; font:600 23px "Montserrat",sans-serif; text-align:center; }
+.coupon-fields { display:grid; width:100%; padding:0; gap:18px; border:0; }
+.coupon-fields label { display:flex; width:100%; min-height:52px; padding:0 20px; align-items:center; border-radius:999px; background:#f1f1f2; }
+.coupon-fields label:focus-within { box-shadow:0 0 0 3px rgba(107,140,255,.28); }
+.coupon-fields input { width:100%; min-width:0; height:52px; border:0; outline:0; background:transparent; color:#333; font:500 14px "DM Sans",sans-serif; }
+.coupon-fields input::placeholder { color:#7d7d84; opacity:1; }
+.coupon-fields .coupon-date-field { min-height:62px; padding-block:9px; align-items:stretch; justify-content:center; flex-direction:column; gap:2px; }
+.coupon-date-field>span { position:static; color:#7d7d84; font-size:11px; line-height:1.1; pointer-events:none; }
+.coupon-fields .coupon-date-field input { width:100%; height:27px; padding:0; color:#333; color-scheme:light; font-size:14px; }
+.coupon-date-field input::-webkit-calendar-picker-indicator { width:18px; height:18px; margin:0; cursor:pointer; }
+.coupon-dialog-actions { display:flex; width:100%; margin-top:28px; justify-content:center; }
+.coupon-dialog-actions .button { width:76%; min-height:48px; padding-inline:20px; }
+.coupon-dialog-actions .button:disabled { cursor:wait; opacity:.65; }
+
+@media(max-width:520px){
+    .dialog-card.coupon-dialog-card{min-height:560px;padding:36px 26px 32px;border-radius:38px}
+    .coupon-dialog-close{top:22px;right:22px}
+    .coupon-dialog-icon{width:82px;height:82px;margin-top:58px}
+    .coupon-dialog-card h2{margin-block:24px;font-size:20px}
+    .coupon-dialog-actions .button{width:100%}
+}
 
 /* Mesmas proporções visuais da home, mantendo a identidade escura do admin. */
 @media(min-width:901px){

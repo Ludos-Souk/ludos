@@ -11,23 +11,32 @@
         container.id = ID_CONTAINER;
         container.setAttribute("vw", "");
         container.className = "enabled";
-        container.innerHTML = `
-            <div vw-access-button class="active"></div>
-            <div vw-plugin-wrapper>
-                <div class="vw-plugin-top-wrapper"></div>
-            </div>
-        `;
+
+        const botaoAcesso = document.createElement("div");
+        botaoAcesso.setAttribute("vw-access-button", "");
+        botaoAcesso.className = "active";
+
+        const wrapper = document.createElement("div");
+        wrapper.setAttribute("vw-plugin-wrapper", "");
+
+        const wrapperSuperior = document.createElement("div");
+        wrapperSuperior.className = "vw-plugin-top-wrapper";
+
+        wrapper.append(wrapperSuperior);
+        container.append(botaoAcesso, wrapper);
         document.body.appendChild(container);
     }
 
     function criarWidget() {
         if (!window.VLibras?.Widget || window.__ludosVLibrasInicializado) return;
+
         window.__ludosVLibrasInicializado = true;
         new window.VLibras.Widget(URL_WIDGET);
     }
 
     function carregarPlugin() {
         const scriptExistente = document.getElementById(ID_SCRIPT);
+
         if (scriptExistente) {
             if (window.VLibras?.Widget) criarWidget();
             else scriptExistente.addEventListener("load", criarWidget, { once: true });

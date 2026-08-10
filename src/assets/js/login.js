@@ -4,6 +4,7 @@ import { buscarUsuarioPorId } from "../../services/usuarioService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 import { inicializarVisibilidadeSenhas } from "./utils/passwordVisibility.js";
 import { inicializarBotoesLimpar } from "./utils/inputClear.js";
+import { salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
 
 inicializarVisibilidadeSenhas();
 inicializarBotoesLimpar(document.getElementById("login-form"));
@@ -64,6 +65,7 @@ function exibirErroDeLogin(erro) {
 
 async function redirecionarPorRole(uid) {
     const usuario = await buscarUsuarioPorId(uid);
+    salvarFeedbackNavegacao("Login realizado com sucesso.");
     window.location.href = usuario?.role === "admin"
         ? ROTAS.ADMIN
         : ROTAS.HOME;

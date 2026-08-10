@@ -17,6 +17,8 @@ import {
     alterarQuantidade,
     removerProduto
 } from "../../services/carrinhoService.js";
+import { mostrarFeedbackGlobal } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho, substituirPorEstado } from "./utils/ui.js";
 
 // Inicializa ícones do Lucide
 if (window.lucide) {
@@ -24,16 +26,13 @@ if (window.lucide) {
 }
 
 const header = document.querySelector('.header');
-const searchForm = document.querySelector('.search-form');
 const btnContinuar = document.querySelector(".btn-continue");
 const inputBusca = document.getElementById('search-input');
-const btnMicrofone = document.querySelector('.mic-btn');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const busca = inputBusca.value.trim();
-    if (busca) {
+configurarPesquisaCabecalho({
+    input: inputBusca,
+    aoPesquisar: (busca) => {
+        if (!busca) return;
         sessionStorage.setItem("href-pesquisa", busca);
         window.location.href = ROTAS.HOME;
     }
@@ -73,39 +72,6 @@ async function listarProdutos() {
 
 }
 
-function inicializarPesquisaPorVoz() {
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            inputBusca.value = textoFalado;
-            filtrarPorNome(textoFalado);
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-
-    } else {
-        alert("Seu navegador não tem suporte para pesquisa por voz.");
-    }
-}
-
 const cartContainer = document.getElementById('cart-items-container');
 const selectAllCheckbox = document.getElementById('checkbox-select-all');
 
@@ -119,14 +85,43 @@ const VALOR_DESCONTO = 0;
 let cartData = [];
 
 async function inicializar() {
-    cartData = await listarProdutos();
-    inicializarModalExclusao();
-    renderCart();
+    cartContainer.setAttribute("aria-busy", "true");
+    substituirPorEstado(cartContainer, "Carregando produtos do carrinho...", "cart-state");
+
+    try {
+        cartData = await listarProdutos();
+        inicializarModalExclusao();
+        renderCart();
+    } catch (erro) {
+        console.error("Não foi possível carregar o carrinho:", erro);
+        substituirPorEstado(
+            cartContainer,
+            "Não foi possível carregar o carrinho. Atualize a página e tente novamente.",
+            "cart-state error",
+            "error"
+        );
+        mostrarFeedbackGlobal("Não foi possível carregar os produtos do carrinho.", "error");
+    } finally {
+        cartContainer.setAttribute("aria-busy", "false");
+    }
 }
 
 function renderCart() {
 
     cartContainer.replaceChildren();
+
+    if (cartData.length === 0) {
+        const vazio = document.createElement("section");
+        vazio.className = "cart-state empty";
+        const tituloVazio = document.createElement("strong");
+        tituloVazio.textContent = "Seu carrinho está vazio.";
+        const orientacaoVazio = document.createElement("span");
+        orientacaoVazio.textContent = "Adicione produtos para continuar sua compra.";
+        vazio.append(tituloVazio, orientacaoVazio);
+        cartContainer.append(vazio);
+        btnContinuar.disabled = true;
+        return;
+    }
 
     let todosSelecionados =
         cartData.length > 0;
@@ -843,7 +838,6 @@ btnContinuar.addEventListener("click", () => {
 
 // Renderiza a lista assim que o script carregar
 inicializar();
-inicializarPesquisaPorVoz();
 
 // ============================================================
 // Lógica do Modal de Exclusão

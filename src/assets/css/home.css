@@ -121,6 +121,16 @@ button, a, [role="button"] {
     cursor: pointer;
 }
 
+.mic-btn.listening {
+    color: var(--color-primary-light);
+    background: rgba(107, 140, 255, 0.12);
+}
+
+.mic-btn[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 /* ============================================================
    ACESSIBILIDADE
    ============================================================ */
@@ -655,9 +665,14 @@ input:focus-visible {
     border: none;
     border-radius: 30px;
     background: var(--btn-yellow);
+    color: var(--btn-yellow-text);
     font-size: 14px;
     font-weight: 700;
     transition: var(--transition-default);
+}
+
+.btn-buy span {
+    color: inherit;
 }
 
 .btn-buy:hover {
@@ -1519,6 +1534,9 @@ select {
     padding-top: 4px;
 }
 
+.card-brand-feedback { min-height: 16px; margin: -14px 0 -8px; padding-left: 26px; color: var(--text-muted); font-size: 11px; }
+.card-brand-feedback.error { color: var(--color-error); }
+
 .card-visual {
     width: min(100%, 360px);
     aspect-ratio: 1.586 / 1;
@@ -1984,6 +2002,74 @@ html.accessibility-dark-theme input,
 html.accessibility-dark-theme textarea,
 html.accessibility-dark-theme select { 
     color: var(--text-dark); 
+}
+
+/* Alto contraste: tema acionado pelo primeiro controle do perfil. */
+html.accessibility-high-contrast body {
+    --bg-body: #383838;
+    --bg-white: #404040;
+    --bg-input: #383838;
+    --bg-subtle: #ffffff14;
+    --bg-hover: #505050;
+    --text-dark: #ffffff;
+    --text-body: #f4f4f4;
+    --text-muted: #d2d2d2;
+    --shadow-card: none;
+    --shadow-soft: none;
+    background: var(--color-primary);
+    color: var(--text-dark);
+    filter: none;
+}
+
+html.accessibility-high-contrast .main-content {
+    border: 2px solid var(--color-primary-light);
+    background: var(--bg-body);
+    color: var(--text-dark);
+}
+
+html.accessibility-high-contrast .promo-banner,
+html.accessibility-high-contrast .card,
+html.accessibility-high-contrast .product-card,
+html.accessibility-high-contrast .modal-content,
+html.accessibility-high-contrast .filter-popup {
+    border: 2px solid var(--color-primary-light);
+    background: var(--bg-white);
+    color: var(--text-dark);
+    box-shadow: none;
+}
+
+html.accessibility-high-contrast .address-value,
+html.accessibility-high-contrast .side-card-text,
+html.accessibility-high-contrast .product-card :is(h3, h4, p, strong),
+html.accessibility-high-contrast .orders-card :is(h3, h4, p, strong),
+html.accessibility-high-contrast .promo-banner,
+html.accessibility-high-contrast .promo-banner svg {
+    color: var(--text-dark);
+}
+
+html.accessibility-high-contrast .product-image-gradient {
+    background: radial-gradient(circle at 50% 42%, rgba(107, 140, 255, .2), transparent 72%);
+}
+
+html.accessibility-high-contrast .product-image-gradient::after {
+    background: linear-gradient(to bottom, transparent, var(--bg-white));
+}
+
+html.accessibility-high-contrast :is(.btn-icon, .orders-controls button, .btn-change-address, .btn-orders) {
+    border: 1px solid var(--color-primary-light);
+    background: transparent;
+    color: var(--text-dark);
+}
+
+html.accessibility-high-contrast :is(.order-product-bubble, .review-product) {
+    border-color: var(--color-primary-light);
+    background: var(--bg-white);
+}
+
+html.accessibility-high-contrast :is(input, textarea, select) {
+    border-color: var(--color-primary-light);
+    background: var(--bg-input);
+    color: var(--text-dark);
 }
 
 /* ============================================================

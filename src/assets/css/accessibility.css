@@ -1,0 +1,635 @@
+/* Temas globais de acessibilidade. Este arquivo deve ser carregado após o CSS da página. */
+.face-navigation-panel {
+    position: fixed; z-index: 3200; right: 20px; bottom: 20px;
+    display: grid; grid-template-columns: 62px minmax(145px, 1fr) auto auto;
+    align-items: center; gap: 10px; width: min(520px, calc(100% - 32px));
+    padding: 10px; border: 1px solid rgba(28,31,42,.12); border-radius: 20px;
+    background: #fff; color: #202124; box-shadow: 0 14px 42px rgba(0,0,0,.24);
+}
+.face-navigation-preview { width: 62px; height: 48px; border-radius: 12px; object-fit: cover; transform: scaleX(-1); background: #202124; }
+.face-navigation-info { display: grid; gap: 2px; min-width: 0; }
+.face-navigation-info strong { font-size: 13px !important; }
+.face-navigation-status { color: #686b73; font-size: 11px !important; line-height: 1.25; }
+.face-navigation-panel button { min-height: 38px; padding: 0 14px; border: 0; border-radius: 999px; background: #eef0f4; color: #222; font-weight: 700; cursor: pointer; }
+.face-navigation-panel .face-navigation-stop { background: #ffdc7a; }
+.face-navigation-panel[data-state="warning"] { border-color: #d59125; }
+.face-navigation-cursor {
+    --dwell: 0deg; position: fixed; z-index: 3300; top: -18px; left: -18px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: conic-gradient(#316ff6 var(--dwell), rgba(255,255,255,.85) 0);
+    border: 2px solid #172a5d; box-shadow: 0 2px 12px rgba(0,0,0,.35); pointer-events: none;
+}
+.face-navigation-cursor::after { content: ""; position: absolute; inset: 7px; border-radius: inherit; background: #ffdc7a; }
+.face-navigation-target { outline: 4px solid #4f7dff !important; outline-offset: 4px !important; }
+html.accessibility-dark-theme .face-navigation-panel,
+html.accessibility-high-contrast .face-navigation-panel { border-color: #67a0ff; background: #404040; color: #fff; }
+html.accessibility-dark-theme .face-navigation-status,
+html.accessibility-high-contrast .face-navigation-status { color: #eee; }
+@media (max-width: 620px) {
+    .face-navigation-panel { right: 10px; bottom: max(10px, env(safe-area-inset-bottom)); grid-template-columns: 50px minmax(0,1fr) auto; gap: 8px; }
+    .face-navigation-preview { width: 50px; height: 42px; }
+    .face-navigation-calibrate { display: none; }
+    .face-navigation-panel button { padding-inline: 12px; }
+}
+
+html.accessibility-dyslexic-font body,
+html.accessibility-dyslexic-font body :where(h1, h2, h3, h4, h5, h6, p, span,
+    a, button, label, input, textarea, select, option, li, dt, dd, output, small,
+    strong, em, address, legend, table, th, td) {
+    font-family: Arial, Verdana, Tahoma, sans-serif !important;
+    letter-spacing: .04em !important;
+    word-spacing: .08em;
+}
+
+html.accessibility-color-vision {
+    --bg-body: #f4f5f9;
+    --bg-main: #f4f5f9;
+    --bg-white: #fff;
+    --bg-input: #f1f2f6;
+    --bg-subtle: #70707014;
+    --bg-hover: #e3e5eb;
+    --text-dark: #202124;
+    --text-body: #44474d;
+    --text-muted: #747880;
+    --blue: var(--color-primary);
+    --yellow: var(--btn-yellow);
+    --pink: var(--color-fav);
+    --surface: var(--bg-body);
+    --white: var(--bg-white);
+    --ink: var(--text-dark);
+    --muted: var(--text-muted);
+    color-scheme: light;
+}
+
+/* Azul + dourado: evita depender da distinção entre vermelho e verde. */
+html.accessibility-protanopia {
+    --color-primary: #174ea6;
+    --color-primary-light: #2979d6;
+    --color-primary-soft: #8ab4f8;
+    --color-accent: #c8dcff;
+    --btn-yellow: #f6c85f;
+    --btn-yellow-hover: #e5b544;
+    --btn-yellow-text: #202124;
+    --color-success: #0072b2;
+    --color-error: #b34c8c;
+    --color-fav: #d98bb3;
+    --color-cart: #f6c85f;
+}
+
+/* Azul + laranja: estados permanecem distintos sem usar verde. */
+html.accessibility-deuteranopia {
+    --color-primary: #154f95;
+    --color-primary-light: #3569b8;
+    --color-primary-soft: #91b4e8;
+    --color-accent: #cbdcf4;
+    --btn-yellow: #f0b44d;
+    --btn-yellow-hover: #dc9d32;
+    --btn-yellow-text: #202124;
+    --color-success: #0072b2;
+    --color-error: #d55e00;
+    --color-fav: #d97941;
+    --color-cart: #f0b44d;
+}
+
+/* Roxo + coral/verde-petróleo: evita depender da oposição azul/amarelo. */
+html.accessibility-tritanopia {
+    --color-primary: #51358f;
+    --color-primary-light: #7654b5;
+    --color-primary-soft: #b7a4dc;
+    --color-accent: #ddd3ef;
+    --btn-yellow: #e6a7bf;
+    --btn-yellow-hover: #d78ca9;
+    --btn-yellow-text: #202124;
+    --color-success: #087f73;
+    --color-error: #c23b57;
+    --color-fav: #e6a7bf;
+    --color-cart: #b7a4dc;
+}
+
+/* Variações anômalas: ajustes mais suaves que os modos dicromáticos. */
+html.accessibility-protanomalia {
+    --color-primary: #215b9f;
+    --color-primary-light: #3d7fc4;
+    --color-primary-soft: #9cc1e5;
+    --color-accent: #d2e2f2;
+    --btn-yellow: #edc66e;
+    --btn-yellow-hover: #d9ae50;
+    --btn-yellow-text: #202124;
+    --color-success: #16739f;
+    --color-error: #a94f82;
+    --color-fav: #cf8cac;
+    --color-cart: #edc66e;
+}
+
+html.accessibility-deuteranomalia {
+    --color-primary: #28558d;
+    --color-primary-light: #4a76ad;
+    --color-primary-soft: #a5bedc;
+    --color-accent: #d5e0ed;
+    --btn-yellow: #e8b866;
+    --btn-yellow-hover: #d49c46;
+    --btn-yellow-text: #202124;
+    --color-success: #24749b;
+    --color-error: #c2642e;
+    --color-fav: #cf8660;
+    --color-cart: #e8b866;
+}
+
+html.accessibility-tritanomalia {
+    --color-primary: #59478d;
+    --color-primary-light: #7b69ad;
+    --color-primary-soft: #bbb0d8;
+    --color-accent: #e0dbee;
+    --btn-yellow: #dfa9bd;
+    --btn-yellow-hover: #cd8fa7;
+    --btn-yellow-text: #202124;
+    --color-success: #287b72;
+    --color-error: #b84d63;
+    --color-fav: #dfa9bd;
+    --color-cart: #bbb0d8;
+}
+
+/* Sem percepção de cor: contraste por luminosidade, contorno e forma. */
+html.accessibility-acromatopsia {
+    --color-primary: #242424;
+    --color-primary-light: #595959;
+    --color-primary-soft: #aaa;
+    --color-accent: #d5d5d5;
+    --btn-yellow: #e1e1e1;
+    --btn-yellow-hover: #c7c7c7;
+    --btn-yellow-text: #111;
+    --color-success: #333;
+    --color-error: #111;
+    --color-fav: #b5b5b5;
+    --color-cart: #ddd;
+}
+
+html.accessibility-acromatopsia :where(.success, .toast-success, [data-state="success"]) {
+    border: 2px solid #555 !important;
+    text-decoration: none;
+}
+
+html.accessibility-acromatopsia :where(.error, .toast-error, [aria-invalid="true"], [data-state="error"]) {
+    border: 3px double #111 !important;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+html.accessibility-color-vision body {
+    background-color: var(--color-primary) !important;
+    color: var(--text-dark);
+}
+
+html.accessibility-color-vision :where(.header, .profile-header, .footer-wrapper, .admin-header) {
+    background-color: var(--color-primary) !important;
+}
+
+html.accessibility-color-vision :where(main, .main-content, .profile-main, .cart-main,
+    .checkout-main, .form-page-content, .status-page-content, .admin-main, .admin-content) {
+    background-color: var(--bg-body) !important;
+    color: var(--text-dark);
+}
+
+html.accessibility-color-vision :where(.card, article[class$="-card"], section[class$="-card"],
+    div[class$="-card"], aside[class$="-card"], li[class$="-card"], .shortcut-card,
+    .font-size-card, .setting-card, .theme-card, .color-vision-options, .admin-font-card,
+    .admin-setting-card, .modal-content,
+    .profile-dialog-content, .dialog-content) {
+    background-color: var(--bg-white) !important;
+    color: var(--text-dark);
+}
+
+html.accessibility-color-vision :where(.btn-primary, .btn-confirmar, .btn-adicionar,
+    .btn-comprar, .buy-button, .profile-primary-action, .btn-review-submit,
+    .color-vision-options button[aria-selected="true"]) {
+    background-color: var(--btn-yellow) !important;
+    color: var(--btn-yellow-text) !important;
+}
+
+html.accessibility-color-vision :where(.discount-badge, .cart-badge, .progress-step.active,
+    input:checked + .switch) {
+    background-color: var(--color-primary-light) !important;
+    color: #fff !important;
+}
+
+html.accessibility-color-vision :where(.success, .toast-success, [data-state="success"]) {
+    color: var(--color-success) !important;
+}
+
+html.accessibility-color-vision :where(.error, .toast-error, [aria-invalid="true"],
+    [data-state="error"]) {
+    color: var(--color-error) !important;
+}
+
+html.accessibility-color-vision :where(a, button, input, textarea, select):focus-visible {
+    outline: 3px solid var(--color-primary-light) !important;
+    outline-offset: 3px !important;
+}
+
+html.accessibility-color-vision :where(input, textarea, select):focus {
+    border-color: var(--color-primary-light) !important;
+}
+
+html.accessibility-color-vision .product-image-gradient::after {
+    background: linear-gradient(to bottom, transparent, var(--bg-white)) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) {
+    --bg-body: #383838;
+    --bg-main: #383838;
+    --bg-white: #444;
+    --bg-input: #3b3b3b;
+    --bg-subtle: #ffffff14;
+    --bg-hover: #505050;
+    --text-dark: #fff;
+    --text-body: #f0f0f0;
+    --text-muted: #c7c7c7;
+    --shadow-card: none;
+    --shadow-soft: none;
+    color-scheme: dark;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) body {
+    background-color: #15338b !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(main, .main-content,
+    .profile-main, .cart-main, .checkout-main, .form-page-content, .status-page-content,
+    .admin-main, .admin-content, .container, .auth) {
+    background-color: #383838 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(.card,
+    article[class$="-card"], section[class$="-card"], div[class$="-card"],
+    aside[class$="-card"], li[class$="-card"], .shortcut-card, .font-size-card,
+    .setting-card, .theme-card, .color-vision-options, .admin-font-card,
+    .admin-setting-card, .modal-content,
+    .profile-dialog-content, .photo-crop-content, .dialog-content, .filter-popup) {
+    border-color: transparent !important;
+    background-color: #444 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.main-content, .profile-main, .cart-main, .checkout-main, dialog)
+    :where(h1, h2, h3, h4, h5, h6, p, span, label, legend, small, output, dt, dd, address, li, svg) {
+    color: inherit;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(input, textarea, select) {
+    background-color: #3b3b3b !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(input, textarea)::placeholder {
+    color: #c7c7c7 !important;
+    opacity: 1;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-gradient {
+    background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .1), transparent 72%) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-gradient::after {
+    background: linear-gradient(to bottom, transparent, #444) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon {
+    border: 1px solid #777 !important;
+    background-color: #555 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon:is(:hover, :focus-visible) {
+    background-color: #666 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon.is-favorite {
+    border-color: #e6a7bf !important;
+    background-color: #e6a7bf !important;
+    color: #262626 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon.is-cart {
+    border-color: var(--btn-yellow) !important;
+    background-color: var(--btn-yellow) !important;
+    color: #262626 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(button, a, [role="button"]) > svg,
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(button, a, [role="button"]) > i > svg {
+    color: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(.edit-avatar,
+    .profile-dialog-close, .profile-icon-action, .btn-close-modal, .btn-back,
+    .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-close-toast, .add-icon-circle) {
+    border: 1px solid #777 !important;
+    background-color: #555 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(.shortcut-card,
+    .side-card, .payment-icon, .product-thumb, .preview-image, .profile-favorite-image,
+    .profile-order-product-image, .profile-review-image, .profile-dialog-empty) svg {
+    color: #f2f2f2 !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-high-contrast {
+    --color-primary-light: #67a0ff;
+    --color-primary-soft: #8bb4ff;
+    --bg-body: #383838;
+    --bg-main: #383838;
+    --bg-white: #404040;
+    --bg-input: #383838;
+    --bg-subtle: #ffffff14;
+    --bg-hover: #505050;
+    --text-dark: #fff;
+    --text-body: #f4f4f4;
+    --text-muted: #d2d2d2;
+    --shadow-card: none;
+    --shadow-soft: none;
+    color-scheme: dark;
+}
+
+html.accessibility-high-contrast body {
+    background-color: #15338b !important;
+    color: #fff !important;
+    filter: none !important;
+}
+
+html.accessibility-high-contrast :where(main, .main-content, .profile-main, .cart-main,
+    .checkout-main, .form-page-content, .status-page-content, .admin-main, .admin-content,
+    .container, .auth) {
+    background-color: #383838 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast :where(.main-content, .profile-main, .cart-main,
+    .checkout-main, .form-page-content, .status-page-content) {
+    border-color: #67a0ff !important;
+}
+
+html.accessibility-high-contrast :where(.card, article[class$="-card"], section[class$="-card"],
+    div[class$="-card"], aside[class$="-card"], li[class$="-card"], [class~="product-card"],
+    .modal-content, .profile-dialog-content, .photo-crop-content, .dialog-content,
+    .input-wrapper, .textarea-wrapper, .form-group, .filter-popup, .row-menu) {
+    border-color: #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-high-contrast :where(.card, article[class$="-card"], section[class$="-card"],
+    div[class$="-card"], aside[class$="-card"], li[class$="-card"], [class~="product-card"],
+    .modal-content, .profile-dialog-content, .photo-crop-content, .dialog-content) {
+    border-style: solid !important;
+    border-width: 2px !important;
+}
+
+html.accessibility-high-contrast :where(h1, h2, h3, h4, h5, h6, p, span, label, legend,
+    dt, dd, address, li) {
+    border-color: #67a0ff;
+}
+
+html.accessibility-high-contrast :where(.main-content, .profile-main, .cart-main,
+    .checkout-main, .form-page-content, .status-page-content, dialog)
+    :where(h1, h2, h3, h4, h5, h6, p, span, label, legend, dt, dd, address, li, svg) {
+    color: inherit;
+}
+
+html.accessibility-high-contrast :where(input, textarea, select) {
+    border-color: #67a0ff !important;
+    background-color: #383838 !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
+html.accessibility-high-contrast :where(input, textarea)::placeholder {
+    color: #d2d2d2 !important;
+    opacity: 1;
+}
+
+html.accessibility-high-contrast :where(.btn-icon, .icon-button, .orders-controls button,
+    .btn-change-address, .btn-orders, .profile-back, .back-button) {
+    border: 1px solid #67a0ff !important;
+    background-color: transparent !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .reset-accessibility {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast :where(.identity-card, .shortcut-card, .font-size-card,
+    .setting-card, .theme-card, .color-vision-options, .admin-font-card,
+    .admin-setting-card, .profile-saved-card,
+    .profile-favorite-card, .profile-order-card, .profile-review-card) {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-high-contrast :where(.shortcut-card, .font-size-card, .setting-card,
+    .theme-card, .color-vision-options, .admin-font-card, .admin-setting-card)
+    :where(span, small, legend, h3, output, svg) {
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .font-size-card input::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #67a0ff 0 var(--range-progress, 33.33%), #d8dbe3 var(--range-progress, 33.33%) 100%);
+}
+
+html.accessibility-high-contrast .font-size-card input::-moz-range-track {
+    background: #d8dbe3;
+}
+
+html.accessibility-high-contrast .header-icons .filter-popup h3 {
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .header-icons .filter-popup .btn-filter-option {
+    border: 1px solid transparent !important;
+    background-color: #505050 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-high-contrast .header-icons .filter-popup .btn-filter-option:hover,
+html.accessibility-high-contrast .header-icons .filter-popup .btn-filter-option:focus-visible {
+    border-color: #67a0ff !important;
+    background-color: #5b5b5b !important;
+}
+
+html.accessibility-high-contrast .header-icons .filter-popup .btn-filter-option.selecionado {
+    border-color: #ffdc7a !important;
+    background-color: #ffdc7a !important;
+    color: #222 !important;
+}
+
+html.accessibility-high-contrast .btn-icon {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .btn-icon:is(:hover, :focus-visible) {
+    background-color: #505050 !important;
+}
+
+html.accessibility-high-contrast .btn-icon.is-favorite {
+    border-color: #fff !important;
+    background-color: #fff !important;
+    color: #222 !important;
+}
+
+html.accessibility-high-contrast .btn-icon.is-cart {
+    border-color: var(--btn-yellow) !important;
+    background-color: var(--btn-yellow) !important;
+    color: #222 !important;
+}
+
+html.accessibility-dark-theme .btn-icon svg,
+html.accessibility-high-contrast .btn-icon svg {
+    color: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-high-contrast :where(button, a, [role="button"]) > svg,
+html.accessibility-high-contrast :where(button, a, [role="button"]) > i > svg {
+    color: currentColor !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-high-contrast :where(.edit-avatar, .profile-dialog-close,
+    .profile-icon-action, .btn-close-modal, .btn-back, .btn-back-icon, .back-button,
+    .order-review-close, .order-toast-close, .btn-close-toast, .add-icon-circle) {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast :where(.shortcut-card, .side-card, .payment-icon,
+    .product-thumb, .preview-image, .profile-favorite-image, .profile-order-product-image,
+    .profile-review-image, .profile-dialog-empty) svg {
+    color: #fff !important;
+    stroke: currentColor !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.edit-avatar, .profile-dialog-close, .profile-icon-action, .btn-close-modal,
+    .btn-back, .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-close-toast, .add-icon-circle):is(:hover, :focus-visible),
+html.accessibility-high-contrast
+    :where(.edit-avatar, .profile-dialog-close, .profile-icon-action, .btn-close-modal,
+    .btn-back, .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-close-toast, .add-icon-circle):is(:hover, :focus-visible) {
+    background-color: #5b5b5b !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .switch {
+    position: relative;
+    box-sizing: border-box;
+    padding: 0 !important;
+    border: 1px solid #9a9a9a !important;
+    background-color: #626262 !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .35);
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .switch::after {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%) !important;
+    background-color: #fff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .55) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) input:checked + .switch {
+    border-color: var(--color-primary-light) !important;
+    background-color: var(--color-primary-light) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) input:checked + .switch::after {
+    transform: translate(22px, -50%) !important;
+}
+
+html.accessibility-high-contrast .switch {
+    position: relative;
+    box-sizing: border-box;
+    padding: 0 !important;
+    border: 2px solid #67a0ff !important;
+    background-color: #303030 !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-high-contrast .switch::after {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%) !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 1px #111 !important;
+}
+
+html.accessibility-high-contrast input:checked + .switch {
+    border-color: #ffdc7a !important;
+    background-color: #ffdc7a !important;
+}
+
+html.accessibility-high-contrast input:checked + .switch::after {
+    background-color: #222 !important;
+    box-shadow: none !important;
+    transform: translate(22px, -50%) !important;
+}
+
+html.accessibility-high-contrast svg[class*="lucide-"] {
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-high-contrast :where(a, button, input, textarea, select):focus-visible {
+    outline: 3px solid #8bb4ff !important;
+    outline-offset: 3px !important;
+}
+
+html.accessibility-high-contrast .product-image-gradient {
+    background: radial-gradient(circle at 50% 42%, rgba(103, 160, 255, .2), transparent 72%) !important;
+}
+
+html.accessibility-high-contrast .product-image-gradient::after {
+    background: linear-gradient(to bottom, transparent, #404040) !important;
+}
+
+html.accessibility-high-contrast :where(.footer-wrapper, .header, .profile-header, .admin-header) {
+    filter: none !important;
+}
+
+@media (forced-colors: active) {
+    html.accessibility-high-contrast :where(.card, article[class$="-card"], section[class$="-card"],
+        div[class$="-card"], aside[class$="-card"], .modal-content) {
+        border-color: CanvasText !important;
+    }
+}

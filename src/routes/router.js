@@ -9,6 +9,12 @@ import {
     obterConfiguracoesAcessibilidade
 } from "../services/configuracoesService.js";
 import { buscarUsuarioPorId } from "../services/usuarioService.js";
+import {
+    exibirFeedbackPendente,
+    iniciarTratamentoErrosGlobais
+} from "../assets/js/utils/asyncFeedback.js";
+import { iniciarOtimizacaoImagens } from "../assets/js/utils/imagePerformance.js";
+import { iniciarNavegacaoFacial } from "../assets/js/utils/faceNavigation.js";
 
 const ROTAS_AUTENTICACAO = [
     ROTAS.LOGIN,
@@ -86,6 +92,14 @@ function iniciarNavegacaoGlobal() {
     botaoPerfil?.addEventListener("click", () => {
         window.location.href = ROTAS.PERFIL;
     });
+
+    const botaoFavoritos = document.querySelector(
+        'button[aria-label="Ver meus favoritos"]'
+    );
+
+    botaoFavoritos?.addEventListener("click", () => {
+        window.location.href = `${ROTAS.PERFIL}?abrir=favoritos`;
+    });
 }
 
 export function iniciarRouter() {
@@ -136,6 +150,11 @@ export function iniciarRouter() {
     });
 }
 
+iniciarNavegacaoFacial();
 aplicarConfiguracoesAcessibilidade(obterConfiguracoesAcessibilidade());
+iniciarOtimizacaoImagens();
+iniciarTratamentoErrosGlobais();
 iniciarNavegacaoGlobal();
-iniciarRouter();
+iniciarRouter().then(paginaLiberada => {
+    if (paginaLiberada) exibirFeedbackPendente();
+});

@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/css/perfil.css">
+    <link rel="stylesheet" href="../assets/css/accessibility.css">
 </head>
 <body id="topo" class="profile-page">
     <header class="header sem-banner profile-header">
@@ -88,10 +89,35 @@
                 <fieldset class="toggle-list">
                     <legend class="sr-only">Preferências de leitura</legend>
                     <label class="setting-card" for="dyslexic-font"><span>Dyslexic Font</span><input id="dyslexic-font" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
-                    <label class="setting-card" for="high-contrast"><span>Alto contraste</span><input id="high-contrast" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+                    <label class="setting-card" for="eye-tracking"><span>Eye Tracking <small>Navegação facial</small></span><input id="eye-tracking" type="checkbox" role="switch" aria-describedby="eye-tracking-description"><span class="switch" aria-hidden="true"></span></label>
+                    <span id="eye-tracking-description" class="sr-only">Permite navegar por movimentos do rosto usando a câmera. O vídeo é processado somente neste dispositivo.</span>
                 </fieldset>
 
-                <label class="theme-card" for="dark-theme"><span>Tema</span><input id="dark-theme" type="checkbox" role="switch"><span class="switch switch-large" aria-hidden="true"></span></label>
+                <div class="theme-column">
+                    <section class="theme-card" aria-labelledby="theme-card-title">
+                        <h3 id="theme-card-title">Tema</h3>
+                        <div class="theme-options" role="radiogroup" aria-labelledby="theme-card-title">
+                            <label title="Usar alto contraste"><input type="radio" name="theme-mode" value="contrast"><span><i data-lucide="contrast" aria-hidden="true"></i><span class="sr-only">Alto contraste</span></span></label>
+                            <label title="Usar tema claro"><input type="radio" name="theme-mode" value="light"><span><i data-lucide="sun" aria-hidden="true"></i><span class="sr-only">Claro</span></span></label>
+                            <label title="Usar tema escuro"><input type="radio" name="theme-mode" value="dark"><span><i data-lucide="moon" aria-hidden="true"></i><span class="sr-only">Escuro</span></span></label>
+                            <label title="Adaptar visão de cores"><input type="radio" name="theme-mode" value="color-vision"><span><i data-lucide="blend" aria-hidden="true"></i><span class="sr-only">Visão de cores</span></span></label>
+                        </div>
+                        <button type="button" id="color-vision-trigger" class="color-vision-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="color-vision-options" hidden>
+                            <span id="color-vision-current">Protanopia</span>
+                            <i data-lucide="chevron-down" aria-hidden="true"></i>
+                        </button>
+                    </section>
+                    <ul id="color-vision-options" class="color-vision-options" role="listbox" aria-label="Selecionar adaptação de cores" hidden>
+                        <li><button type="button" role="option" data-color-vision="protanopia" aria-selected="true">Protanopia</button></li>
+                        <li><button type="button" role="option" data-color-vision="deuteranopia" aria-selected="false">Deuteranopia</button></li>
+                        <li><button type="button" role="option" data-color-vision="tritanopia" aria-selected="false">Tritanopia</button></li>
+                        <li><button type="button" role="option" data-color-vision="protanomalia" aria-selected="false">Protanomalia</button></li>
+                        <li><button type="button" role="option" data-color-vision="deuteranomalia" aria-selected="false">Deuteranomalia</button></li>
+                        <li><button type="button" role="option" data-color-vision="tritanomalia" aria-selected="false">Tritanomalia</button></li>
+                        <li><button type="button" role="option" data-color-vision="acromatopsia" aria-selected="false">Acromatopsia</button></li>
+                    </ul>
+                    <button type="button" id="reset-accessibility" class="reset-accessibility">Resetar configurações</button>
+                </div>
             </div>
         </section>
     </main>
@@ -167,7 +193,6 @@
                 <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar cartões"><i data-lucide="x" aria-hidden="true"></i></button>
             </header>
             <section class="profile-dialog-body profile-cards-body">
-                <p class="profile-security-note"><i data-lucide="shield-check" aria-hidden="true"></i><span>Este cartão é apenas uma simulação. Nenhum dado bancário real é armazenado.</span></p>
                 <article class="profile-saved-card" aria-label="Cartão Mastercard terminado em 1234">
                     <span class="profile-card-radio" aria-hidden="true"></span>
                     <figure class="profile-card-brand" aria-hidden="true">

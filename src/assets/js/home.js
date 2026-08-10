@@ -30,6 +30,7 @@ import {
 import Avaliacao from "../../models/Avaliacao.js";
 import { criarAvaliacoesPedido } from "../../services/avaliacaoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
 // #endregion
 
 
@@ -47,10 +48,7 @@ const banner = document.querySelector('.promo-banner');
 const header = document.querySelector('.header');
 
 // Busca
-const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
-const btnMicrofone = document.querySelector('.mic-btn');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // Catálogo de produtos
 const listaProdutos = document.querySelector('#lista-bonecos-firebase');
@@ -364,50 +362,6 @@ function inicializarFiltroMenu() {
 }
 
 
-// --- Pesquisa por voz (Speech Recognition) ---
-
-function inicializarPesquisaPorVoz() {
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            inputBusca.value = textoFalado;
-            filtrarPorNome(textoFalado);
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-
-    } else {
-        alert("Seu navegador não tem suporte para pesquisa por voz.");
-    }
-}
-
-
-// --- Formulário de busca ---
-
-function inicializarFormularioBusca() {
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-    });
-}
-
 function filtrarPorNome(nome) {
     const container = document.getElementById("lista-bonecos-firebase");
 
@@ -442,15 +396,6 @@ function filtrarPorNome(nome) {
 
     });
 }
-
-function inicializarFiltroBusca() {
-    inputBusca.addEventListener("input", (event) => {
-        filtrarPorNome(
-            inputBusca.value.trim()
-        );
-    });
-}
-
 
 // --- Navegação vinda de outras páginas (sessionStorage) ---
 
@@ -515,9 +460,20 @@ async function carregarEnderecos() {
         return;
     }
 
-    const enderecos = await listarEnderecos(uid);
-    if (enderecos.length) {
-        carregarListaEnderecos(enderecos);
+    modalBody?.setAttribute("aria-busy", "true");
+    modalBody?.replaceChildren(criarMensagemEstado("Carregando endereços..."));
+    try {
+        const enderecos = await listarEnderecos(uid);
+        if (enderecos.length) {
+            carregarListaEnderecos(enderecos);
+        } else {
+            modalBody?.replaceChildren(criarMensagemEstado("Você ainda não possui endereços cadastrados."));
+        }
+    } catch (erro) {
+        console.error("Não foi possível carregar os endereços:", erro);
+        modalBody?.replaceChildren(criarMensagemEstado("Não foi possível carregar seus endereços."));
+    } finally {
+        modalBody?.setAttribute("aria-busy", "false");
     }
 }
 
@@ -1293,6 +1249,7 @@ async function carregarCatalogo() {
 
     try {
 
+        container.setAttribute("aria-busy", "true");
         container.replaceChildren(criarMensagemEstado("Carregando produtos..."));
 
         const produtos =
@@ -1344,12 +1301,19 @@ async function carregarCatalogo() {
         container.replaceChildren(criarMensagemEstado("Não foi possível carregar os produtos."));
 
         return [];
+    } finally {
+        container.setAttribute("aria-busy", "false");
     }
 }
 
 function renderCatalogo(lista, container) {
 
     container.replaceChildren();
+
+    if (!lista.length) {
+        container.append(criarMensagemEstado("Nenhum produto disponível no momento."));
+        return;
+    }
 
     const fragment =
         document.createDocumentFragment();
@@ -1868,11 +1832,13 @@ bannerFechado = !(await configurarPromocaoPrimeiraCompra({
     conteudo: document.querySelector(".main-content")
 }));
 inicializarBanner();
-inicializarPesquisaPorVoz();
+configurarPesquisaCabecalho({
+    input: inputBusca,
+    aoPesquisar: filtrarPorNome,
+    pesquisarAoDigitar: true
+});
 inicializarPopupFiltro();
 inicializarFiltroMenu();
-inicializarFormularioBusca();
-inicializarFiltroBusca();
 inicializarModalEndereco();
 inicializarBtnConfirmar();
 inicializarModalBodyListeners();

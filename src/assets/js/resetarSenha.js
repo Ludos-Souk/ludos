@@ -2,6 +2,7 @@ import { ROTAS } from "../../config/rotas.js";
 import { logout, resetarSenha } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 import { inicializarVisibilidadeSenhas } from "./utils/passwordVisibility.js";
+import { salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
 
 inicializarVisibilidadeSenhas();
 
@@ -33,6 +34,7 @@ formulario.addEventListener("submit", async function (event) {
         const oobCode = obterOobCode();
         await resetarSenha(oobCode, senha);
         await logout();
+        salvarFeedbackNavegacao("Senha redefinida com sucesso. Entre com sua nova senha.");
         window.location.replace(ROTAS.LOGIN);
     } catch (erro) {
         window.location.href = ROTAS.ERRO_SENHA;

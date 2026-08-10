@@ -1,4 +1,5 @@
 import { ROTAS } from "../../config/rotas.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
 document.addEventListener('DOMContentLoaded', function () {
     if (window.lucide) {
         window.lucide.createIcons();
@@ -34,49 +35,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const searchForm = document.querySelector('.search-form');
     const inputBusca = document.getElementById('search-input');
-    const btnMicrofone = document.querySelector('.mic-btn');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (searchForm) {
-        searchForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const busca = inputBusca?.value.trim();
-            if (busca) {
-                sessionStorage.setItem('href-pesquisa', busca);
-                window.location.href = ROTAS.HOME;
-            }
-        });
-    }
-
-    if (SpeechRecognition && btnMicrofone) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function () {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function (event) {
-            const textoFalado = event.results[0][0].transcript;
-            if (textoFalado && textoFalado.trim()) {
-                sessionStorage.setItem('href-pesquisa', textoFalado.trim());
-                window.location.href = ROTAS.HOME;
-            }
-        };
-
-        recognition.onend = function () {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function (event) {
-            console.warn('Erro no reconhecimento de voz:', event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function () {
-            recognition.start();
-        });
-    }
+    configurarPesquisaCabecalho({
+        input: inputBusca,
+        aoPesquisar: (busca) => {
+            if (!busca) return;
+            sessionStorage.setItem('href-pesquisa', busca);
+            window.location.href = ROTAS.HOME;
+        }
+    });
 });

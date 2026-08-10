@@ -20,6 +20,8 @@ import {
     salvarConfiguracao,
     salvarConfiguracoesAcessibilidade
 } from "../../services/configuracoesService.js";
+import { mostrarFeedbackGlobal, salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho, substituirPorEstado } from "./utils/ui.js";
 
 const body = document.body;
 const header = document.querySelector(".header");
@@ -141,7 +143,7 @@ function criarCardFavorito(produto) {
 }
 
 async function abrirModalFavoritos(event) {
-    acionadorDialogoPerfil = event.currentTarget;
+    acionadorDialogoPerfil = event?.currentTarget || botaoAbrirFavoritos;
     corpoModalFavoritos.setAttribute("aria-busy", "true");
     corpoModalFavoritos.replaceChildren(criarElemento("p", "profile-dialog-state", "Carregando favoritos..."));
     modalFavoritos.showModal();
@@ -156,11 +158,12 @@ async function abrirModalFavoritos(event) {
         const grade = criarElemento("div", "profile-favorites-grid");
         produtos.forEach(produto => grade.append(criarCardFavorito(produto)));
         corpoModalFavoritos.replaceChildren(grade);
-        corpoModalFavoritos.setAttribute("aria-busy", "false");
         atualizarIcones();
     } catch (erro) {
         console.error("Não foi possível carregar os favoritos:", erro);
         exibirEstadoDialogo(corpoModalFavoritos, "Não foi possível carregar seus favoritos.", "circle-alert");
+    } finally {
+        corpoModalFavoritos.setAttribute("aria-busy", "false");
     }
 }
 
@@ -256,16 +259,20 @@ async function abrirModalPedidos(event) {
         pedidos.sort((a, b) => converterData(b.criadoEm) - converterData(a.criadoEm));
         if (!pedidos.length) return exibirEstadoDialogo(corpoModalPedidos, "Você ainda não realizou nenhum pedido.", "package-open");
         const cacheProdutos = new Map();
+        const itensDosPedidos = await Promise.all(
+            pedidos.map(pedido => carregarItensPedido(pedido, cacheProdutos))
+        );
         const lista = criarElemento("div", "profile-orders-list");
-        for (const pedido of pedidos) {
-            lista.append(criarCardPedido(pedido, await carregarItensPedido(pedido, cacheProdutos)));
-        }
+        pedidos.forEach((pedido, indice) => {
+            lista.append(criarCardPedido(pedido, itensDosPedidos[indice]));
+        });
         corpoModalPedidos.replaceChildren(lista);
-        corpoModalPedidos.setAttribute("aria-busy", "false");
         atualizarIcones();
     } catch (erro) {
         console.error("Não foi possível carregar os pedidos:", erro);
         exibirEstadoDialogo(corpoModalPedidos, "Não foi possível carregar seus pedidos.", "circle-alert");
+    } finally {
+        corpoModalPedidos.setAttribute("aria-busy", "false");
     }
 }
 
@@ -338,20 +345,27 @@ async function abrirModalAvaliacoes(event) {
         avaliacoes.sort((a, b) => converterData(b.criadoEm) - converterData(a.criadoEm));
         if (!avaliacoes.length) return exibirEstadoDialogo(corpoModalAvaliacoes, "Você ainda não avaliou nenhum produto.", "message-circle-star");
         const cacheProdutos = new Map();
-        const lista = criarElemento("div", "profile-reviews-list");
-        for (const avaliacao of avaliacoes) {
+        avaliacoes.forEach((avaliacao) => {
             if (avaliacao.produtoId && !cacheProdutos.has(avaliacao.produtoId)) {
                 cacheProdutos.set(avaliacao.produtoId, buscarProdutoPorId(avaliacao.produtoId));
             }
-            const produto = avaliacao.produtoId ? await cacheProdutos.get(avaliacao.produtoId) : null;
-            lista.append(criarCardAvaliacao(avaliacao, produto));
-        }
+        });
+        const produtos = await Promise.all(
+            avaliacoes.map(avaliacao => avaliacao.produtoId
+                ? cacheProdutos.get(avaliacao.produtoId)
+                : null)
+        );
+        const lista = criarElemento("div", "profile-reviews-list");
+        avaliacoes.forEach((avaliacao, indice) => {
+            lista.append(criarCardAvaliacao(avaliacao, produtos[indice]));
+        });
         corpoModalAvaliacoes.replaceChildren(lista);
-        corpoModalAvaliacoes.setAttribute("aria-busy", "false");
         atualizarIcones();
     } catch (erro) {
         console.error("Não foi possível carregar as avaliações:", erro);
         exibirEstadoDialogo(corpoModalAvaliacoes, "Não foi possível carregar suas avaliações.", "circle-alert");
+    } finally {
+        corpoModalAvaliacoes.setAttribute("aria-busy", "false");
     }
 }
 
@@ -551,6 +565,18 @@ async function carregarPerfil() {
         const usuarioBanco = await buscarUsuarioPorId(usuarioFirebase.uid);
         exibirDadosUsuario(usuarioFirebase, usuarioBanco);
         botaoEditarAvatar.disabled = false;
+
+        const parametros = new URLSearchParams(window.location.search);
+        if (parametros.get("abrir") === "favoritos") {
+            parametros.delete("abrir");
+            const consulta = parametros.toString();
+            window.history.replaceState(
+                null,
+                "",
+                `${window.location.pathname}${consulta ? `?${consulta}` : ""}${window.location.hash}`
+            );
+            await abrirModalFavoritos();
+        }
     } catch (erro) {
         console.error("Não foi possível carregar o perfil:", erro);
         nome.textContent = "Não foi possível carregar";
@@ -659,7 +685,8 @@ function renderizarEnderecos(enderecos) {
 
 async function abrirModalEndereco() {
     if (!usuarioAtual || !modalEndereco) return;
-    corpoModalEndereco.innerHTML = "<p>Carregando endereços...</p>";
+    corpoModalEndereco.setAttribute("aria-busy", "true");
+    substituirPorEstado(corpoModalEndereco, "Carregando endereços...");
     modalEndereco.showModal();
     body.classList.add("modal-open");
     botaoFecharModal?.focus();
@@ -668,7 +695,15 @@ async function abrirModalEndereco() {
         renderizarEnderecos(await listarEnderecos(usuarioAtual.uid));
     } catch (erro) {
         console.error("Não foi possível carregar os endereços:", erro);
-        corpoModalEndereco.innerHTML = "<p>Não foi possível carregar os endereços.</p>";
+        substituirPorEstado(
+            corpoModalEndereco,
+            "Não foi possível carregar os endereços.",
+            "",
+            "error"
+        );
+        mostrarFeedbackGlobal("Não foi possível carregar seus endereços.", "error");
+    } finally {
+        corpoModalEndereco.setAttribute("aria-busy", "false");
     }
 }
 
@@ -678,9 +713,11 @@ async function sairDaConta() {
 
     try {
         await logout();
+        salvarFeedbackNavegacao("Você saiu da sua conta com sucesso.");
         window.location.replace(ROTAS.LOGIN);
     } catch (erro) {
         console.error("Não foi possível sair da conta:", erro);
+        mostrarFeedbackGlobal("Não foi possível sair da conta. Tente novamente.", "error");
         botaoSair.disabled = false;
         botaoSair.textContent = "Sair";
     }
@@ -696,6 +733,10 @@ function atualizarPreviaTamanho(valor) {
         "aria-valuetext",
         `${valor}% do tamanho padrão`
     );
+    const minimo = Number(controleFonte?.min || 90);
+    const maximo = Number(controleFonte?.max || 120);
+    const progresso = ((Number(valor) - minimo) / (maximo - minimo)) * 100;
+    controleFonte?.style.setProperty("--range-progress", `${progresso}%`);
 }
 
 function atualizarAcessibilidade(alteracoes) {
@@ -705,17 +746,60 @@ function atualizarAcessibilidade(alteracoes) {
 }
 
 function iniciarAcessibilidade() {
-    const configuracoes = obterConfiguracoesAcessibilidade();
     const controleFonteDislexia = document.getElementById("dyslexic-font");
-    const controleContraste = document.getElementById("high-contrast");
-    const controleTema = document.getElementById("dark-theme");
+    const controleEyeTracking = document.getElementById("eye-tracking");
+    const controlesTema = document.querySelectorAll('input[name="theme-mode"]');
+    const gatilhoDaltonismo = document.getElementById("color-vision-trigger");
+    const textoDaltonismo = document.getElementById("color-vision-current");
+    const menuDaltonismo = document.getElementById("color-vision-options");
+    const cartaoTema = document.querySelector(".theme-card");
+    const opcoesDaltonismo = menuDaltonismo?.querySelectorAll("[data-color-vision]") || [];
+    const botaoReset = document.getElementById("reset-accessibility");
 
-    controleFonte.value = configuracoes.tamanhoTexto;
-    controleFonteDislexia.checked = configuracoes.fonteDislexia;
-    controleContraste.checked = configuracoes.altoContraste;
-    controleTema.checked = configuracoes.temaEscuro;
-    atualizarPreviaTamanho(configuracoes.tamanhoTexto);
-    aplicarConfiguracoesAcessibilidade(configuracoes);
+    const nomesDaltonismo = {
+        protanopia: "Protanopia",
+        deuteranopia: "Deuteranopia",
+        tritanopia: "Tritanopia",
+        protanomalia: "Protanomalia",
+        deuteranomalia: "Deuteranomalia",
+        tritanomalia: "Tritanomalia",
+        acromatopsia: "Acromatopsia"
+    };
+
+    const fecharMenuDaltonismo = ({ devolverFoco = false } = {}) => {
+        menuDaltonismo.hidden = true;
+        gatilhoDaltonismo.setAttribute("aria-expanded", "false");
+        botaoReset.hidden = false;
+        if (devolverFoco) gatilhoDaltonismo.focus();
+    };
+
+    const abrirMenuDaltonismo = ({ moverFoco = true } = {}) => {
+        menuDaltonismo.hidden = false;
+        gatilhoDaltonismo.setAttribute("aria-expanded", "true");
+        botaoReset.hidden = true;
+        if (moverFoco) menuDaltonismo.querySelector('[aria-selected="true"]')?.focus();
+    };
+
+    const sincronizarControles = (configuracoes) => {
+        controleFonte.value = configuracoes.tamanhoTexto;
+        controleFonteDislexia.checked = configuracoes.fonteDislexia;
+        controleEyeTracking.checked = configuracoes.eyeTracking;
+        textoDaltonismo.textContent = nomesDaltonismo[configuracoes.daltonismo] || "Protanopia";
+        opcoesDaltonismo.forEach(opcao => {
+            opcao.setAttribute("aria-selected", String(opcao.dataset.colorVision === configuracoes.daltonismo));
+        });
+        controlesTema.forEach(controle => {
+            controle.checked = controle.value === configuracoes.tema;
+        });
+        gatilhoDaltonismo.hidden = configuracoes.tema !== "color-vision";
+        cartaoTema?.classList.toggle("theme-card-color-vision", configuracoes.tema === "color-vision");
+        fecharMenuDaltonismo();
+        atualizarPreviaTamanho(configuracoes.tamanhoTexto);
+        aplicarConfiguracoesAcessibilidade(configuracoes);
+        atualizarIcones();
+    };
+
+    sincronizarControles(obterConfiguracoesAcessibilidade());
 
     controleFonte?.addEventListener("input", ({ target }) => {
         const tamanhoTexto = Number(target.value);
@@ -725,11 +809,85 @@ function iniciarAcessibilidade() {
     controleFonteDislexia?.addEventListener("change", ({ target }) => {
         atualizarAcessibilidade({ fonteDislexia: target.checked });
     });
-    controleContraste?.addEventListener("change", ({ target }) => {
-        atualizarAcessibilidade({ altoContraste: target.checked });
+    controleEyeTracking?.addEventListener("change", ({ target }) => {
+        atualizarAcessibilidade({ eyeTracking: target.checked });
     });
-    controleTema?.addEventListener("change", ({ target }) => {
-        atualizarAcessibilidade({ temaEscuro: target.checked });
+    controlesTema.forEach(controle => {
+        controle.addEventListener("change", ({ target }) => {
+            if (!target.checked) return;
+            const selecionouDaltonismo = target.value === "color-vision";
+            gatilhoDaltonismo.hidden = !selecionouDaltonismo;
+            cartaoTema?.classList.toggle("theme-card-color-vision", selecionouDaltonismo);
+            if (selecionouDaltonismo) abrirMenuDaltonismo({ moverFoco: false });
+            else fecharMenuDaltonismo();
+            atualizarAcessibilidade({
+                tema: target.value,
+                temaEscuro: target.value === "dark"
+            });
+        });
+    });
+    gatilhoDaltonismo?.addEventListener("click", () => {
+        const abrir = menuDaltonismo.hidden;
+        if (abrir) abrirMenuDaltonismo();
+        else fecharMenuDaltonismo();
+    });
+    opcoesDaltonismo.forEach(opcao => {
+        opcao.addEventListener("click", () => {
+            const daltonismo = opcao.dataset.colorVision;
+            textoDaltonismo.textContent = nomesDaltonismo[daltonismo];
+            opcoesDaltonismo.forEach(item => {
+                item.setAttribute("aria-selected", String(item === opcao));
+            });
+            atualizarAcessibilidade({ daltonismo, tema: "color-vision" });
+            fecharMenuDaltonismo({ devolverFoco: true });
+        });
+    });
+    menuDaltonismo?.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            fecharMenuDaltonismo({ devolverFoco: true });
+            return;
+        }
+
+        const teclasNavegacao = ["ArrowDown", "ArrowUp", "Home", "End"];
+        if (!teclasNavegacao.includes(event.key)) return;
+
+        event.preventDefault();
+        const opcoes = [...opcoesDaltonismo];
+        const indiceAtual = Math.max(0, opcoes.indexOf(document.activeElement));
+        let proximoIndice = indiceAtual;
+
+        if (event.key === "ArrowDown") proximoIndice = (indiceAtual + 1) % opcoes.length;
+        if (event.key === "ArrowUp") proximoIndice = (indiceAtual - 1 + opcoes.length) % opcoes.length;
+        if (event.key === "Home") proximoIndice = 0;
+        if (event.key === "End") proximoIndice = opcoes.length - 1;
+
+        opcoes[proximoIndice]?.focus();
+        opcoes[proximoIndice]?.scrollIntoView({ block: "nearest" });
+    });
+    document.addEventListener("click", event => {
+        const clicouNoTemaDaltonismo = event.target
+            .closest?.("label")
+            ?.querySelector?.('input[name="theme-mode"][value="color-vision"]');
+        if (
+            menuDaltonismo.hidden
+            || clicouNoTemaDaltonismo
+            || gatilhoDaltonismo.contains(event.target)
+            || menuDaltonismo.contains(event.target)
+        ) return;
+        fecharMenuDaltonismo();
+    });
+    botaoReset?.addEventListener("click", () => {
+        const configuracoes = salvarConfiguracoesAcessibilidade({
+            tamanhoTexto: 100,
+            fonteDislexia: false,
+            altoContraste: false,
+            temaEscuro: false,
+            tema: "light",
+            eyeTracking: false,
+            daltonismo: "protanopia"
+        });
+        sincronizarControles(configuracoes);
+        mostrarFeedbackGlobal("Configurações de acessibilidade restauradas.");
     });
 }
 
@@ -847,4 +1005,11 @@ modalEndereco?.addEventListener("cancel", () => {
 atualizarIcones();
 atualizarHeaderNoScroll();
 iniciarAcessibilidade();
+configurarPesquisaCabecalho({
+    aoPesquisar: (busca) => {
+        if (!busca) return;
+        sessionStorage.setItem("href-pesquisa", busca);
+        window.location.href = ROTAS.HOME;
+    }
+});
 carregarPerfil();
