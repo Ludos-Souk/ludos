@@ -29,6 +29,7 @@ import {
 } from "../../services/pedidoService.js";
 import Avaliacao from "../../models/Avaliacao.js";
 import { criarAvaliacoesPedido } from "../../services/avaliacaoService.js";
+import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
 // #endregion
 
 
@@ -123,6 +124,10 @@ function configurarCarrinho() {
         badge.className = "cart-badge";
         badge.id = "badge-carrinho-home";
         badge.textContent = valor;
+        badge.setAttribute(
+            "aria-label",
+            `${valor} ${valor === 1 ? "produto" : "produtos"} no carrinho`
+        );
 
         card.prepend(badge);
     }
@@ -187,13 +192,6 @@ function inicializarBanner() {
         }
     });
 }
-
-function removeBanner() {
-    const uid = ''
-    console.log(usuarioJaFezPedido())
-    //aqui
-}
-
 
 // --- Toast de carrinho ---
 
@@ -1120,6 +1118,14 @@ function criarCard(produto) {
     imagem.className =
         "product-image";
 
+    const areaImagem =
+        document.createElement("div");
+
+    areaImagem.className =
+        "product-image-gradient";
+
+    areaImagem.appendChild(imagem);
+
 
     // ==============================
     // Informações
@@ -1268,7 +1274,7 @@ function criarCard(produto) {
 
     card.append(
         topo,
-        imagem,
+        areaImagem,
         info
     );
 
@@ -1685,18 +1691,30 @@ function criarCampoAvaliacao(item, indice) {
     }
     cabecalho.append(criarElemento("strong", "", item.produto.nome));
     const estrelas = criarElemento("div", "review-stars");
+    estrelas.setAttribute("role", "group");
     estrelas.setAttribute("aria-label", `Nota para ${item.produto.nome}`);
-    for (let nota = 5; nota >= 1; nota -= 1) {
-        const input = document.createElement("input");
-        input.type = "radio";
-        input.name = `nota-${indice}`;
-        input.id = `nota-${indice}-${nota}`;
-        input.value = String(nota);
-        input.required = true;
-        const label = criarElemento("label", "", "★");
-        label.htmlFor = input.id;
-        label.title = `${nota} estrela${nota > 1 ? "s" : ""}`;
-        estrelas.append(input, label);
+    const inputNota = document.createElement("input");
+    inputNota.type = "hidden";
+    inputNota.name = `nota-${indice}`;
+    inputNota.value = "";
+    estrelas.append(inputNota);
+
+    for (let nota = 1; nota <= 5; nota += 1) {
+        const botaoEstrela = criarElemento("button", "review-star-button", "★");
+        botaoEstrela.type = "button";
+        botaoEstrela.dataset.nota = String(nota);
+        botaoEstrela.setAttribute("aria-label", `${nota} estrela${nota > 1 ? "s" : ""}`);
+        botaoEstrela.setAttribute("aria-pressed", "false");
+        botaoEstrela.addEventListener("click", () => {
+            inputNota.value = String(nota);
+            estrelas.querySelectorAll(".review-star-button").forEach(estrela => {
+                const selecionada = Number(estrela.dataset.nota) <= nota;
+                estrela.classList.toggle("selected", selecionada);
+                estrela.setAttribute("aria-pressed", String(Number(estrela.dataset.nota) === nota));
+            });
+            feedbackAvaliacao.textContent = "";
+        });
+        estrelas.append(botaoEstrela);
     }
     const labelComentario = criarElemento("label", "review-comment-label", "Comentário (opcional)");
     const comentario = document.createElement("textarea");
@@ -1774,11 +1792,17 @@ async function enviarAvaliacoes(event) {
     if (!usuario?.uid) return;
     const botaoEnviar = formularioAvaliacao.querySelector(".btn-review-submit");
     const campos = [...listaProdutosAvaliacao.querySelectorAll(".review-product")];
+    const campoSemNota = campos.find((campo, indice) => !campo.querySelector(`input[name="nota-${indice}"]`)?.value);
+    if (campoSemNota) {
+        feedbackAvaliacao.textContent = "Selecione de 1 a 5 estrelas para todos os produtos.";
+        campoSemNota.querySelector(".review-star-button")?.focus();
+        return;
+    }
     botaoEnviar.disabled = true;
     feedbackAvaliacao.textContent = "Enviando suas avaliações...";
     try {
         const avaliacoes = campos.map((campo, indice) => {
-            const nota = Number(campo.querySelector(`input[name="nota-${indice}"]:checked`)?.value);
+            const nota = Number(campo.querySelector(`input[name="nota-${indice}"]`).value);
             const comentario = campo.querySelector(`textarea[name="comentario-${indice}"]`).value.trim();
             return new Avaliacao(null, comentario, new Date().toISOString(), nota, campo.dataset.produtoId, usuario.uid);
         });
@@ -1838,6 +1862,11 @@ hrefPesquisa();
 hrefEndereco();
 hrefFiltro();
 
+bannerFechado = !(await configurarPromocaoPrimeiraCompra({
+    banner,
+    header,
+    conteudo: document.querySelector(".main-content")
+}));
 inicializarBanner();
 inicializarPesquisaPorVoz();
 inicializarPopupFiltro();

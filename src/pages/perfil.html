@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu perfil | Ludos</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/css/perfil.css">
 </head>
@@ -19,7 +20,7 @@
             <form class="search-form" role="search">
                 <label for="search-input" class="sr-only">Buscar boneco</label>
                 <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
-                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <input type="search" id="search-input" placeholder="Buscar Boneco" autocomplete="off">
                 <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
                     <i data-lucide="mic" aria-hidden="true"></i>
                 </button>
@@ -68,10 +69,10 @@
 
             <nav class="profile-shortcuts" aria-label="Opções da conta">
                 <button type="button" id="open-address-modal" class="shortcut-card shortcut-wide"><i data-lucide="map-pin" aria-hidden="true"></i><span>Endereços</span></button>
-                <a href="cartao.html" class="shortcut-card shortcut-wide"><i data-lucide="credit-card"></i><span>Cartões</span></a>
-                <a href="#" class="shortcut-card"><i data-lucide="heart"></i><span>Favoritos</span></a>
-                <a href="#" class="shortcut-card"><i data-lucide="clipboard-list"></i><span>Meus pedidos</span></a>
-                <a href="avaliacaoProduto.html" class="shortcut-card"><i data-lucide="star"></i><span>Minhas avaliações</span></a>
+                <button type="button" id="open-cards-modal" class="shortcut-card shortcut-wide"><i data-lucide="credit-card" aria-hidden="true"></i><span>Cartões</span></button>
+                <button type="button" id="open-favorites-modal" class="shortcut-card"><i data-lucide="heart" aria-hidden="true"></i><span>Favoritos</span></button>
+                <button type="button" id="open-orders-modal" class="shortcut-card"><i data-lucide="clipboard-list" aria-hidden="true"></i><span>Meus pedidos</span></button>
+                <button type="button" id="open-reviews-modal" class="shortcut-card"><i data-lucide="star" aria-hidden="true"></i><span>Minhas avaliações</span></button>
             </nav>
         </section>
 
@@ -127,7 +128,109 @@
         </article>
     </dialog>
 
+    <dialog id="photo-crop-dialog" class="photo-crop-dialog" aria-labelledby="photo-crop-title" aria-describedby="photo-crop-description">
+        <article class="photo-crop-content">
+            <header class="photo-crop-header">
+                <div>
+                    <h2 id="photo-crop-title">Ajustar foto</h2>
+                    <p id="photo-crop-description">Arraste a imagem e use o controle para ajustar o enquadramento.</p>
+                </div>
+                <button id="close-photo-crop" class="profile-dialog-close" type="button" aria-label="Cancelar ajuste da foto">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </header>
+            <section class="photo-crop-body">
+                <div class="photo-crop-stage" tabindex="0" role="img" aria-label="Prévia do enquadramento. Arraste ou use as setas do teclado para mover a foto.">
+                    <canvas id="photo-crop-canvas" width="600" height="600"></canvas>
+                    <span class="photo-crop-mask" aria-hidden="true"></span>
+                </div>
+                <label class="photo-zoom-control" for="photo-zoom">
+                    <span><i data-lucide="zoom-out" aria-hidden="true"></i> Zoom</span>
+                    <input id="photo-zoom" type="range" min="1" max="3" step="0.01" value="1">
+                    <i data-lucide="zoom-in" aria-hidden="true"></i>
+                </label>
+            </section>
+            <footer class="photo-crop-actions">
+                <button id="cancel-photo-crop" type="button" class="photo-crop-cancel">Cancelar</button>
+                <button id="save-photo-crop" type="button" class="photo-crop-save">Salvar foto</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <dialog id="cards-modal" class="profile-dialog" aria-labelledby="cards-modal-title" aria-describedby="cards-modal-description">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="cards-modal-title">Meus cartões</h2>
+                    <p id="cards-modal-description">Visualização demonstrativa da forma de pagamento.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar cartões"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section class="profile-dialog-body profile-cards-body">
+                <p class="profile-security-note"><i data-lucide="shield-check" aria-hidden="true"></i><span>Este cartão é apenas uma simulação. Nenhum dado bancário real é armazenado.</span></p>
+                <article class="profile-saved-card" aria-label="Cartão Mastercard terminado em 1234">
+                    <span class="profile-card-radio" aria-hidden="true"></span>
+                    <figure class="profile-card-brand" aria-hidden="true">
+                        <span class="profile-mastercard"><span></span><span></span></span>
+                    </figure>
+                    <section class="profile-card-info">
+                        <span class="profile-item-eyebrow">Cartão principal</span>
+                        <h3>Mastercard •••• 1234</h3>
+                        <p>Vencimento 04/30</p>
+                    </section>
+                    <span class="profile-card-status"><i data-lucide="check" aria-hidden="true"></i> Selecionado</span>
+                </article>
+            </section>
+        </article>
+    </dialog>
+
+    <dialog id="favorites-modal" class="profile-dialog" aria-labelledby="favorites-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="favorites-modal-title">Meus favoritos</h2>
+                    <p>Os produtos que você guardou para ver depois.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar favoritos"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="favorites-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando favoritos...</p>
+            </section>
+        </article>
+    </dialog>
+
+    <dialog id="orders-modal" class="profile-dialog profile-dialog-wide" aria-labelledby="orders-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="orders-modal-title">Meus pedidos</h2>
+                    <p>Acompanhe seu histórico de compras e entregas.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar pedidos"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="orders-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando pedidos...</p>
+            </section>
+        </article>
+    </dialog>
+
+    <dialog id="reviews-modal" class="profile-dialog" aria-labelledby="reviews-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="reviews-modal-title">Minhas avaliações</h2>
+                    <p>Veja as opiniões que você compartilhou sobre os produtos.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar avaliações"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="reviews-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando avaliações...</p>
+            </section>
+        </article>
+    </dialog>
+
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../assets/js/vlibras.js"></script>
     <script type="module" src="../routes/router.js"></script>
     <script type="module" src="../assets/js/perfil.js"></script>
 </body>

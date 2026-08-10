@@ -4,6 +4,7 @@ import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
 import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto, removerProduto, toggleCarrinho } from "../../services/carrinhoService.js";
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
+import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
 // #endregion
 
 // #region Utilitários de UI
@@ -119,6 +120,11 @@ window.addEventListener("scroll", () => {
         header?.classList.remove("scrolled");
     }
 });
+bannerFechado = !(await configurarPromocaoPrimeiraCompra({
+    banner,
+    header,
+    conteudo: document.querySelector(".main-content")
+}));
 // #endregion
 
 // #region Botão voltar
@@ -813,6 +819,10 @@ function criarCardRelacionado(produto) {
     imagem.alt = `Foto do ${produto.nome}`;
     imagem.className = "product-image";
 
+    const areaImagem = document.createElement("div");
+    areaImagem.className = "product-image-gradient";
+    areaImagem.appendChild(imagem);
+
     const info = document.createElement("header");
     info.className = "product-info";
 
@@ -848,7 +858,7 @@ function criarCardRelacionado(produto) {
 
     footer.append(btnComprar, btnSeta);
     info.append(marca, titulo, preco, footer);
-    card.append(topo, imagem, info);
+    card.append(topo, areaImagem, info);
 
     return card;
 }

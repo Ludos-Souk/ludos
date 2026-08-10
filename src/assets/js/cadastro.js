@@ -1,6 +1,9 @@
 import { ROTAS } from "../../config/rotas.js";
 import { cadastro } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
+import { inicializarVisibilidadeSenhas } from "./utils/passwordVisibility.js";
+
+inicializarVisibilidadeSenhas();
 
 const formulario = document.getElementById("cadastro-form");
 const botao = formulario.querySelector('button[type="submit"]');

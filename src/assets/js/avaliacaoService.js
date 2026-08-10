@@ -71,32 +71,6 @@ export async function listarAvaliacoesProduto(
 
 }
 
-export async function listarAvaliacoesUsuario(usuarioId) {
-    if (!usuarioId) {
-        return [];
-    }
-
-    const consulta = query(
-        collection(db, "avaliacoes"),
-        where("usuarioId", "==", usuarioId)
-    );
-
-    const snapshot = await getDocs(consulta);
-
-    return snapshot.docs.map(documento => {
-        const dados = documento.data();
-
-        return new Avaliacao(
-            documento.id,
-            dados.comentario,
-            dados.criadoEm,
-            dados.nota,
-            dados.produtoId,
-            dados.usuarioId
-        );
-    });
-}
-
 export async function calcularNotaMedia(
     produtoId
 ) {
@@ -124,6 +98,30 @@ export async function calcularNotaMedia(
         avaliacoes.length
     );
 
+}
+
+export async function listarAvaliacoesUsuario(usuarioId) {
+    if (!usuarioId) {
+        return [];
+    }
+
+    const consulta = query(
+        collection(db, "avaliacoes"),
+        where("usuarioId", "==", usuarioId)
+    );
+    const snapshot = await getDocs(consulta);
+
+    return snapshot.docs.map(documento => {
+        const dados = documento.data();
+        return new Avaliacao(
+            documento.id,
+            dados.comentario,
+            dados.criadoEm,
+            dados.nota,
+            dados.produtoId,
+            dados.usuarioId
+        );
+    });
 }
 
 export async function criarAvaliacoesPedido(avaliacoes, pedidoId) {

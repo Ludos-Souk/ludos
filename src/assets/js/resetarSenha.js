@@ -1,6 +1,9 @@
 import { ROTAS } from "../../config/rotas.js";
-import { resetarSenha } from "../../services/authService.js";
+import { logout, resetarSenha } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
+import { inicializarVisibilidadeSenhas } from "./utils/passwordVisibility.js";
+
+inicializarVisibilidadeSenhas();
 
 const formulario = document.getElementById("resetarSenha-form");
 const botao = formulario.querySelector('button[type="submit"]');
@@ -29,7 +32,8 @@ formulario.addEventListener("submit", async function (event) {
     try {
         const oobCode = obterOobCode();
         await resetarSenha(oobCode, senha);
-        window.location.href = ROTAS.SUCESSO_SENHA;
+        await logout();
+        window.location.replace(ROTAS.LOGIN);
     } catch (erro) {
         window.location.href = ROTAS.ERRO_SENHA;
     }

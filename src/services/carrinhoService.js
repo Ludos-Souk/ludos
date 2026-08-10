@@ -242,5 +242,11 @@ export async function calcularTotal() {
 }
 
 export function quantidadeProdutos() {
-    return listarItens().length;
+    return listarItens().reduce((total, item) => {
+        const quantidade = Number(item?.quantidade);
+
+        return item?.id && Number.isFinite(quantidade) && quantidade > 0
+            ? total + quantidade
+            : total;
+    }, 0);
 }

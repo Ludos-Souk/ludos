@@ -24,6 +24,14 @@ const ROTAS_PUBLICAS = [
     ...ROTAS_AUTENTICACAO
 ];
 
+// Somente estas telas deixam de fazer sentido para quem já está autenticado.
+// As páginas de recuperação precisam continuar acessíveis para que uma sessão
+// antiga não interrompa a redefinição de senha e redirecione para a Home.
+const ROTAS_ENTRADA = [
+    ROTAS.LOGIN,
+    ROTAS.CADASTRO
+];
+
 const ROTAS_PROTEGIDAS = [
     ROTAS.HOME,
     ROTAS.PERFIL,
@@ -108,7 +116,7 @@ export function iniciarRouter() {
 
                     if (
                         usuario &&
-                        ehRotaAutenticacao(rotaAtual)
+                        ROTAS_ENTRADA.includes(rotaAtual)
                     ) {
                         const usuarioBanco =
                             await buscarUsuarioPorId(usuario.uid);

@@ -54,7 +54,11 @@ address {
     transition: background 0.2s, outline 0.2s;
 }
 
-.btn-back-icon:hover, .btn-back-icon:focus-visible {
+.btn-back-icon:hover {
+    background: #d1d5df;
+}
+
+.btn-back-icon:focus-visible {
     background: #d1d5df;
     outline: 3px solid var(--color-primary-light, #6b8cff);
     outline-offset: 2px;
@@ -246,7 +250,11 @@ address {
     place-items: center;
     border: none;
     color: var(--text-dark, #333);
+    flex: 0 0 36px;
+    padding: 0;
 }
+
+.address-box--empty .btn-change-address svg { width: 18px; height: 18px; }
 
 .delivery-footer {
     display: flex;
