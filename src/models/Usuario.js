@@ -4,19 +4,27 @@ export default class Usuario {
         id,
         email,
         nome,
-        role
+        role,
+        imagemUrl = null
     ) {
         this.id = id;
         this.email = email;
         this.nome = nome;
         this.role = role;
+        this.imagemUrl = imagemUrl;
     }
 
     toFirestore() {
-        return {
+        const dados = {
             email: this.email,
             nome: this.nome,
             role: this.role
         };
+
+        if (this.imagemUrl) {
+            dados.imagemUrl = this.imagemUrl;
+        }
+
+        return dados;
     }
 }

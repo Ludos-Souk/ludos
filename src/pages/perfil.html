@@ -28,7 +28,7 @@
 
         <nav class="header-icons" aria-label="Menu principal do usuário">
             <ul>
-                <li><a class="header-icon-link" href="home.html" aria-label="Ir para o início"><i data-lucide="list-filter" aria-hidden="true"></i></a></li>
+                <li><button class="header-icon-link" id="profile-filter-button" type="button" aria-label="Abrir filtros de produtos"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
                 <li><a class="header-icon-link" href="perfil.html" aria-current="page" aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></a></li>
                 <li><a class="header-icon-link" href="#" aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></a></li>
                 <li><a class="header-icon-link" href="carrinho.html" aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></a></li>
@@ -49,17 +49,25 @@
 
             <article class="identity-card" aria-labelledby="identity-title">
                 <h3 id="identity-title" class="sr-only">Dados pessoais</h3>
-                <div class="avatar" aria-hidden="true"><i data-lucide="user-round"></i></div>
-                <button class="edit-avatar" type="button" aria-label="Editar foto do perfil"><i data-lucide="pencil"></i></button>
+                <div class="avatar">
+                    <span id="avatar-placeholder" class="avatar-placeholder" aria-hidden="true">
+                        <i data-lucide="user-round"></i>
+                    </span>
+                    <img id="profile-avatar" src="" alt="" hidden>
+                </div>
+                <input class="sr-only" id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help">
+                <span id="photo-help" class="sr-only">Escolha uma imagem JPG, PNG ou WebP de até 5 MB.</span>
+                <button class="edit-avatar" id="edit-avatar-button" type="button" aria-label="Escolher foto do perfil" disabled><i data-lucide="pencil" aria-hidden="true"></i></button>
+                <p id="photo-feedback" class="photo-feedback" aria-live="polite"></p>
                 <dl class="identity-data">
-                    <div><dt>Nome</dt><dd>Gabriela</dd></div>
-                    <div><dt>E-mail vinculado</dt><dd>gabrielabemfica@g...</dd></div>
+                    <div><dt>Nome</dt><dd id="profile-name" aria-live="polite">Carregando...</dd></div>
+                    <div><dt>E-mail vinculado</dt><dd id="profile-email" aria-live="polite">Carregando...</dd></div>
                 </dl>
-                <a class="logout-link" href="login.html">Sair</a>
+                <button class="logout-link" id="logout-button" type="button">Sair</button>
             </article>
 
             <nav class="profile-shortcuts" aria-label="Opções da conta">
-                <a href="endereco.html" class="shortcut-card shortcut-wide"><i data-lucide="map-pin"></i><span>Endereços</span></a>
+                <button type="button" id="open-address-modal" class="shortcut-card shortcut-wide"><i data-lucide="map-pin" aria-hidden="true"></i><span>Endereços</span></button>
                 <a href="cartao.html" class="shortcut-card shortcut-wide"><i data-lucide="credit-card"></i><span>Cartões</span></a>
                 <a href="#" class="shortcut-card"><i data-lucide="heart"></i><span>Favoritos</span></a>
                 <a href="#" class="shortcut-card"><i data-lucide="clipboard-list"></i><span>Meus pedidos</span></a>
@@ -101,28 +109,26 @@
         <section class="footer-bottom"><p>Política de privacidade &copy; 2026</p></section>
     </footer>
 
+    <dialog id="modal-endereco" class="modal-endereco" aria-labelledby="modal-titulo">
+        <article class="modal-content">
+            <header class="modal-header">
+                <h2 id="modal-titulo" class="modal-title">Escolha um endereço de entrega</h2>
+                <button type="button" class="btn-close-modal" id="btn-fechar-modal" aria-label="Fechar seleção de endereço">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </header>
+            <section class="modal-body modal-body-empty" id="address-modal-body" aria-live="polite">
+                <p>Carregando endereços...</p>
+            </section>
+            <footer class="modal-footer">
+                <button type="button" class="btn-confirmar" id="confirm-address">Confirmar</button>
+                <button type="button" class="btn-adicionar" id="add-address">Adicionar endereço</button>
+            </footer>
+        </article>
+    </dialog>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../routes/router.js"></script>
-    <script>
-        lucide.createIcons();
-        const body = document.body;
-        const header = document.querySelector('.header');
-
-        function atualizarHeaderNoScroll() {
-            header.classList.toggle('scrolled', window.scrollY > 30);
-        }
-
-        window.addEventListener('scroll', atualizarHeaderNoScroll, { passive: true });
-        atualizarHeaderNoScroll();
-
-        document.querySelector('#font-size').addEventListener('input', ({ target }) => {
-            body.style.fontSize = `${target.value}%`;
-            document.querySelector('#font-preview').textContent = target.value > 105 ? 'Aa+' : target.value < 95 ? 'Aa-' : 'Aa';
-            target.setAttribute('aria-valuetext', `${target.value}% do tamanho padrão`);
-        });
-        document.querySelector('#dyslexic-font').addEventListener('change', ({ target }) => body.classList.toggle('dyslexic-font', target.checked));
-        document.querySelector('#high-contrast').addEventListener('change', ({ target }) => body.classList.toggle('high-contrast', target.checked));
-        document.querySelector('#dark-theme').addEventListener('change', ({ target }) => body.classList.toggle('dark-theme', target.checked));
-    </script>
+    <script type="module" src="../assets/js/perfil.js"></script>
 </body>
 </html>

@@ -2077,3 +2077,32 @@ body.modal-open {
         height: 150px;
     }
 }
+
+/* Preferências globais de acessibilidade, aplicadas pelo router.js. */
+html.accessibility-dyslexic-font body,
+html.accessibility-dyslexic-font body * {
+    font-family: Arial, Verdana, sans-serif !important;
+    letter-spacing: .04em;
+}
+html.accessibility-high-contrast body { filter: contrast(1.35); }
+html.accessibility-dark-theme body {
+    --bg-body: #20232b;
+    --bg-white: #30343e;
+    --bg-input: #292d36;
+    --bg-subtle: #ffffff18;
+    --bg-hover: #414653;
+    --text-dark: #f7f7f7;
+    --text-body: #d1d5db;
+    --text-muted: #b8bdc8;
+}
+html.accessibility-dark-theme .main-content,
+html.accessibility-dark-theme .form-page-content,
+html.accessibility-dark-theme .status-page-content { background: var(--bg-body); color: var(--text-dark); }
+html.accessibility-dark-theme .card,
+html.accessibility-dark-theme .product-card,
+html.accessibility-dark-theme .modal-content,
+html.accessibility-dark-theme .input-wrapper,
+html.accessibility-dark-theme .textarea-wrapper { background: var(--bg-white); color: var(--text-dark); }
+html.accessibility-dark-theme input,
+html.accessibility-dark-theme textarea,
+html.accessibility-dark-theme select { color: var(--text-dark); }

@@ -11,6 +11,7 @@
     place-items: center;
     font-size: 24px;
     transition: var(--transition-default);
+    border: 0;
 }
 
 .header-icon-link:hover { background: var(--btn-yellow-hover); }
@@ -66,13 +67,22 @@
 }
 
 .avatar { width: 130px; height: 130px; border-radius: 50%; background: #f2f2f2; display: grid; place-items: center; font-size: 42px; }
+.avatar { position: relative; overflow: hidden; }
+.avatar-placeholder { display: grid; width: 100%; height: 100%; place-items: center; }
+.avatar-placeholder svg { width: 42px; height: 42px; }
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.avatar [hidden] { display: none !important; }
 .edit-avatar { border: 0; border-radius: 50%; width: 36px; height: 36px; margin-top: -30px; margin-left: 65px; background: #e6e6e6; display: grid; place-items: center; z-index: 1; }
 .edit-avatar svg { width: 15px; }
+.edit-avatar:disabled { cursor: wait; opacity: .65; }
+.photo-feedback { min-height: 16px; margin-top: 8px; color: var(--text-body); font-size: 11px; text-align: center; }
+.photo-feedback.error { color: var(--color-error); }
 .identity-data { width: 100%; margin-top: 24px; }
 .identity-data div { border-top: 1px solid var(--profile-line); padding: 15px 8px; }
 .identity-data dt { color: #8b8b92; font-size: 12px; margin-bottom: 7px; }
 .identity-data dd { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.logout-link { border-top: 1px solid var(--profile-line); width: 100%; margin-top: auto; padding: 18px 8px 0; text-align: center; font-weight: 700; font-size: 13px; }
+.logout-link { border: 0; border-top: 1px solid var(--profile-line); background: transparent; width: 100%; margin-top: auto; padding: 18px 8px 0; text-align: center; font-weight: 700; font-size: 13px; }
+.logout-link:disabled { cursor: wait; opacity: .55; }
 
 .profile-shortcuts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; align-content: start; }
 .shortcut-card {
@@ -89,6 +99,10 @@
     font-size: 14px;
     font-weight: 650;
     transition: transform .2s ease, box-shadow .2s ease;
+    border: 0;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 .shortcut-wide { grid-column: span 3; min-height: 210px; }
 .shortcut-card svg { color: #9b9ba2; width: 22px; height: 22px; }
@@ -120,11 +134,32 @@ input:checked + .switch::after { transform: translateX(22px); }
 .switch-large::after { width: 30px; height: 30px; }
 input:checked + .switch-large::after { transform: translateX(38px); }
 
-.dyslexic-font, .dyslexic-font * { font-family: Arial, Verdana, sans-serif !important; letter-spacing: .04em; }
-.high-contrast { filter: contrast(1.35); }
-.dark-theme .profile-main { background: #20232b; color: #f7f7f7; }
-.dark-theme .identity-card, .dark-theme .shortcut-card, .dark-theme .font-size-card, .dark-theme .setting-card, .dark-theme .theme-card { background: #30343e; color: #fff; }
-.dark-theme .identity-data div, .dark-theme .logout-link { border-color: #555b68; }
+html.accessibility-dark-theme .identity-card,
+html.accessibility-dark-theme .shortcut-card,
+html.accessibility-dark-theme .font-size-card,
+html.accessibility-dark-theme .setting-card,
+html.accessibility-dark-theme .theme-card { background: var(--bg-white); color: var(--text-dark); }
+html.accessibility-dark-theme .identity-data div,
+html.accessibility-dark-theme .logout-link { border-color: #555b68; }
+
+.profile-page .address-option-item { position: relative; }
+.profile-page .address-option-card { width: 100%; padding-right: 140px; font-family: inherit; }
+.profile-page .address-option-card[aria-pressed="true"] { border-color: var(--color-primary-light); }
+.profile-page .address-option-content { grid-template-columns: auto 1fr; }
+.profile-page .address-option-actions {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    z-index: 2;
+    display: flex;
+    transform: translateY(-50%);
+}
+.profile-page .address-empty-message { text-align: center; color: var(--text-body); }
+
+@media (max-width: 520px) {
+    .profile-page .address-option-card { padding: 20px; padding-bottom: 76px; }
+    .profile-page .address-option-actions { top: auto; right: 20px; bottom: 18px; transform: none; }
+}
 
 @media (max-width: 900px) {
     .profile-main { padding-inline: 32px; }

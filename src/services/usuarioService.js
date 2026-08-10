@@ -32,7 +32,8 @@ export async function buscarUsuarioPorId(uid) {
         snapshot.id,
         dados.email,
         dados.nome,
-        dados.role
+        dados.role,
+        dados.imagemUrl || null
     );
 
 }
@@ -73,6 +74,19 @@ export async function atualizarUsuario(
 
 }
 
+export async function atualizarFotoPerfil(uid, imagemUrl) {
+    if (!uid || !imagemUrl) {
+        throw new Error("Usuário e URL da imagem são obrigatórios.");
+    }
+
+    await updateDoc(
+        doc(db, "usuarios", uid),
+        { imagemUrl }
+    );
+
+    return imagemUrl;
+}
+
 export async function listarUsuarios() {
 
     const snapshot =
@@ -92,7 +106,8 @@ export async function listarUsuarios() {
             documento.id,
             dados.email,
             dados.nome,
-            dados.role
+            dados.role,
+            dados.imagemUrl || null
         );
         
     });
