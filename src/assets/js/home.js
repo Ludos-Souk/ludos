@@ -31,6 +31,7 @@ import Avaliacao from "../../models/Avaliacao.js";
 import { criarAvaliacoesPedido } from "../../services/avaliacaoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
 import { configurarPesquisaCabecalho } from "./utils/ui.js";
+import { criarSolicitacaoAtendimento } from "../../services/atendimentoService.js";
 // #endregion
 
 
@@ -475,6 +476,92 @@ async function carregarEnderecos() {
     } finally {
         modalBody?.setAttribute("aria-busy", "false");
     }
+}
+
+function inicializarAtendimentoCliente() {
+    const dialogo = document.getElementById('support-dialog');
+    const formulario = document.getElementById('support-form');
+    const campoDuvida = document.getElementById('support-message');
+    const opcaoLibras = document.getElementById('support-libras');
+    const feedback = document.getElementById('support-feedback');
+    const botaoAbrir = document.getElementById('open-support-dialog');
+    const linkRodape = document.getElementById('footer-support-link');
+    if (!dialogo || !formulario || !campoDuvida || !opcaoLibras || !feedback) return;
+
+    const sincronizarModos = () => {
+        const possuiTexto = campoDuvida.value.trim().length > 0;
+        campoDuvida.disabled = opcaoLibras.checked;
+        opcaoLibras.disabled = possuiTexto;
+        campoDuvida.closest('.support-message-field')?.classList.toggle('is-disabled', opcaoLibras.checked);
+        opcaoLibras.closest('.support-libras-option')?.classList.toggle('is-disabled', possuiTexto);
+        feedback.textContent = '';
+    };
+    const abrir = evento => {
+        evento?.preventDefault();
+        sincronizarModos();
+        dialogo.showModal();
+        requestAnimationFrame(() => (opcaoLibras.checked ? opcaoLibras : campoDuvida).focus());
+    };
+    const fechar = () => dialogo.open && dialogo.close();
+
+    botaoAbrir?.addEventListener('click', abrir);
+    linkRodape?.addEventListener('click', abrir);
+    document.getElementById('close-support-dialog')?.addEventListener('click', fechar);
+    dialogo.addEventListener('click', evento => {
+        if (evento.target === dialogo) fechar();
+    });
+    dialogo.addEventListener('cancel', evento => {
+        evento.preventDefault();
+        fechar();
+    });
+    campoDuvida.addEventListener('input', sincronizarModos);
+    opcaoLibras.addEventListener('change', sincronizarModos);
+
+    formulario.addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const duvida = campoDuvida.value.trim();
+        const tipo = opcaoLibras.checked ? 'libras' : 'texto';
+        if (tipo === 'texto' && !duvida) {
+            feedback.textContent = 'Digite sua dúvida ou selecione o atendimento em Libras.';
+            feedback.className = 'support-feedback error';
+            campoDuvida.focus();
+            return;
+        }
+
+        const botaoEnviar = formulario.querySelector('.support-submit');
+        const textoOriginal = botaoEnviar.textContent;
+        botaoEnviar.disabled = true;
+        formulario.setAttribute('aria-busy', 'true');
+        botaoEnviar.textContent = 'Enviando...';
+        feedback.textContent = 'Registrando sua solicitação...';
+        feedback.className = 'support-feedback';
+
+        try {
+            const usuario = await aguardarUsuario();
+            await criarSolicitacaoAtendimento({
+                usuarioId: usuario?.uid,
+                email: usuario?.email,
+                tipo,
+                duvida
+            });
+            feedback.textContent = tipo === 'libras'
+                ? 'Atendimento em Libras solicitado com sucesso.'
+                : 'Sua dúvida foi enviada com sucesso.';
+            feedback.classList.add('success');
+            mostrarToastPedido(feedback.textContent);
+            formulario.reset();
+            sincronizarModos();
+            setTimeout(fechar, 650);
+        } catch (erro) {
+            console.error('Não foi possível enviar a solicitação de atendimento:', erro);
+            feedback.textContent = erro.message || 'Não foi possível enviar sua solicitação. Tente novamente.';
+            feedback.classList.add('error');
+        } finally {
+            formulario.setAttribute('aria-busy', 'false');
+            botaoEnviar.disabled = false;
+            botaoEnviar.textContent = textoOriginal;
+        }
+    });
 }
 
 function inicializarModalEndereco() {
@@ -1816,6 +1903,7 @@ function inicializarPedidosHome() {
 
 
 inicializarNavegacaoCarrinho();
+inicializarAtendimentoCliente();
 configurarEndereco();
 configurarOrdem();
 configurarCarrinho();

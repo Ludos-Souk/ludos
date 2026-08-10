@@ -113,12 +113,17 @@ function renderCart() {
     if (cartData.length === 0) {
         const vazio = document.createElement("section");
         vazio.className = "cart-state empty";
-        const tituloVazio = document.createElement("strong");
+        vazio.setAttribute("aria-labelledby", "cart-empty-title");
+        const tituloVazio = document.createElement("h3");
+        tituloVazio.id = "cart-empty-title";
         tituloVazio.textContent = "Seu carrinho está vazio.";
-        const orientacaoVazio = document.createElement("span");
+        const orientacaoVazio = document.createElement("p");
         orientacaoVazio.textContent = "Adicione produtos para continuar sua compra.";
         vazio.append(tituloVazio, orientacaoVazio);
         cartContainer.append(vazio);
+        selectAllCheckbox.checked = false;
+        document.querySelector(".select-all-wrapper")?.classList.remove("selecionado");
+        calcularTotal();
         btnContinuar.disabled = true;
         return;
     }
@@ -574,30 +579,6 @@ function renderCart() {
         // Eventos
         // ============================
 
-        cartContainer.addEventListener("change", (event) => {
-            if (!event.target.classList.contains("item-checkbox")) {
-                return;
-            }
-
-            const article =
-                event.target.closest(".cart-product-card");
-
-            article.classList.toggle(
-                "selecionado",
-                event.target.checked
-            )
-
-            const selectAll =  document.querySelector(".select-all-wrapper");
-            if (verificarTodosSelecionados()) {
-                selectAll.classList.add('selecionado');
-            } else {
-                selectAll.classList.remove('selecionado');
-            }
-            selectAllCheckbox.checked = verificarTodosSelecionados();
-            calcularTotal();
-            habilitarContinuar();
-        });
-
         btnFavorito.addEventListener("click", (event) => {
             btnFavorito.classList.toggle("is-favorite");
             toggleFavorito(item.id);
@@ -678,6 +659,19 @@ function renderCart() {
 
     calcularTotal();
 }
+
+cartContainer.addEventListener("change", (event) => {
+    if (!event.target.classList.contains("item-checkbox")) return;
+
+    const article = event.target.closest(".cart-product-card");
+    article?.classList.toggle("selecionado", event.target.checked);
+
+    const todosSelecionados = verificarTodosSelecionados();
+    document.querySelector(".select-all-wrapper")?.classList.toggle("selecionado", todosSelecionados);
+    selectAllCheckbox.checked = todosSelecionados;
+    calcularTotal();
+    habilitarContinuar();
+});
 
 function alternarSelecao(article) {
     article.classList.toggle(
@@ -767,19 +761,9 @@ function calcularTotal() {
 
 function removerProdutoTela(article, produtoId) {
     removerProduto(produtoId);
-    article.remove();
-    if (verificarTodosSelecionados()) {
-        document
-            .querySelector(".select-all-wrapper")
-            ?.classList.add("selecionado");
-    } else {
-        document
-            .querySelector(".select-all-wrapper")
-            ?.classList.remove("selecionado");
-    }
-    selectAllCheckbox.checked =
-        verificarTodosSelecionados();
-    calcularTotal();
+    cartData = cartData.filter(produto => produto.id !== produtoId);
+    renderCart();
+    habilitarContinuar();
 }
 
 const btnHeaderCarrinho = document.querySelector('button[aria-label="Ver meu carrinho"]');
@@ -799,7 +783,7 @@ function habilitarContinuar() {
             ".cart-product-card.selecionado"
         );
 
-    btnContinuar.disabled = !cardsSelecionados
+    btnContinuar.disabled = cardsSelecionados.length === 0;
 }
 
 btnContinuar.addEventListener("click", () => {

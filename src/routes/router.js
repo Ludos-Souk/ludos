@@ -77,6 +77,18 @@ export function ehRotaProtegida(rota) {
     return ROTAS_PROTEGIDAS.includes(rota);
 }
 
+function obterConfiguracoesVisuaisDaRota(rota) {
+    const configuracoes = obterConfiguracoesAcessibilidade();
+    if (!ehRotaAutenticacao(rota)) return configuracoes;
+
+    return {
+        ...configuracoes,
+        altoContraste: false,
+        temaEscuro: false,
+        tema: "light"
+    };
+}
+
 export function redirecionarPara(rota) {
 
     if (obterRotaAtual() !== rota) {
@@ -151,7 +163,7 @@ export function iniciarRouter() {
 }
 
 iniciarNavegacaoFacial();
-aplicarConfiguracoesAcessibilidade(obterConfiguracoesAcessibilidade());
+aplicarConfiguracoesAcessibilidade(obterConfiguracoesVisuaisDaRota(obterRotaAtual()));
 iniciarOtimizacaoImagens();
 iniciarTratamentoErrosGlobais();
 iniciarNavegacaoGlobal();

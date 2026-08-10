@@ -36,8 +36,67 @@ const estado = {
     suavizado: null,
     alvo: null,
     inicioPermanencia: 0,
-    ultimoClique: 0
+    ultimoClique: 0,
+    dialogoAtivo: null,
+    observadorDialogos: null
 };
+
+function obterDialogoAberto() {
+    const dialogos = [...document.querySelectorAll("dialog[open]")];
+    return dialogos.at(-1) || null;
+}
+
+function posicionarCursor(x, y) {
+    const dialogo = estado.dialogoAtivo?.open ? estado.dialogoAtivo : null;
+    const caixa = dialogo?.getBoundingClientRect();
+    const limiteEsquerdo = caixa ? Math.max(14, caixa.left + 14) : 14;
+    const limiteDireito = caixa ? Math.min(innerWidth - 14, caixa.right - 14) : innerWidth - 14;
+    const limiteSuperior = caixa ? Math.max(14, caixa.top + 14) : 14;
+    const limiteInferior = caixa ? Math.min(innerHeight - 14, caixa.bottom - 14) : innerHeight - 14;
+    estado.posicao = {
+        x: Math.max(limiteEsquerdo, Math.min(limiteDireito, x)),
+        y: Math.max(limiteSuperior, Math.min(limiteInferior, y))
+    };
+    estado.cursor?.style.setProperty(
+        "transform",
+        `translate3d(${estado.posicao.x}px,${estado.posicao.y}px,0)`
+    );
+}
+
+function sincronizarCursorComDialogo() {
+    if (!estado.cursor?.isConnected) return;
+    const dialogo = obterDialogoAberto();
+    const mudouDeCamada = dialogo !== estado.dialogoAtivo;
+    estado.dialogoAtivo = dialogo;
+
+    const destino = dialogo || document.body;
+    if (estado.cursor.parentElement !== destino) destino.append(estado.cursor);
+    if (!mudouDeCamada || !dialogo) return;
+
+    const caixa = dialogo.getBoundingClientRect();
+    posicionarCursor(
+        caixa.left + caixa.width / 2,
+        caixa.top + Math.min(caixa.height / 2, 180)
+    );
+    estado.alvo?.classList.remove("face-navigation-target");
+    estado.alvo = null;
+    estado.inicioPermanencia = performance.now();
+    definirStatus("Popup aberto. A mira foi posicionada no conteúdo.", "active");
+}
+
+function observarDialogos() {
+    if (estado.observadorDialogos || !document.documentElement) return;
+    estado.observadorDialogos = new MutationObserver(registros => {
+        if (registros.some(registro => registro.attributeName === "open")) {
+            requestAnimationFrame(sincronizarCursorComDialogo);
+        }
+    });
+    estado.observadorDialogos.observe(document.documentElement, {
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["open"]
+    });
+}
 
 function atualizarInterruptores(ativo) {
     document.querySelectorAll("#eye-tracking, #admin-eye-tracking").forEach(controle => {
@@ -74,6 +133,7 @@ function criarInterface() {
     estado.video = painel.querySelector("video");
     estado.status = painel.querySelector(".face-navigation-status");
     estado.cursor = cursor;
+    sincronizarCursorComDialogo();
 }
 
 function definirStatus(texto, estadoVisual = "") {
@@ -87,7 +147,12 @@ function calibrar() {
     estado.neutro = null;
     estado.suavizado = null;
     estado.alvo = null;
-    estado.posicao = { x: innerWidth / 2, y: innerHeight / 2 };
+    const dialogo = obterDialogoAberto();
+    const caixa = dialogo?.getBoundingClientRect();
+    posicionarCursor(
+        caixa ? caixa.left + caixa.width / 2 : innerWidth / 2,
+        caixa ? caixa.top + Math.min(caixa.height / 2, 180) : innerHeight / 2
+    );
     definirStatus("Olhe para o centro da tela...", "calibrating");
 }
 
@@ -140,12 +205,14 @@ function moverCursor(ponto, agora) {
     dx = Math.abs(dx) < zonaMorta ? 0 : dx - Math.sign(dx) * zonaMorta;
     dy = Math.abs(dy) < zonaMorta ? 0 : dy - Math.sign(dy) * zonaMorta;
 
-    estado.posicao.x = Math.max(14, Math.min(innerWidth - 14, estado.posicao.x + dx * 115));
-    estado.posicao.y = Math.max(14, Math.min(innerHeight - 14, estado.posicao.y + dy * 125));
-    estado.cursor.style.transform = `translate3d(${estado.posicao.x}px,${estado.posicao.y}px,0)`;
+    posicionarCursor(estado.posicao.x + dx * 115, estado.posicao.y + dy * 125);
 
-    if (estado.posicao.y < 38) window.scrollBy({ top: -7, behavior: "auto" });
-    if (estado.posicao.y > innerHeight - 38) window.scrollBy({ top: 7, behavior: "auto" });
+    const dialogo = estado.dialogoAtivo?.open ? estado.dialogoAtivo : null;
+    const caixaDialogo = dialogo?.getBoundingClientRect();
+    if (dialogo && estado.posicao.y < caixaDialogo.top + 38) dialogo.scrollBy({ top: -7, behavior: "auto" });
+    else if (dialogo && estado.posicao.y > caixaDialogo.bottom - 38) dialogo.scrollBy({ top: 7, behavior: "auto" });
+    else if (!dialogo && estado.posicao.y < 38) window.scrollBy({ top: -7, behavior: "auto" });
+    else if (!dialogo && estado.posicao.y > innerHeight - 38) window.scrollBy({ top: 7, behavior: "auto" });
     atualizarPermanencia(agora);
 }
 
@@ -184,7 +251,7 @@ function encerrarRecursos() {
     estado.cursor?.remove();
     Object.assign(estado, {
         ativo: false, iniciando: false, fluxo: null, detector: null, video: null,
-        painel: null, cursor: null, status: null, alvo: null, neutro: null,
+        painel: null, cursor: null, status: null, alvo: null, neutro: null, dialogoAtivo: null,
         amostras: [], suavizado: null, ultimaExecucao: -1, ultimaInferencia: 0
     });
 }
@@ -272,6 +339,7 @@ function alternar(configuracoes) {
 export function iniciarNavegacaoFacial() {
     if (estado.inicializado) return;
     estado.inicializado = true;
+    observarDialogos();
     window.addEventListener("ludos:accessibility-change", evento => alternar(evento.detail));
     window.addEventListener("pagehide", encerrarRecursos);
     alternar(obterConfiguracoesAcessibilidade());
