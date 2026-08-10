@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
         displayNumero.textContent = `${g1} ${g2} ${g3} ${g4}`;
     }
 
-    // Evento de input no número do cartão
+    // Consulta de bandeira com debounce
     const consultarBandeira = debounce(async (digits, idConsulta) => {
         try {
             if (feedbackBandeira) {
@@ -76,8 +76,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 brandImg.classList.remove('visible');
                 if (feedbackBandeira) feedbackBandeira.textContent = 'Bandeira ainda não identificada.';
             }
-        } catch {
+        } catch (err) {
             if (idConsulta !== consultaBandeiraAtual) return;
+            console.error('Erro ao obter bandeira:', err);
             if (feedbackBandeira) {
                 feedbackBandeira.textContent = 'Não foi possível identificar a bandeira agora.';
                 feedbackBandeira.classList.add('error');
@@ -91,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, 300);
 
+    // Evento de input no número do cartão
     inputNumero.addEventListener('input', function () {
         const rawValue = inputNumero.value;
         const formatted = formatarNumeroCartao(rawValue);

@@ -5,8 +5,6 @@ import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto,
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
-import { mostrarFeedbackGlobal } from "./utils/asyncFeedback.js";
-import { configurarPesquisaCabecalho } from "./utils/ui.js";
 // #endregion
 
 // #region Utilitários de UI

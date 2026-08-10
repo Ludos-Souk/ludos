@@ -24,7 +24,7 @@ function calcularTotalPedido(payload) {
     return Math.max(0, precoSeguro - descontoSeguro);
 }
 
-async function copiarPix() {
+function copiarPix() {
     const codigo = document.getElementById('pix-code')?.textContent || '';
     if (!codigo) return;
 

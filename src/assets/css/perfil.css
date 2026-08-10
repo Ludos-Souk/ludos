@@ -271,6 +271,8 @@ html.accessibility-dark-theme .logout-link { border-color: #555b68; }
 }
 .profile-dialog-state { color: var(--text-muted); text-align: center; }
 .profile-cards-body { display: grid; gap: 18px; }
+.profile-security-note { display: flex; padding: 14px 17px; align-items: center; gap: 11px; border-radius: 18px; background: #eef3ff; color: #405b9f; font-size: 12px; line-height: 1.45; }
+.profile-security-note svg { width: 20px; height: 20px; flex: 0 0 20px; }
 .profile-saved-card { display: grid; grid-template-columns: 22px 48px minmax(0, 1fr) auto; padding: 20px 22px; align-items: center; gap: 15px; border: 2px solid var(--color-primary-light); border-radius: 999px; background: var(--bg-white); box-shadow: 0 8px 24px rgba(21, 51, 139, .08); }
 .profile-card-radio { display: grid; width: 22px; height: 22px; place-items: center; border: 2px solid var(--color-primary-light); border-radius: 50%; }
 .profile-card-radio::after { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--color-primary-light); }

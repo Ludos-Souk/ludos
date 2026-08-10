@@ -392,6 +392,8 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
 
     const precoComDescontoProduto = precoBruto - descontoProduto;
     const descontoPrimeiraCompra = ehPrimeiraCompra ? precoComDescontoProduto * 0.1 : 0;
+    
+    // Lógica de descontos e cupons da branch lucas-lima
     const precoAposDescontosAutomaticos = precoComDescontoProduto - descontoPrimeiraCompra;
     const descontoCupom = cupomAplicado
         ? precoAposDescontosAutomaticos * (cupomAplicado.desconto / 100)
@@ -420,6 +422,7 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
     }
     document.getElementById('btn-adicionar-cupom')?.toggleAttribute('hidden', Boolean(cupomAplicado));
     document.getElementById('resumo-cupom-aplicado')?.toggleAttribute('hidden', !cupomAplicado);
+    
     if (resumoTotal) {
         resumoTotal.textContent = formatarMoeda(total);
     }

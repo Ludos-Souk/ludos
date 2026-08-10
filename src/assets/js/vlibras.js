@@ -24,12 +24,12 @@
 
         wrapper.append(wrapperSuperior);
         container.append(botaoAcesso, wrapper);
+
         document.body.appendChild(container);
     }
 
     function criarWidget() {
         if (!window.VLibras?.Widget || window.__ludosVLibrasInicializado) return;
-
         window.__ludosVLibrasInicializado = true;
         new window.VLibras.Widget(URL_WIDGET);
     }
