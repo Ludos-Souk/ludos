@@ -120,6 +120,7 @@ let cartData = [];
 
 async function inicializar() {
     cartData = await listarProdutos();
+    inicializarModalExclusao();
     renderCart();
 }
 
@@ -630,10 +631,7 @@ function renderCart() {
             const quantidadeAtual =
                 Number(quantidade.textContent);
             if (quantidadeAtual === 1) {
-                removerProdutoTela(
-                    article,
-                    item.id
-                );
+                abrirModalExclusao(article, item.id, event.currentTarget);
                 return;
             }
             alterarQuantidade(
@@ -650,10 +648,7 @@ function renderCart() {
         });
 
         btnCarrinho.addEventListener("click", () => {
-            removerProdutoTela(
-                article,
-                item.id
-            );
+            abrirModalExclusao(article, item.id, event.currentTarget);
         });
 
         article.append(
@@ -849,3 +844,59 @@ btnContinuar.addEventListener("click", () => {
 // Renderiza a lista assim que o script carregar
 inicializar();
 inicializarPesquisaPorVoz();
+
+// ============================================================
+// Lógica do Modal de Exclusão
+// ============================================================
+let itemParaExcluir = null;
+let botaoQueAbriuModal = null;
+
+const modalDelete = document.getElementById('modal-delete-confirm');
+const btnCancelDelete = document.getElementById('btn-cancel-delete');
+const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+function cancelarExclusao() {
+    modalDelete.close();
+    document.body.classList.remove("modal-open");
+    
+    if (botaoQueAbriuModal) {
+        botaoQueAbriuModal.focus();
+    }
+    itemParaExcluir = null;
+}
+
+function inicializarModalExclusao() {
+    if (!modalDelete) return;
+
+    btnCancelDelete.addEventListener('click', cancelarExclusao);
+
+    modalDelete.addEventListener('click', (event) => {
+        if (event.target === modalDelete) {
+            cancelarExclusao();
+        }
+    });
+
+    btnConfirmDelete.addEventListener('click', () => {
+        if (itemParaExcluir) {
+            removerProdutoTela(itemParaExcluir.article, itemParaExcluir.id);
+        }
+        modalDelete.close();
+        document.body.classList.remove("modal-open");
+        
+        const tituloPagina = document.querySelector('.cart-page-title');
+        if (tituloPagina) {
+            tituloPagina.setAttribute('tabindex', '-1');
+            tituloPagina.focus({ preventScroll: true });
+        }
+        
+        itemParaExcluir = null;
+    });
+}
+
+function abrirModalExclusao(article, id, triggerElement) {
+    botaoQueAbriuModal = triggerElement;
+    itemParaExcluir = { article, id };
+    
+    document.body.classList.add("modal-open");
+    modalDelete.showModal();
+}

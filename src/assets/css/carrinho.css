@@ -314,3 +314,103 @@ input[type="checkbox"]:checked + .custom-checkbox {
     outline: 3px solid var(--color-primary-light, #6b8cff);
     outline-offset: 3px;
 }
+
+/* ============================================================
+   MODAL DE EXCLUSÃO (CARRINHO) - ACESSÍVEL E SEMÂNTICO
+   ============================================================ */
+.modal-delete {
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: 36px;
+    background-color: transparent;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-delete::backdrop {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-delete-content {
+    background-color: var(--bg-white);
+    border-radius: 36px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.icon-warning-wrapper {
+    width: 64px;
+    height: 64px;
+    background-color: var(--bg-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.icon-warning-wrapper svg {
+    font-size: 24px;
+    color: var(--text-dark);
+}
+
+.delete-text {
+    font-family: var(--font-primary);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.4;
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.delete-actions {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    list-style: none; 
+    padding: 0;
+    margin: 0;
+}
+
+.delete-actions li {
+    flex: 1;
+    display: flex;
+}
+
+.btn-cancel-delete,
+.btn-confirm-delete {
+    flex: 1;
+    width: 100%;
+    padding: 16px;
+    border-radius: 9999px;
+    border: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background-color var(--transition-default);
+}
+
+.btn-cancel-delete {
+    background-color: var(--btn-yellow);
+    color: var(--btn-yellow-text);
+}
+
+.btn-cancel-delete:hover,
+.btn-cancel-delete:focus-visible {
+    background-color: var(--btn-yellow-hover);
+}
+
+.btn-confirm-delete {
+    background-color: var(--bg-subtle);
+    color: var(--text-body);
+}
+
+.btn-confirm-delete:hover,
+.btn-confirm-delete:focus-visible {
+    background-color: var(--bg-hover);
+}

@@ -107,7 +107,7 @@ a:focus-visible {
    LAYOUT — CONTAINER
    ============================================================ */
 .container {
-    width: 100vw;
+    width: 100%; /* Mantido do novo (100% evita barra de rolagem horizontal melhor que 100vw) */
     height: 100vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -193,7 +193,7 @@ a:focus-visible {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 60px 180px;
+    padding: 60px clamp(48px, 9vw, 180px); /* Mantido do novo (melhor responsividade) */
     height: 100%;
     overflow-y: auto;
 }
@@ -420,15 +420,35 @@ button[type="submit"]:active {
     .auth h2 {
         font-size: 26px;
     }
+
+    .description { margin-bottom: 24px; }
+    .input-group input { font-size: 16px; }
+    .forgot-password { margin-left: 8px; }
 }
 
-/* Preferências globais de acessibilidade, aplicadas pelo router.js. */
+@media (max-width: 360px) {
+    .banner { min-height: 190px; }
+    .banner__content { padding-inline: 18px; }
+    .auth { padding-inline: 16px; }
+    .auth h2 { font-size: 24px; }
+}
+
+@media (max-height: 700px) and (min-width: 901px) {
+    .auth { justify-content: flex-start; padding-block: 32px; }
+    .logo { margin-top: 0; }
+    .switch { margin-top: 30px; }
+}
+
 html.accessibility-dyslexic-font body,
 html.accessibility-dyslexic-font body * {
     font-family: Arial, Verdana, sans-serif !important;
     letter-spacing: .04em;
 }
-html.accessibility-high-contrast body { filter: contrast(1.35); }
+
+html.accessibility-high-contrast body { 
+    filter: contrast(1.35); 
+}
+
 html.accessibility-dark-theme body {
     --bg-white: #20232b;
     --bg-input: #30343e;
@@ -438,6 +458,14 @@ html.accessibility-dark-theme body {
     background: #20232b;
     color: #f7f7f7;
 }
+
 html.accessibility-dark-theme .container,
-html.accessibility-dark-theme .auth { background: #20232b; color: #f7f7f7; }
-html.accessibility-dark-theme input { background: #30343e; color: #f7f7f7; }
+html.accessibility-dark-theme .auth { 
+    background: #20232b; 
+    color: #f7f7f7; 
+}
+
+html.accessibility-dark-theme input { 
+    background: #30343e; 
+    color: #f7f7f7; 
+}
