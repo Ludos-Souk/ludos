@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedido Concluído | Ludos</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/css/status.css">
 </head>
@@ -19,7 +20,7 @@
             <form class="search-form" role="search">
                 <label for="search-input" class="sr-only">Buscar Boneco</label>
                 <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
-                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <input type="search" id="search-input" placeholder="Buscar Boneco" autocomplete="off">
                 <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
                     <i data-lucide="mic" aria-hidden="true"></i>
                 </button>
@@ -82,6 +83,7 @@
     </footer>
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../assets/js/vlibras.js"></script>
     <script type="module" src="../routes/router.js"></script>
     <script type="module" src="../assets/js/sucessoPedido.js"></script>
 </body>

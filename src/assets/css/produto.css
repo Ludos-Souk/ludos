@@ -49,7 +49,7 @@
     height: 44px;
     border: none;
     border-radius: 50%;
-    background: #f0f0f0;
+    background: #807E7D1A;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,7 +61,7 @@
 
 .btn-back-icon:hover,
 .btn-back-icon:focus-visible {
-    background: var(--bg-hover, #e2e2e2);
+    background: var(--bg-hover, #e2e4ea);
 
 }
 
@@ -352,7 +352,7 @@
 }
 
 .products-grid--small .product-card   { padding: 16px; border-radius: 28px; }
-.products-grid--small .product-image  { height: 290px; }
+.products-grid--small .product-image-gradient { height: 290px; }
 .products-grid--small .product-top    { margin-bottom: 10px; min-height: 15px; }
 .products-grid--small .discount-badge { font-size: 12px; padding: 4px 10px; }
 .products-grid--small .brand          { font-size: 12px; }
@@ -361,7 +361,7 @@
 .products-grid--small .btn-buy        { font-size: 14px; padding: 10px 0; }
 .products-grid--small .btn-arrow      { font-size: 18px; }
 .products-grid--small .product-card   { padding: 16px; border-radius: 28px; }
-.products-grid--small .product-image  { height: 290px; }
+.products-grid--small .product-image-gradient { height: 290px; }
 .products-grid--small .product-top    { margin-bottom: 10px; min-height: 15px; }
 .products-grid--small .discount-badge { font-size: 12px; padding: 4px 10px; }
 .products-grid--small .btn-icon       { width: 28px; height: 28px; font-size: 12px; }
@@ -445,7 +445,7 @@
         grid-template-columns: 1fr;
     }
 
-    .products-grid--small .product-image {
+    .products-grid--small .product-image-gradient {
         height: 200px;
         gap: 16px;
     }
@@ -473,7 +473,7 @@
         grid-template-columns: 1fr;
     }
 
-    .products-grid--small .product-image {
+    .products-grid--small .product-image-gradient {
         height: 200px;
     }
 }

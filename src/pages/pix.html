@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finalizar compra via Pix | Ludos</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
 </head>
 <body id="topo">
@@ -18,7 +19,7 @@
             <form class="search-form" role="search">
                 <label for="search-input" class="sr-only">Buscar Boneco</label>
                 <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
-                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <input type="search" id="search-input" placeholder="Buscar Boneco" autocomplete="off">
                 <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
                     <i data-lucide="mic" aria-hidden="true"></i>
                 </button>
@@ -52,7 +53,7 @@
                 <div class="pix-alert__icon" aria-hidden="true">
                     <i data-lucide="scan-line"></i>
                 </div>
-                <p class="pix-alert__text">Falta pouco! Pague <strong>R$ 104</strong> via Pix para concluir sua compra.</p>
+                <p class="pix-alert__text">Falta pouco! Estamos calculando o valor final do seu Pix.</p>
             </div>
         </div>
 
@@ -136,6 +137,7 @@
             navigator.clipboard.writeText(codigo).catch(() => {});
         }
     </script>
+    <script src="../assets/js/vlibras.js"></script>
     <script type="module" src="../routes/router.js"></script>
     <script type="module" src="../assets/js/pix.js"></script>
 </body>

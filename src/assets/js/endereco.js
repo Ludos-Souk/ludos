@@ -111,15 +111,13 @@ async function carregarEnderecoParaEdicao(enderecoId) {
 // --- Cabeçalho (scroll) ---
 
 function inicializarScrollHeader() {
-    window.addEventListener("scroll", () => {
-        if (window.scrollY > 30) {
-            header?.classList.add("scrolled");
-            header?.classList.add("sem-banner");
-        } else {
-            header?.classList.remove("scrolled");
-            header?.classList.remove("sem-banner");
-        }
-    });
+    const atualizarHeader = () => {
+        header?.classList.add("sem-banner");
+        header?.classList.toggle("scrolled", window.scrollY > 30);
+    };
+
+    window.addEventListener("scroll", atualizarHeader, { passive: true });
+    atualizarHeader();
 }
 
 (function() {
@@ -198,6 +196,23 @@ function inicializarFormularioBusca() {
 function inicializarBtnVoltar() {
     if (btnVoltar) {
         btnVoltar.addEventListener('click', () => {
+            let possuiPaginaAnteriorDoProjeto = false;
+
+            if (document.referrer) {
+                try {
+                    const paginaAnterior = new URL(document.referrer);
+                    possuiPaginaAnteriorDoProjeto =
+                        paginaAnterior.origin === window.location.origin;
+                } catch (erro) {
+                    console.warn("Não foi possível identificar a página anterior:", erro);
+                }
+            }
+
+            if (possuiPaginaAnteriorDoProjeto && window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
             window.location.href = ROTAS.HOME;
         });
     }

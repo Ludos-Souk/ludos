@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const brandImg = document.getElementById('card-brand-img');
     const displayNumero = document.getElementById('card-display-number');
     const displayCvv = document.getElementById('card-display-cvv');
+    let consultaBandeiraAtual = 0;
 
     if (!inputNumero) return;
 
@@ -17,12 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para formatar o número do cartão
     function formatarNumeroCartao(value) {
         const digits = value.replace(/\D/g, '').slice(0, 16);
-        let formatted = '';
-        for (let i = 0; i < digits.length; i++) {
-            if (i > 0 && i % 4 === 0) formatted += ' ';
-            formatted += digits[i];
-        }
-        return formatted;
+        return digits.match(/.{1,4}/g)?.join(' ') || '';
     }
 
     // Função para atualizar a exibição do número no cartão visual
@@ -50,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
         inputNumero.value = formatted;
 
         const digits = formatted.replace(/\D/g, '');
+        const idConsulta = ++consultaBandeiraAtual;
         atualizarDisplayNumero(digits);
 
         // Limpa bandeira se número for curto
@@ -67,6 +64,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const url = await obterImagemBandeira(digits);
             const bandeira = await identificarBandeira(digits);
 
+            if (idConsulta !== consultaBandeiraAtual) return;
+
             if (url && brandImg) {
                 brandImg.src = url;
                 brandImg.alt = bandeira ? `Bandeira ${bandeira}` : 'Bandeira do cartão';
@@ -79,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 brandImg.classList.remove('visible');
             }
         } catch (err) {
+            if (idConsulta !== consultaBandeiraAtual) return;
             console.error('Erro ao obter bandeira:', err);
             if (brandImg) {
                 brandImg.removeAttribute('src');

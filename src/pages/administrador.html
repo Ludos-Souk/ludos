@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administração | Ludos</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body id="topo">
@@ -12,7 +13,7 @@
             <img src="../assets/images/logo_2.png" alt="Ludos">
         </a>
 
-        <form class="admin-search" id="admin-search-form" role="search">
+        <form class="admin-search" id="admin-search-form" role="search" autocomplete="off">
             <label class="sr-only" for="admin-search-input">Buscar boneco</label>
             <i data-lucide="search" aria-hidden="true"></i>
             <input id="admin-search-input" type="search" placeholder="Buscar Boneco">
@@ -74,13 +75,13 @@
 
     <footer class="admin-footer">
         <section><img src="../assets/images/logo_2.png" alt="Ludos"><h2>INFORMAÇÕES DE CONTATO</h2><address><p><i data-lucide="mail"></i> ludos.loja@gmail.com</p><p><i data-lucide="phone"></i> (11) 99250-0693</p></address></section>
-        <nav aria-label="Links rápidos"><h2>LINKS RÁPIDOS</h2><a href="#topo">Voltar ao início <i data-lucide="arrow-up-right"></i></a></nav>
+        <nav aria-label="Links rápidos"><h2>LINKS RÁPIDOS</h2><a href="#topo">Voltar ao início <i data-lucide="arrow-up-right" aria-hidden="true"></i></a></nav>
         <nav aria-label="Ajuda"><h2>AJUDA</h2><a href="#">Atendimento ao cliente <i data-lucide="arrow-up-right"></i></a></nav>
         <p class="copyright">Política de privacidade © 2026</p>
     </footer>
 
     <dialog id="edit-dialog" class="admin-dialog admin-dialog-large" aria-labelledby="edit-title">
-        <form id="edit-product-form" class="dialog-card">
+        <form id="edit-product-form" class="dialog-card" autocomplete="off">
             <header class="dialog-header"><h2 id="edit-title">Alterar produto</h2><button type="button" data-close-dialog aria-label="Fechar"><i data-lucide="x"></i></button></header>
             <div class="edit-layout">
                 <fieldset class="fields-grid"><legend class="sr-only">Dados do produto</legend>
@@ -93,7 +94,7 @@
     </dialog>
 
     <dialog id="product-dialog" class="admin-dialog admin-dialog-large" aria-labelledby="product-title">
-        <form id="create-product-form" class="dialog-card">
+        <form id="create-product-form" class="dialog-card" autocomplete="off">
             <header class="dialog-header">
                 <h2 id="product-title">Cadastrar produto</h2>
                 <button type="button" data-close-dialog aria-label="Fechar cadastro de produto"><i data-lucide="x" aria-hidden="true"></i></button>
@@ -131,6 +132,7 @@
     <dialog id="delete-dialog" class="admin-dialog admin-dialog-small" aria-labelledby="delete-title"><form id="delete-product-form" class="dialog-card"><header class="dialog-header"><h2 id="delete-title">Excluir produto?</h2><button type="button" data-close-dialog aria-label="Fechar"><i data-lucide="x"></i></button></header><p>Essa ação removerá permanentemente o produto selecionado. Deseja continuar?</p><footer class="dialog-actions"><button class="button button-neutral" type="button" data-close-dialog>Cancelar</button><button class="button button-danger" type="submit">Excluir</button></footer></form></dialog>
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../assets/js/vlibras.js"></script>
     <script type="module" src="../routes/router.js"></script>
     <script type="module" src="../assets/js/admin.js"></script>
 </body>

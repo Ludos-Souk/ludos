@@ -6,10 +6,20 @@ import { removerProduto } from "../../services/carrinhoService.js";
 import { reduzirEstoqueProduto } from "../../services/produtoService.js";
 
 function formatarMoeda(valor) {
-    return Number(valor).toLocaleString('pt-BR', {
+    const numero = Number(valor);
+    const valorSeguro = Number.isFinite(numero) ? numero : 0;
+    return valorSeguro.toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL'
     });
+}
+
+function calcularTotalPedido(payload) {
+    const preco = Number(payload?.preco);
+    const desconto = Number(payload?.desconto);
+    const precoSeguro = Number.isFinite(preco) ? Math.max(0, preco) : 0;
+    const descontoSeguro = Number.isFinite(desconto) ? Math.max(0, desconto) : 0;
+    return Math.max(0, precoSeguro - descontoSeguro);
 }
 
 function copiarPix() {
@@ -68,7 +78,7 @@ function iniciarSimulacaoPix(payload) {
     const alertTexto = document.querySelector('.pix-alert__text');
     const statusNota = document.querySelector('.pix-card__note');
     const pixCodeElement = document.getElementById('pix-code');
-    const valorExibido = formatarMoeda(payload.preco || 0);
+    const valorExibido = formatarMoeda(calcularTotalPedido(payload));
 
     if (alertTexto) {
         alertTexto.replaceChildren();

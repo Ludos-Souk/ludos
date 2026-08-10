@@ -390,7 +390,7 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
     }, 0);
 
     const precoComDescontoProduto = precoBruto - descontoProduto;
-    const descontoPrimeiraCompra = ehPrimeiraCompra ? precoComDescontoProduto * 0.2 : 0;
+    const descontoPrimeiraCompra = ehPrimeiraCompra ? precoComDescontoProduto * 0.1 : 0;
     const descontoTotal = descontoProduto + descontoPrimeiraCompra;
     const total = precoComDescontoProduto - descontoPrimeiraCompra;
 
@@ -401,7 +401,7 @@ function atualizarResumoCompra(produtos, ehPrimeiraCompra) {
         resumoDesconto.textContent = formatarMoeda(descontoTotal);
     }
     if (resumoDescontoText) {
-        resumoDescontoText.textContent = ehPrimeiraCompra ? '20% na 1ª compra' : '';
+        resumoDescontoText.textContent = ehPrimeiraCompra ? '10% na 1ª compra' : '';
     }
     if (resumoTotal) {
         resumoTotal.textContent = formatarMoeda(total);

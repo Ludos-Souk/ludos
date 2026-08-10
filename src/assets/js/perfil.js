@@ -42,6 +42,8 @@ const botaoConfirmarEndereco = document.getElementById("confirm-address");
 const botaoAdicionarEndereco = document.getElementById("add-address");
 const botaoAbrirFavoritos = document.getElementById("open-favorites-modal");
 const botaoAbrirPedidos = document.getElementById("open-orders-modal");
+const botaoAbrirCartoes = document.getElementById("open-cards-modal");
+const modalCartoes = document.getElementById("cards-modal");
 const modalFavoritos = document.getElementById("favorites-modal");
 const modalPedidos = document.getElementById("orders-modal");
 const corpoModalFavoritos = document.getElementById("favorites-modal-body");
@@ -49,9 +51,22 @@ const corpoModalPedidos = document.getElementById("orders-modal-body");
 const botaoAbrirAvaliacoes = document.getElementById("open-reviews-modal");
 const modalAvaliacoes = document.getElementById("reviews-modal");
 const corpoModalAvaliacoes = document.getElementById("reviews-modal-body");
+const modalRecorteFoto = document.getElementById("photo-crop-dialog");
+const canvasRecorteFoto = document.getElementById("photo-crop-canvas");
+const areaRecorteFoto = document.querySelector(".photo-crop-stage");
+const controleZoomFoto = document.getElementById("photo-zoom");
+const botaoSalvarRecorte = document.getElementById("save-photo-crop");
+const botaoCancelarRecorte = document.getElementById("cancel-photo-crop");
+const botaoFecharRecorte = document.getElementById("close-photo-crop");
 let usuarioAtual = null;
 let enderecoSelecionado = null;
 let acionadorDialogoPerfil = null;
+let urlTemporariaFoto = null;
+let imagemRecorte = null;
+let zoomFoto = 1;
+let deslocamentoFotoX = 0;
+let deslocamentoFotoY = 0;
+let ultimoPontoArraste = null;
 
 function atualizarIcones() {
     window.lucide?.createIcons();
@@ -206,10 +221,23 @@ function criarCardPedido(pedido, itens) {
 
     const rodape = criarElemento("footer", "profile-order-footer");
     const entrega = String(pedido.formaEntrega || "Receber").toLowerCase().includes("retir") ? "Retirada na loja" : "Entrega";
-    rodape.append(
-        criarElemento("span", "", entrega),
-        criarElemento("strong", "", Number(pedido.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }))
-    );
+    const formatarMoeda = valor => Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    const subtotal = Math.max(0, Number(pedido.preco) || 0);
+    const desconto = Math.max(0, Number(pedido.desconto) || 0);
+    const total = Math.max(0, subtotal - desconto);
+    const resumo = criarElemento("dl", "profile-order-summary");
+
+    [
+        ["Subtotal", formatarMoeda(subtotal), ""],
+        ["Desconto", `- ${formatarMoeda(desconto)}`, "discount"],
+        ["Total", formatarMoeda(total), "total"]
+    ].forEach(([rotulo, valor, classe]) => {
+        const linha = criarElemento("div", classe);
+        linha.append(criarElemento("dt", "", rotulo), criarElemento("dd", "", valor));
+        resumo.append(linha);
+    });
+
+    rodape.append(criarElemento("span", "profile-order-delivery", entrega), resumo);
     card.append(cabecalho, lista, rodape);
     return card;
 }
@@ -382,27 +410,131 @@ function validarFoto(arquivo) {
     }
 }
 
-async function alterarFotoPerfil() {
+function limitarDeslocamentoFoto() {
+    if (!imagemRecorte) return;
+
+    const escalaBase = Math.max(
+        canvasRecorteFoto.width / imagemRecorte.naturalWidth,
+        canvasRecorteFoto.height / imagemRecorte.naturalHeight
+    );
+    const largura = imagemRecorte.naturalWidth * escalaBase * zoomFoto;
+    const altura = imagemRecorte.naturalHeight * escalaBase * zoomFoto;
+    const limiteX = Math.max(0, (largura - canvasRecorteFoto.width) / 2);
+    const limiteY = Math.max(0, (altura - canvasRecorteFoto.height) / 2);
+
+    deslocamentoFotoX = Math.max(-limiteX, Math.min(limiteX, deslocamentoFotoX));
+    deslocamentoFotoY = Math.max(-limiteY, Math.min(limiteY, deslocamentoFotoY));
+}
+
+function abrirModalCartoes(event) {
+    acionadorDialogoPerfil = event.currentTarget;
+    modalCartoes?.showModal();
+    body.classList.add("modal-open");
+    modalCartoes?.querySelector(".profile-dialog-close")?.focus();
+    atualizarIcones();
+}
+
+function desenharRecorteFoto() {
+    if (!imagemRecorte) return;
+
+    limitarDeslocamentoFoto();
+    const contexto = canvasRecorteFoto.getContext("2d");
+    const escalaBase = Math.max(
+        canvasRecorteFoto.width / imagemRecorte.naturalWidth,
+        canvasRecorteFoto.height / imagemRecorte.naturalHeight
+    );
+    const escala = escalaBase * zoomFoto;
+    const largura = imagemRecorte.naturalWidth * escala;
+    const altura = imagemRecorte.naturalHeight * escala;
+    const x = (canvasRecorteFoto.width - largura) / 2 + deslocamentoFotoX;
+    const y = (canvasRecorteFoto.height - altura) / 2 + deslocamentoFotoY;
+
+    contexto.clearRect(0, 0, canvasRecorteFoto.width, canvasRecorteFoto.height);
+    contexto.drawImage(imagemRecorte, x, y, largura, altura);
+}
+
+function fecharRecorteFoto() {
+    modalRecorteFoto?.close();
+    body.classList.remove("modal-open");
+    ultimoPontoArraste = null;
+    areaRecorteFoto?.classList.remove("dragging");
+    if (urlTemporariaFoto) URL.revokeObjectURL(urlTemporariaFoto);
+    urlTemporariaFoto = null;
+    imagemRecorte = null;
+    inputFoto.value = "";
+    botaoEditarAvatar?.focus();
+}
+
+async function abrirRecorteFoto() {
     const arquivo = inputFoto.files?.[0];
     if (!arquivo || !usuarioAtual) return;
 
-    botaoEditarAvatar.disabled = true;
     feedbackFoto.classList.remove("error");
-    feedbackFoto.textContent = "Enviando foto...";
+    feedbackFoto.textContent = "";
 
     try {
         validarFoto(arquivo);
-        const imagem = await uploadImagem(arquivo);
+        urlTemporariaFoto = URL.createObjectURL(arquivo);
+        imagemRecorte = new Image();
+        await new Promise((resolve, reject) => {
+            imagemRecorte.onload = resolve;
+            imagemRecorte.onerror = () => reject(new Error("Não foi possível abrir esta imagem."));
+            imagemRecorte.src = urlTemporariaFoto;
+        });
+
+        zoomFoto = 1;
+        deslocamentoFotoX = 0;
+        deslocamentoFotoY = 0;
+        controleZoomFoto.value = "1";
+        desenharRecorteFoto();
+        modalRecorteFoto.showModal();
+        body.classList.add("modal-open");
+        botaoSalvarRecorte.focus();
+        atualizarIcones();
+    } catch (erro) {
+        console.error("Não foi possível preparar a foto:", erro);
+        feedbackFoto.classList.add("error");
+        feedbackFoto.textContent = erro.message || "Não foi possível abrir a foto.";
+        if (urlTemporariaFoto) URL.revokeObjectURL(urlTemporariaFoto);
+        urlTemporariaFoto = null;
+        imagemRecorte = null;
+        inputFoto.value = "";
+    }
+}
+
+function gerarArquivoFotoRecortada() {
+    return new Promise((resolve, reject) => {
+        canvasRecorteFoto.toBlob(blob => {
+            if (!blob) {
+                reject(new Error("Não foi possível processar o enquadramento."));
+                return;
+            }
+            resolve(new File([blob], "foto-perfil.jpg", { type: "image/jpeg" }));
+        }, "image/jpeg", .9);
+    });
+}
+
+async function salvarFotoRecortada() {
+    if (!imagemRecorte || !usuarioAtual) return;
+
+    botaoSalvarRecorte.disabled = true;
+    botaoSalvarRecorte.textContent = "Salvando...";
+    feedbackFoto.classList.remove("error");
+
+    try {
+        const arquivoRecortado = await gerarArquivoFotoRecortada();
+        const imagem = await uploadImagem(arquivoRecortado);
         await atualizarFotoPerfil(usuarioAtual.uid, imagem.url);
         exibirFotoPerfil(imagem.url);
+        fecharRecorteFoto();
         feedbackFoto.textContent = "Foto atualizada.";
     } catch (erro) {
         console.error("Não foi possível atualizar a foto:", erro);
         feedbackFoto.classList.add("error");
         feedbackFoto.textContent = erro.message || "Não foi possível atualizar a foto.";
     } finally {
-        botaoEditarAvatar.disabled = false;
-        inputFoto.value = "";
+        botaoSalvarRecorte.disabled = false;
+        botaoSalvarRecorte.textContent = "Salvar foto";
     }
 }
 
@@ -601,6 +733,67 @@ function iniciarAcessibilidade() {
     });
 }
 
+controleZoomFoto?.addEventListener("input", ({ target }) => {
+    const novoZoom = Number(target.value);
+    const proporcao = novoZoom / zoomFoto;
+    deslocamentoFotoX *= proporcao;
+    deslocamentoFotoY *= proporcao;
+    zoomFoto = novoZoom;
+    desenharRecorteFoto();
+});
+
+areaRecorteFoto?.addEventListener("pointerdown", event => {
+    if (!imagemRecorte) return;
+    areaRecorteFoto.setPointerCapture(event.pointerId);
+    areaRecorteFoto.classList.add("dragging");
+    ultimoPontoArraste = { x: event.clientX, y: event.clientY };
+});
+
+areaRecorteFoto?.addEventListener("pointermove", event => {
+    if (!ultimoPontoArraste || !imagemRecorte) return;
+    const escalaVisual = canvasRecorteFoto.width / areaRecorteFoto.getBoundingClientRect().width;
+    deslocamentoFotoX += (event.clientX - ultimoPontoArraste.x) * escalaVisual;
+    deslocamentoFotoY += (event.clientY - ultimoPontoArraste.y) * escalaVisual;
+    ultimoPontoArraste = { x: event.clientX, y: event.clientY };
+    desenharRecorteFoto();
+});
+
+function finalizarArrasteFoto(event) {
+    if (areaRecorteFoto?.hasPointerCapture(event.pointerId)) {
+        areaRecorteFoto.releasePointerCapture(event.pointerId);
+    }
+    ultimoPontoArraste = null;
+    areaRecorteFoto?.classList.remove("dragging");
+}
+
+areaRecorteFoto?.addEventListener("pointerup", finalizarArrasteFoto);
+areaRecorteFoto?.addEventListener("pointercancel", finalizarArrasteFoto);
+areaRecorteFoto?.addEventListener("keydown", event => {
+    const movimentos = {
+        ArrowLeft: [-10, 0],
+        ArrowRight: [10, 0],
+        ArrowUp: [0, -10],
+        ArrowDown: [0, 10]
+    };
+    const movimento = movimentos[event.key];
+    if (!movimento || !imagemRecorte) return;
+    event.preventDefault();
+    deslocamentoFotoX += movimento[0];
+    deslocamentoFotoY += movimento[1];
+    desenharRecorteFoto();
+});
+
+botaoSalvarRecorte?.addEventListener("click", salvarFotoRecortada);
+botaoCancelarRecorte?.addEventListener("click", fecharRecorteFoto);
+botaoFecharRecorte?.addEventListener("click", fecharRecorteFoto);
+modalRecorteFoto?.addEventListener("click", ({ target }) => {
+    if (target === modalRecorteFoto && !botaoSalvarRecorte.disabled) fecharRecorteFoto();
+});
+modalRecorteFoto?.addEventListener("cancel", event => {
+    event.preventDefault();
+    if (!botaoSalvarRecorte.disabled) fecharRecorteFoto();
+});
+
 window.addEventListener("scroll", atualizarHeaderNoScroll, { passive: true });
 botaoSair?.addEventListener("click", sairDaConta);
 botaoFiltro?.addEventListener("click", () => {
@@ -608,13 +801,14 @@ botaoFiltro?.addEventListener("click", () => {
     window.location.href = ROTAS.HOME;
 });
 botaoEditarAvatar?.addEventListener("click", () => inputFoto?.click());
-inputFoto?.addEventListener("change", alterarFotoPerfil);
+inputFoto?.addEventListener("change", abrirRecorteFoto);
 avatar?.addEventListener("error", () => {
     exibirFotoPerfil(null);
     feedbackFoto.classList.add("error");
     feedbackFoto.textContent = "Não foi possível carregar a foto atual.";
 });
 botaoAbrirEnderecos?.addEventListener("click", abrirModalEndereco);
+botaoAbrirCartoes?.addEventListener("click", abrirModalCartoes);
 botaoAbrirFavoritos?.addEventListener("click", abrirModalFavoritos);
 botaoAbrirPedidos?.addEventListener("click", abrirModalPedidos);
 botaoAbrirAvaliacoes?.addEventListener("click", abrirModalAvaliacoes);
