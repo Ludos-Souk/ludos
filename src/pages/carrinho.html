@@ -132,6 +132,22 @@
         </section>
     </footer>
 
+    <dialog id="modal-delete-confirm" class="modal-delete" aria-labelledby="modal-delete-title" aria-describedby="modal-delete-desc">
+        <article class="modal-delete-content">
+            <span class="icon-warning-wrapper" aria-hidden="true">
+                <i data-lucide="triangle-alert"></i>
+            </span>
+            
+            <h3 id="modal-delete-title" class="delete-text">Tem certeza que gostaria de excluir esse produto do seu carrinho?</h3>
+            <p id="modal-delete-desc" class="sr-only">Esta ação removerá o item permanentemente do pedido atual.</p>
+            
+            <menu class="delete-actions">
+                <li><button type="button" class="btn-cancel-delete" id="btn-cancel-delete" autofocus>Cancelar</button></li>
+                <li><button type="button" class="btn-confirm-delete" id="btn-confirm-delete">Excluir</button></li>
+            </menu>
+        </article>
+    </dialog>
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="../routes/router.js"></script>
     <script type="module" src="../assets/js/carrinho.js"></script>

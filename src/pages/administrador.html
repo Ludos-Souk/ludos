@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body id="topo">
+    <header class="admin-header">
+        <a class="admin-logo" href="home.html" aria-label="Ir para a página inicial">
+            <img src="../assets/images/logo_2.png" alt="Ludos">
+        </a>
+
+        <form class="admin-search" role="search">
+            <label class="sr-only" for="admin-search-input">Buscar boneco</label>
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input id="admin-search-input" type="search" placeholder="Buscar Boneco">
+            <button type="button" aria-label="Pesquisar por voz"><i data-lucide="mic" aria-hidden="true"></i></button>
+        </form>
+
+        <nav class="admin-header-actions" aria-label="Ações administrativas">
+            <button type="button" aria-label="Abrir filtros"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button>
+            <a href="login.html" aria-label="Sair da área administrativa"><i data-lucide="log-out" aria-hidden="true"></i></a>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <span class="admin-handle" aria-hidden="true"></span>
+
+        <header class="catalog-header">
+            <div>
+                <p class="eyebrow">Painel administrativo</p>
+                <h1>Produtos</h1>
+            </div>
+            <div class="catalog-actions">
+                <button type="button" class="button button-neutral" data-open-dialog="coupon-dialog"><i data-lucide="badge-percent" aria-hidden="true"></i><span>Cadastrar cupom</span></button>
+                <button type="button" class="button button-primary" data-open-dialog="product-dialog"><i data-lucide="package" aria-hidden="true"></i><span>Adicionar produto</span></button>
+            </div>
+        </header>
+
+        <section class="products-section" aria-labelledby="products-title">
+            <h2 id="products-title" class="sr-only">Produtos cadastrados</h2>
+            <div class="table-scroll">
+                <table class="products-table">
+                    <thead>
+                        <tr><th>Imagem</th><th>Nome</th><th>Preço</th><th>Desconto</th><th>Franquia</th><th>Estoque</th><th>Ativo</th><th>Descrição</th><th>Criação</th><th><span class="sr-only">Ações</span></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="Imagem"><span class="product-thumb"><i data-lucide="image" aria-hidden="true"></i></span></td><td data-label="Nome">Tristeza</td><td data-label="Preço">R$ 249,90</td><td data-label="Desconto">R$ 20,00</td><td data-label="Franquia">Divertidamente</td><td data-label="Estoque">15</td><td data-label="Ativo">Sim</td><td data-label="Descrição" class="truncate">Tristeza, personagem da animação</td><td data-label="Criação">13/06/2026</td>
+                            <td class="row-actions"><button type="button" class="row-menu-button" aria-label="Abrir ações de Tristeza" aria-expanded="false"><i data-lucide="circle-ellipsis" aria-hidden="true"></i></button><menu class="row-menu" hidden><li><button type="button" data-open-dialog="edit-dialog"><i data-lucide="pencil"></i>Alterar</button></li><li><button type="button" class="danger" data-open-dialog="delete-dialog"><i data-lucide="trash-2"></i>Excluir</button></li></menu></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Imagem"><span class="product-thumb"><i data-lucide="image" aria-hidden="true"></i></span></td><td data-label="Nome">Tristeza</td><td data-label="Preço">R$ 249,90</td><td data-label="Desconto">R$ 20,00</td><td data-label="Franquia">Divertidamente</td><td data-label="Estoque">15</td><td data-label="Ativo">Sim</td><td data-label="Descrição" class="truncate">Tristeza, personagem da animação</td><td data-label="Criação">13/06/2026</td>
+                            <td class="row-actions"><button type="button" class="row-menu-button" aria-label="Abrir ações de Tristeza" aria-expanded="false"><i data-lucide="circle-ellipsis" aria-hidden="true"></i></button><menu class="row-menu" hidden><li><button type="button" data-open-dialog="edit-dialog"><i data-lucide="pencil"></i>Alterar</button></li><li><button type="button" class="danger" data-open-dialog="delete-dialog"><i data-lucide="trash-2"></i>Excluir</button></li></menu></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Imagem"><span class="product-thumb"><i data-lucide="image" aria-hidden="true"></i></span></td><td data-label="Nome">Tristeza</td><td data-label="Preço">R$ 249,90</td><td data-label="Desconto">R$ 20,00</td><td data-label="Franquia">Divertidamente</td><td data-label="Estoque">15</td><td data-label="Ativo">Sim</td><td data-label="Descrição" class="truncate">Tristeza, personagem da animação</td><td data-label="Criação">13/06/2026</td>
+                            <td class="row-actions"><button type="button" class="row-menu-button" aria-label="Abrir ações de Tristeza" aria-expanded="false"><i data-lucide="circle-ellipsis" aria-hidden="true"></i></button><menu class="row-menu" hidden><li><button type="button" data-open-dialog="edit-dialog"><i data-lucide="pencil"></i>Alterar</button></li><li><button type="button" class="danger" data-open-dialog="delete-dialog"><i data-lucide="trash-2"></i>Excluir</button></li></menu></td>
+                        </tr>
+                        <tr>
+                            <td data-label="Imagem"><span class="product-thumb"><i data-lucide="image" aria-hidden="true"></i></span></td><td data-label="Nome">Tristeza</td><td data-label="Preço">R$ 249,90</td><td data-label="Desconto">R$ 20,00</td><td data-label="Franquia">Divertidamente</td><td data-label="Estoque">15</td><td data-label="Ativo">Sim</td><td data-label="Descrição" class="truncate">Tristeza, personagem da animação</td><td data-label="Criação">13/06/2026</td>
+                            <td class="row-actions"><button type="button" class="row-menu-button" aria-label="Abrir ações de Tristeza" aria-expanded="false"><i data-lucide="circle-ellipsis" aria-hidden="true"></i></button><menu class="row-menu" hidden><li><button type="button" data-open-dialog="edit-dialog"><i data-lucide="pencil"></i>Alterar</button></li><li><button type="button" class="danger" data-open-dialog="delete-dialog"><i data-lucide="trash-2"></i>Excluir</button></li></menu></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="admin-footer">
+        <section><img src="../assets/images/logo_2.png" alt="Ludos"><h2>INFORMAÇÕES DE CONTATO</h2><address><p><i data-lucide="mail"></i> ludos.loja@gmail.com</p><p><i data-lucide="phone"></i> (11) 99250-0693</p></address></section>
+        <nav aria-label="Links rápidos"><h2>LINKS RÁPIDOS</h2><a href="#topo">Voltar ao início <i data-lucide="arrow-up-right"></i></a></nav>
+        <nav aria-label="Ajuda"><h2>AJUDA</h2><a href="#">Atendimento ao cliente <i data-lucide="arrow-up-right"></i></a></nav>
+        <p class="copyright">Política de privacidade © 2026</p>
+    </footer>
+
+    <dialog id="edit-dialog" class="admin-dialog admin-dialog-large" aria-labelledby="edit-title">
+        <form method="dialog" class="dialog-card">
+            <header class="dialog-header"><h2 id="edit-title">Alterar Tristeza</h2><button value="cancel" aria-label="Fechar"><i data-lucide="x"></i></button></header>
+            <div class="edit-layout">
+                <fieldset class="fields-grid"><legend class="sr-only">Dados do produto</legend>
+                    <label><span>Nome</span><input value="Tristeza"></label><label><span>Preço</span><input value="R$ 249,90"></label><label><span>Franquia</span><input value="Divertidamente"></label><label><span>Estoque</span><input value="15"></label><label><span>Imagem</span><input value="https://link.da.imagem"></label><label><span>Desconto</span><input value="R$ 20,00"></label><label><span>Ativo</span><select><option>Sim</option><option>Não</option></select></label><label><span>Criação</span><input type="date" value="2026-06-13"></label><label class="field-full"><span>Descrição</span><textarea>Descrição completa do produto.</textarea></label>
+                </fieldset>
+                <aside class="product-preview" aria-label="Prévia do produto"><h3>Preview</h3><article><span class="preview-image"><i data-lucide="image"></i></span><small>Divertidamente</small><h4>Boneco Funko Pop Tristeza</h4><strong>R$ 129,99</strong><button type="button">Comprar</button></article></aside>
+            </div>
+            <footer class="dialog-actions"><button class="button button-primary" value="default">Salvar alterações</button></footer>
+        </form>
+    </dialog>
+
+    <dialog id="product-dialog" class="admin-dialog admin-dialog-large" aria-labelledby="product-title">
+        <form method="dialog" class="dialog-card">
+            <header class="dialog-header">
+                <h2 id="product-title">Cadastrar produto</h2>
+                <button value="cancel" aria-label="Fechar cadastro de produto"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <div class="edit-layout">
+                <fieldset class="fields-grid">
+                    <legend class="sr-only">Dados do novo produto</legend>
+                    <label><span>Nome</span><input name="nome" placeholder="Nome do produto"></label>
+                    <label><span>Preço</span><input name="preco" placeholder="R$ 0,00"></label>
+                    <label><span>Franquia</span><input name="franquia" placeholder="Franquia"></label>
+                    <label><span>Estoque</span><input name="estoque" type="number" min="0" placeholder="0"></label>
+                    <label><span>Imagem</span><input name="imagem" placeholder="URL da imagem"></label>
+                    <label><span>Desconto</span><input name="desconto" placeholder="R$ 0,00"></label>
+                    <label><span>Ativo</span><select name="ativo"><option value="sim">Sim</option><option value="nao">Não</option></select></label>
+                    <label><span>Criação</span><input name="criacao" type="date"></label>
+                    <label class="field-full"><span>Descrição</span><textarea name="descricao" placeholder="Descrição completa do produto"></textarea></label>
+                </fieldset>
+                <aside class="product-preview" aria-label="Prévia do novo produto">
+                    <h3>Preview</h3>
+                    <article>
+                        <span class="preview-image"><i data-lucide="image" aria-hidden="true"></i></span>
+                        <small>Franquia</small>
+                        <h4>Nome do produto</h4>
+                        <strong>R$ 0,00</strong>
+                        <button type="button">Comprar</button>
+                    </article>
+                </aside>
+            </div>
+            <footer class="dialog-actions"><button class="button button-primary" value="default">Cadastrar produto</button></footer>
+        </form>
+    </dialog>
+
+    <dialog id="coupon-dialog" class="admin-dialog admin-dialog-small" aria-labelledby="coupon-title"><form method="dialog" class="dialog-card"><header class="dialog-header"><h2 id="coupon-title">Cadastrar cupom</h2><button value="cancel" aria-label="Fechar"><i data-lucide="x"></i></button></header><fieldset class="fields-grid"><legend class="sr-only">Dados do cupom</legend><label><span>Código</span><input placeholder="Ex.: LUDOS10"></label><label><span>Desconto</span><input placeholder="10%"></label><label><span>Validade</span><input type="date"></label><label><span>Ativo</span><select><option>Sim</option><option>Não</option></select></label></fieldset><footer class="dialog-actions"><button class="button button-primary" value="default">Cadastrar cupom</button></footer></form></dialog>
+
+    <dialog id="delete-dialog" class="admin-dialog admin-dialog-small" aria-labelledby="delete-title"><form method="dialog" class="dialog-card"><header class="dialog-header"><h2 id="delete-title">Excluir produto?</h2><button value="cancel" aria-label="Fechar"><i data-lucide="x"></i></button></header><p>Essa ação removerá o produto selecionado. Deseja continuar?</p><footer class="dialog-actions"><button class="button button-neutral" value="cancel">Cancelar</button><button class="button button-danger" value="default">Excluir</button></footer></form></dialog>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+        document.addEventListener('click', event => {
+            const menuButton = event.target.closest('.row-menu-button');
+            if (menuButton) {
+                const menu = menuButton.nextElementSibling;
+                document.querySelectorAll('.row-menu').forEach(item => { if (item !== menu) item.hidden = true; });
+                menu.hidden = !menu.hidden;
+                menuButton.setAttribute('aria-expanded', String(!menu.hidden));
+                return;
+            }
+            const opener = event.target.closest('[data-open-dialog]');
+            if (opener) {
+                document.getElementById(opener.dataset.openDialog)?.showModal();
+                opener.closest('.row-menu')?.setAttribute('hidden', '');
+            }
+        });
+    </script>
+</body>
+</html>
