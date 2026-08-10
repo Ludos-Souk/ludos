@@ -1,13 +1,14 @@
 import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import {
-    buscarProdutosAtivos
+    buscarProdutosAtivos,
+    buscarProdutoPorId
 } from "../../services/produtoService.js";
 import {
     toggleFavorito,
     ehFavorito
 } from "../../services/favoritosService.js";
-import { obterUid } from "../../services/authService.js";
+import { aguardarUsuario, obterUid } from "../../services/authService.js";
 import {
     listarEnderecos
 } from "../../services/usuarioService.js";
@@ -25,7 +26,9 @@ import {
 } from "../../services/configuracoesService.js";
 import {
     listarPedidosUsuario
-} from "../../services/pedidoService.js"
+} from "../../services/pedidoService.js";
+import Avaliacao from "../../models/Avaliacao.js";
+import { criarAvaliacoesPedido } from "../../services/avaliacaoService.js";
 // #endregion
 
 
@@ -60,6 +63,12 @@ const filterMenu = document.querySelector('.filter-menu');
 // Estado
 let bannerFechado = false;
 let timeoutToast = null;
+let pedidosDoUsuario = [];
+let indicePedidoAtual = 0;
+let temporizadorPedidos = null;
+let rotacaoPedidosPausada = false;
+let pedidoEmAvaliacao = null;
+let botaoAvaliacaoAtivo = null;
 // #endregion
 
 
@@ -1428,6 +1437,393 @@ function inicializarListenersProdutos() {
 // #endregion
 
 
+// #region Acompanhamento e avaliação de pedidos
+
+const sliderPedidos = document.getElementById("orders-slider");
+const controlesPedidos = document.getElementById("orders-controls");
+const posicaoPedido = document.getElementById("order-position");
+const cardPedidos = document.getElementById("orders-card");
+const modalAvaliacao = document.getElementById("order-review-dialog");
+const formularioAvaliacao = document.getElementById("order-review-form");
+const listaProdutosAvaliacao = document.getElementById("order-review-products");
+const feedbackAvaliacao = document.getElementById("order-review-feedback");
+
+function criarElemento(tag, classe, texto) {
+    const elemento = document.createElement(tag);
+    if (classe) elemento.className = classe;
+    if (texto !== undefined) elemento.textContent = texto;
+    return elemento;
+}
+
+function normalizarTexto(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function obterFluxoPedido(pedido) {
+    const retirada = normalizarTexto(pedido.formaEntrega).includes("retir");
+    const status = normalizarTexto(pedido.status);
+    const criadoEm = converterDataPedido(pedido.criadoEm);
+    const diasDecorridos = criadoEm.getTime() > 0
+        ? Math.max(0, Math.floor((Date.now() - criadoEm.getTime()) / 86400000))
+        : 0;
+    const concluidoPorStatus = ["entregue", "retirado", "concluido", "finalizado"].some(valor => status.includes(valor));
+    const cancelado = status.includes("cancel");
+    let etapaStatus = 1;
+
+    if (["confirmado", "aprovado", "pago"].some(valor => status.includes(valor))) etapaStatus = 2;
+    if (["preparando", "preparo", "separacao", "separando"].some(valor => status.includes(valor))) etapaStatus = 3;
+    if (["enviado", "transporte", "saiu para entrega", "pronto", "disponivel"].some(valor => status.includes(valor))) etapaStatus = 4;
+    if (concluidoPorStatus) etapaStatus = 5;
+
+    const etapaTempo = Math.min(5, diasDecorridos + 1);
+    const concluidoPorTempo = !retirada && criadoEm.getTime() > 0 && diasDecorridos >= 5;
+    const concluido = !cancelado && (concluidoPorStatus || concluidoPorTempo);
+    const etapa = cancelado ? 0 : retirada ? 1 : concluido ? 5 : Math.max(etapaStatus, etapaTempo);
+    const totalEtapas = retirada ? 1 : 5;
+
+    const mensagensEntrega = [
+        "Recebemos seu pedido!",
+        "Pagamento confirmado. :) ",
+        "Seu pedido está sendo preparado.",
+        "Seu pedido está quase chegando!",
+        "Seu pedido chegou! :)"
+    ];
+    const dataPrevista = new Date(criadoEm);
+    dataPrevista.setDate(dataPrevista.getDate() + 5);
+    const previsaoFormatada = criadoEm.getTime() > 0
+        ? dataPrevista.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+        : null;
+    const etapaMensagem = concluido ? 5 : Math.min(4, etapa);
+    const mensagemRetirada = concluidoPorStatus
+        ? "Pedido retirado. Esperamos que goste!"
+        : "Seu pedido está esperando a retirada na loja.";
+    const detalheEntrega = concluido
+        ? "Entrega concluída • produtos disponíveis para avaliação"
+        : previsaoFormatada
+            ? `Dia ${diasDecorridos + 1} de 5 • chegada prevista para ${previsaoFormatada}`
+            : "Prazo estimado de entrega: cinco dias";
+    const detalheRetirada = concluidoPorStatus
+        ? "Retirada concluída • produtos disponíveis para avaliação"
+        : "Aguardando retirada no balcão da loja";
+
+    return {
+        retirada,
+        concluido,
+        cancelado,
+        etapa: cancelado ? 0 : etapa,
+        totalEtapas,
+        mensagem: cancelado ? "Este pedido foi cancelado." : retirada ? mensagemRetirada : mensagensEntrega[etapaMensagem - 1],
+        detalhe: cancelado ? "A progressão deste pedido foi interrompida" : retirada ? detalheRetirada : detalheEntrega,
+        icone: cancelado ? "circle-x" : retirada ? "store" : etapa >= 4 ? "truck" : "package-check"
+    };
+}
+
+function converterDataPedido(valor) {
+    if (valor?.toDate) return valor.toDate();
+    const data = new Date(valor ?? 0);
+    return Number.isNaN(data.getTime()) ? new Date(0) : data;
+}
+
+async function carregarProdutosDoPedido(pedido) {
+    if (pedido.produtosDetalhados) return pedido.produtosDetalhados;
+    const itens = Array.isArray(pedido.produtos) ? pedido.produtos : [];
+    pedido.produtosDetalhados = (await Promise.all(
+        itens.map(async item => {
+            const produtoId = item?.produtoId ?? item?.id;
+            if (!produtoId) return null;
+            const produto = await buscarProdutoPorId(produtoId);
+            return produto ? { produto, quantidade: Number(item.quantidade) || 1 } : null;
+        })
+    )).filter(Boolean);
+    return pedido.produtosDetalhados;
+}
+
+function criarResumoProdutos(produtos) {
+    const lista = criarElemento("ul", "order-products-list");
+    lista.setAttribute("aria-label", `${produtos.length} produto${produtos.length === 1 ? "" : "s"} neste pedido`);
+
+    produtos.forEach(item => {
+        const produto = item.produto;
+        const card = criarElemento("li", "order-product-bubble");
+
+        if (produto?.imagem) {
+            const imagem = document.createElement("img");
+            imagem.src = produto.imagem;
+            imagem.alt = "";
+            card.append(imagem);
+        } else {
+            const icone = document.createElement("i");
+            icone.dataset.lucide = "package";
+            icone.setAttribute("aria-hidden", "true");
+            card.append(icone);
+        }
+
+        const quantidade = item.quantidade > 1 ? ` (${item.quantidade}x)` : "";
+        card.append(criarElemento("span", "bubble-text", `${produto?.nome ?? "Produto"}${quantidade}`));
+        lista.append(card);
+    });
+
+    return lista;
+}
+
+async function renderizarPedidoAtual() {
+    if (!sliderPedidos || !pedidosDoUsuario.length) return;
+    const pedido = pedidosDoUsuario[indicePedidoAtual];
+    const fluxo = obterFluxoPedido(pedido);
+    const produtos = await carregarProdutosDoPedido(pedido);
+    if (pedido !== pedidosDoUsuario[indicePedidoAtual]) return;
+
+    const conteudo = criarElemento("article", "order-slide");
+    conteudo.setAttribute("aria-label", `Pedido ${indicePedidoAtual + 1} de ${pedidosDoUsuario.length}`);
+    conteudo.append(criarResumoProdutos(produtos));
+
+    const status = criarElemento("section", `order-status-wrapper${fluxo.cancelado ? " order-cancelled" : ""}`);
+    const icone = document.createElement("i");
+    icone.dataset.lucide = fluxo.icone;
+    icone.className = "status-icon";
+    icone.setAttribute("aria-hidden", "true");
+    status.append(icone, criarElemento("h4", "status-text", fluxo.mensagem));
+    conteudo.append(status);
+
+    const progresso = criarElemento("div", "order-progress-bar");
+    progresso.setAttribute("role", "progressbar");
+    progresso.setAttribute("aria-label", fluxo.cancelado ? "Pedido cancelado" : `Etapa ${fluxo.etapa} de ${fluxo.totalEtapas}`);
+    progresso.setAttribute("aria-valuemin", "0");
+    progresso.setAttribute("aria-valuemax", String(fluxo.totalEtapas));
+    progresso.setAttribute("aria-valuenow", String(fluxo.etapa));
+    for (let etapa = 1; etapa <= fluxo.totalEtapas; etapa += 1) {
+        progresso.append(criarElemento("span", `progress-step${etapa <= fluxo.etapa ? " active" : ""}`));
+    }
+    conteudo.append(progresso);
+
+    const detalhes = criarElemento("p", "order-delivery-kind", fluxo.detalhe);
+    conteudo.append(detalhes);
+
+    if (fluxo.concluido && !pedido.avaliado && produtos.length) {
+        const avaliar = criarElemento("button", "btn-evaluate", "Avaliar produtos");
+        avaliar.type = "button";
+        avaliar.addEventListener("click", event => abrirAvaliacaoPedido(pedido, produtos, event.currentTarget));
+        conteudo.append(avaliar);
+    }
+
+    sliderPedidos.replaceChildren(conteudo);
+    controlesPedidos.hidden = pedidosDoUsuario.length < 2;
+    posicaoPedido.textContent = `${indicePedidoAtual + 1} de ${pedidosDoUsuario.length}`;
+    inicializarIconesLucide();
+}
+
+function mostrarEstadoSemPedidos() {
+    const vazio = criarElemento("section", "orders-empty");
+    vazio.append(criarElemento("h4", "", "Os status dos seus pedidos aparecerão aqui."));
+    const botao = criarElemento("button", "btn-orders", "Fazer pedido");
+    botao.type = "button";
+    botao.addEventListener("click", () => listaProdutos?.scrollIntoView({ behavior: "smooth" }));
+    vazio.append(botao);
+    sliderPedidos.replaceChildren(vazio);
+    controlesPedidos.hidden = true;
+}
+
+function reiniciarRotacaoPedidos() {
+    clearInterval(temporizadorPedidos);
+    if (pedidosDoUsuario.length > 1 && !rotacaoPedidosPausada) {
+        temporizadorPedidos = setInterval(() => navegarPedidos(1, false), 7000);
+    }
+}
+
+function alternarRotacaoPedidos() {
+    rotacaoPedidosPausada = !rotacaoPedidosPausada;
+    const botao = document.getElementById("toggle-orders-rotation");
+    botao.setAttribute("aria-pressed", String(rotacaoPedidosPausada));
+    botao.setAttribute("aria-label", `${rotacaoPedidosPausada ? "Retomar" : "Pausar"} troca automática de pedidos`);
+    const icone = document.createElement("i");
+    icone.dataset.lucide = rotacaoPedidosPausada ? "play" : "pause";
+    icone.setAttribute("aria-hidden", "true");
+    botao.replaceChildren(icone);
+    inicializarIconesLucide();
+    reiniciarRotacaoPedidos();
+}
+
+function navegarPedidos(direcao, reiniciar = true) {
+    if (pedidosDoUsuario.length < 2) return;
+    indicePedidoAtual = (indicePedidoAtual + direcao + pedidosDoUsuario.length) % pedidosDoUsuario.length;
+    renderizarPedidoAtual();
+    if (reiniciar) reiniciarRotacaoPedidos();
+}
+
+async function carregarPedidosHome() {
+    if (!sliderPedidos) return;
+    try {
+        const usuario = await aguardarUsuario();
+        if (!usuario?.uid) return mostrarEstadoSemPedidos();
+        pedidosDoUsuario = (await listarPedidosUsuario(usuario.uid))
+            .filter(pedido => !pedido.avaliado)
+            .sort((a, b) => converterDataPedido(b.criadoEm) - converterDataPedido(a.criadoEm));
+        if (!pedidosDoUsuario.length) return mostrarEstadoSemPedidos();
+        indicePedidoAtual = 0;
+        await renderizarPedidoAtual();
+        reiniciarRotacaoPedidos();
+    } catch (erro) {
+        console.error("Erro ao carregar pedidos:", erro);
+        sliderPedidos.replaceChildren(criarMensagemEstado("Não foi possível carregar seus pedidos agora."));
+    }
+}
+
+function criarCampoAvaliacao(item, indice) {
+    const fieldset = criarElemento("fieldset", "review-product");
+    fieldset.dataset.produtoId = item.produto.id;
+    const legenda = criarElemento("legend", "sr-only", `Avaliação de ${item.produto.nome}`);
+    const cabecalho = criarElemento("div", "review-product-header");
+    if (item.produto.imagem) {
+        const imagem = document.createElement("img");
+        imagem.src = item.produto.imagem;
+        imagem.alt = "";
+        cabecalho.append(imagem);
+    }
+    cabecalho.append(criarElemento("strong", "", item.produto.nome));
+    const estrelas = criarElemento("div", "review-stars");
+    estrelas.setAttribute("aria-label", `Nota para ${item.produto.nome}`);
+    for (let nota = 5; nota >= 1; nota -= 1) {
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `nota-${indice}`;
+        input.id = `nota-${indice}-${nota}`;
+        input.value = String(nota);
+        input.required = true;
+        const label = criarElemento("label", "", "★");
+        label.htmlFor = input.id;
+        label.title = `${nota} estrela${nota > 1 ? "s" : ""}`;
+        estrelas.append(input, label);
+    }
+    const labelComentario = criarElemento("label", "review-comment-label", "Comentário (opcional)");
+    const comentario = document.createElement("textarea");
+    comentario.name = `comentario-${indice}`;
+    comentario.rows = 3;
+    comentario.maxLength = 500;
+    comentario.placeholder = "Conte o que achou deste produto";
+    labelComentario.append(comentario);
+    fieldset.append(legenda, cabecalho, estrelas, labelComentario);
+    return fieldset;
+}
+
+function abrirAvaliacaoPedido(pedido, produtos, botao) {
+    pedidoEmAvaliacao = pedido;
+    botaoAvaliacaoAtivo = botao;
+    feedbackAvaliacao.textContent = "";
+    listaProdutosAvaliacao.replaceChildren(...produtos.map(criarCampoAvaliacao));
+    clearInterval(temporizadorPedidos);
+    modalAvaliacao.showModal();
+    inicializarIconesLucide();
+}
+
+function fecharAvaliacaoPedido() {
+    modalAvaliacao.close();
+    formularioAvaliacao.reset();
+    pedidoEmAvaliacao = null;
+    botaoAvaliacaoAtivo?.focus();
+    botaoAvaliacaoAtivo = null;
+    reiniciarRotacaoPedidos();
+}
+
+function mostrarToastPedido(mensagem) {
+    document.querySelector(".order-toast")?.remove();
+    const toast = criarElemento("aside", "order-toast");
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.setAttribute("aria-atomic", "true");
+
+    const iconeContainer = criarElemento("span", "order-toast-icon");
+    iconeContainer.setAttribute("aria-hidden", "true");
+    const icone = document.createElement("i");
+    icone.dataset.lucide = "circle-check";
+    iconeContainer.append(icone);
+
+    const conteudo = criarElemento("p", "order-toast-content", mensagem);
+
+    const fechar = criarElemento("button", "order-toast-close");
+    fechar.type = "button";
+    fechar.setAttribute("aria-label", "Fechar confirmação");
+    const iconeFechar = document.createElement("i");
+    iconeFechar.dataset.lucide = "x";
+    iconeFechar.setAttribute("aria-hidden", "true");
+    fechar.append(iconeFechar);
+
+    toast.append(iconeContainer, conteudo, fechar);
+    document.body.append(toast);
+    inicializarIconesLucide();
+
+    let removido = false;
+    const remover = () => {
+        if (removido) return;
+        removido = true;
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    };
+    fechar.addEventListener("click", remover);
+    requestAnimationFrame(() => toast.classList.add("show"));
+    setTimeout(remover, 5000);
+}
+
+async function enviarAvaliacoes(event) {
+    event.preventDefault();
+    if (!pedidoEmAvaliacao) return;
+    const usuario = await aguardarUsuario();
+    if (!usuario?.uid) return;
+    const botaoEnviar = formularioAvaliacao.querySelector(".btn-review-submit");
+    const campos = [...listaProdutosAvaliacao.querySelectorAll(".review-product")];
+    botaoEnviar.disabled = true;
+    feedbackAvaliacao.textContent = "Enviando suas avaliações...";
+    try {
+        const avaliacoes = campos.map((campo, indice) => {
+            const nota = Number(campo.querySelector(`input[name="nota-${indice}"]:checked`)?.value);
+            const comentario = campo.querySelector(`textarea[name="comentario-${indice}"]`).value.trim();
+            return new Avaliacao(null, comentario, new Date().toISOString(), nota, campo.dataset.produtoId, usuario.uid);
+        });
+        await criarAvaliacoesPedido(avaliacoes, pedidoEmAvaliacao.id);
+        const idAvaliado = pedidoEmAvaliacao.id;
+        modalAvaliacao.close();
+        formularioAvaliacao.reset();
+        pedidoEmAvaliacao = null;
+        botaoAvaliacaoAtivo = null;
+        pedidosDoUsuario = pedidosDoUsuario.filter(pedido => pedido.id !== idAvaliado);
+        indicePedidoAtual = Math.min(indicePedidoAtual, Math.max(0, pedidosDoUsuario.length - 1));
+        pedidosDoUsuario.length ? await renderizarPedidoAtual() : mostrarEstadoSemPedidos();
+        reiniciarRotacaoPedidos();
+        mostrarToastPedido("Avaliações enviadas. Obrigado pela sua opinião!");
+    } catch (erro) {
+        console.error("Erro ao avaliar pedido:", erro);
+        feedbackAvaliacao.textContent = "Não foi possível enviar as avaliações. Tente novamente.";
+    } finally {
+        botaoEnviar.disabled = false;
+    }
+}
+
+function inicializarPedidosHome() {
+    document.getElementById("previous-order")?.addEventListener("click", () => navegarPedidos(-1));
+    document.getElementById("next-order")?.addEventListener("click", () => navegarPedidos(1));
+    document.getElementById("toggle-orders-rotation")?.addEventListener("click", alternarRotacaoPedidos);
+    cardPedidos?.addEventListener("mouseenter", () => clearInterval(temporizadorPedidos));
+    cardPedidos?.addEventListener("mouseleave", reiniciarRotacaoPedidos);
+    cardPedidos?.addEventListener("focusin", () => clearInterval(temporizadorPedidos));
+    cardPedidos?.addEventListener("focusout", event => {
+        if (!cardPedidos.contains(event.relatedTarget)) reiniciarRotacaoPedidos();
+    });
+    document.getElementById("close-order-review")?.addEventListener("click", fecharAvaliacaoPedido);
+    document.getElementById("cancel-order-review")?.addEventListener("click", fecharAvaliacaoPedido);
+    modalAvaliacao?.addEventListener("cancel", event => {
+        event.preventDefault();
+        fecharAvaliacaoPedido();
+    });
+    formularioAvaliacao?.addEventListener("submit", enviarAvaliacoes);
+    carregarPedidosHome();
+}
+
+// #endregion
+
+
 // #region Métodos de inicialização
 
 
@@ -1452,5 +1848,6 @@ inicializarModalEndereco();
 inicializarBtnConfirmar();
 inicializarModalBodyListeners();
 inicializarListenersProdutos();
+inicializarPedidosHome();
 
 // #endregion

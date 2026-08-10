@@ -8,6 +8,7 @@ import {
     aplicarConfiguracoesAcessibilidade,
     obterConfiguracoesAcessibilidade
 } from "../services/configuracoesService.js";
+import { buscarUsuarioPorId } from "../services/usuarioService.js";
 
 const ROTAS_AUTENTICACAO = [
     ROTAS.LOGIN,
@@ -26,6 +27,7 @@ const ROTAS_PUBLICAS = [
 const ROTAS_PROTEGIDAS = [
     ROTAS.HOME,
     ROTAS.PERFIL,
+    ROTAS.ADMIN,
     ROTAS.CARRINHO,
     ROTAS.ENDERECO,
     ROTAS.FINALIZAR_PEDIDO,
@@ -88,7 +90,7 @@ export function iniciarRouter() {
         const cancelar =
             onAuthStateChanged(
                 auth,
-                (usuario) => {
+                async (usuario) => {
 
                     cancelar();
 
@@ -108,8 +110,12 @@ export function iniciarRouter() {
                         usuario &&
                         ehRotaAutenticacao(rotaAtual)
                     ) {
+                        const usuarioBanco =
+                            await buscarUsuarioPorId(usuario.uid);
                         redirecionarPara(
-                            ROTAS.HOME
+                            usuarioBanco?.role === "admin"
+                                ? ROTAS.ADMIN
+                                : ROTAS.HOME
                         );
 
                         resolve(false);

@@ -50,7 +50,8 @@ export async function buscarPedido(id) {
         dados.parcelas,
         dados.status,
         dados.usuarioId,
-        dados.criadoEm
+        dados.criadoEm,
+        dados.avaliado ?? false
     );
 }
 
@@ -78,7 +79,8 @@ export async function listarPedidos() {
             dados.parcelas,
             dados.status,
             dados.usuarioId,
-            dados.criadoEm
+            dados.criadoEm,
+            dados.avaliado ?? false
         );
 
     });
@@ -118,7 +120,8 @@ export async function listarPedidosUsuario(
             dados.parcelas,
             dados.status,
             dados.usuarioId,
-            dados.criadoEm
+            dados.criadoEm,
+            dados.avaliado ?? false
         );
 
     });
@@ -159,5 +162,16 @@ export async function atualizarStatusPedido(
         {
             status: status
         }
+    );
+}
+
+export async function marcarPedidoComoAvaliado(id) {
+    if (!id) {
+        throw new Error("Pedido inválido.");
+    }
+
+    await updateDoc(
+        doc(db, "pedidos", id),
+        { avaliado: true }
     );
 }

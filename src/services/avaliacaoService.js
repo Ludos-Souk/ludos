@@ -7,7 +7,9 @@ import {
     addDoc,
     getDocs,
     query,
-    where
+    where,
+    writeBatch,
+    doc
 }
 from
 "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -96,4 +98,24 @@ export async function calcularNotaMedia(
         avaliacoes.length
     );
 
+}
+
+export async function criarAvaliacoesPedido(avaliacoes, pedidoId) {
+    if (!pedidoId || !Array.isArray(avaliacoes) || avaliacoes.length === 0) {
+        throw new Error("Dados da avaliação inválidos.");
+    }
+
+    const lote = writeBatch(db);
+
+    avaliacoes.forEach(avaliacao => {
+        const referencia = doc(collection(db, "avaliacoes"));
+        lote.set(referencia, avaliacao.toFirestore());
+    });
+
+    lote.update(
+        doc(db, "pedidos", pedidoId),
+        { avaliado: true }
+    );
+
+    await lote.commit();
 }
