@@ -5,6 +5,8 @@ import { adicionarProduto, alterarQuantidade, estaNoCarrinho, quantidadeProduto,
 import { ehFavorito, toggleFavorito } from "../../services/favoritosService.js";
 import { buscarProdutoPorId, buscarProdutosAtivos } from "../../services/produtoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
+import { mostrarFeedbackGlobal } from "./utils/asyncFeedback.js";
 // #endregion
 
 // #region Utilitários de UI
@@ -38,6 +40,16 @@ configurarPesquisaCabecalho({
 (function() {
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
     if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
+
+    const btnPerfil = document.querySelector('button[aria-label="Acessar meu perfil"]');
+    if (btnPerfil) btnPerfil.addEventListener('click', () => { window.location.href = ROTAS.PERFIL; });
+
+    const btnFavoritos = document.querySelector('button[aria-label="Ver meus favoritos"]');
+    if (btnFavoritos) {
+        btnFavoritos.addEventListener('click', () => {
+            window.location.href = `${ROTAS.PERFIL}?abrir=favoritos`;
+        });
+    }
 
     const btnFiltro = document.getElementById('btn-filter');
     if (btnFiltro) {

@@ -1503,7 +1503,7 @@ select {
 }
 
 .cart-toast.compact {
-    top: var(--header-height);
+    top: var(--promo-top);
 }
 
 .cart-toast-content {
@@ -2463,23 +2463,54 @@ html.accessibility-dark-theme .order-product-bubble, html.accessibility-dark-the
 
     .cart-toast,
     .cart-toast.compact {
-        top: calc(var(--header-height) + 10px);
+        top: var(--promo-top);
+        bottom: auto;
         right: 14px;
         left: 14px;
-        display: grid;
-        padding: 16px;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 13px;
-        border-radius: 28px;
-    }
-    .cart-toast-content {
-        display: grid;
-        min-width: 0;
-        grid-template-columns: 28px minmax(0, 1fr);
+        width: auto;
+        max-width: 520px;
+        margin-inline: auto;
+        min-height: 0;
+        padding: 15px 16px 14px;
+        align-items: stretch;
+        flex-direction: column;
         gap: 12px;
+        border-radius: 26px;
+        z-index: 1600;
+        box-shadow: 0 14px 38px rgba(0, 0, 0, .22);
     }
-    .cart-toast-content p { overflow-wrap: normal; word-break: normal; }
-    .cart-toast-actions { width: 100%; gap: 10px; }
-    .btn-go-cart { flex: 1; }
-    .btn-close-toast { display: grid; width: 42px; height: 42px; place-items: center; }
+
+    .cart-toast-content {
+        width: 100%;
+        min-width: 0;
+        gap: 12px;
+        padding-right: 42px;
+    }
+    .cart-toast-content p {
+        font-size: 14px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+    .cart-toast-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+    .btn-go-cart {
+        width: 100%;
+        min-height: 42px;
+        padding-inline: 20px;
+        white-space: nowrap;
+    }
+    .btn-close-toast {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 50%;
+    }
+
+    .cart-toast.toast-saindo { transform: translateY(-16px); }
 }

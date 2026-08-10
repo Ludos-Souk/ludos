@@ -15,6 +15,7 @@ const SELETOR_INTERATIVO = [
     "[tabindex]:not([tabindex='-1'])"
 ].join(",");
 const TEMPO_CLIQUE = 1400;
+const MARGEM_CURSOR = 22;
 
 const estado = {
     inicializado: false,
@@ -49,10 +50,10 @@ function obterDialogoAberto() {
 function posicionarCursor(x, y) {
     const dialogo = estado.dialogoAtivo?.open ? estado.dialogoAtivo : null;
     const caixa = dialogo?.getBoundingClientRect();
-    const limiteEsquerdo = caixa ? Math.max(14, caixa.left + 14) : 14;
-    const limiteDireito = caixa ? Math.min(innerWidth - 14, caixa.right - 14) : innerWidth - 14;
-    const limiteSuperior = caixa ? Math.max(14, caixa.top + 14) : 14;
-    const limiteInferior = caixa ? Math.min(innerHeight - 14, caixa.bottom - 14) : innerHeight - 14;
+    const limiteEsquerdo = caixa ? Math.max(MARGEM_CURSOR, caixa.left + MARGEM_CURSOR) : MARGEM_CURSOR;
+    const limiteDireito = caixa ? Math.min(innerWidth - MARGEM_CURSOR, caixa.right - MARGEM_CURSOR) : innerWidth - MARGEM_CURSOR;
+    const limiteSuperior = caixa ? Math.max(MARGEM_CURSOR, caixa.top + MARGEM_CURSOR) : MARGEM_CURSOR;
+    const limiteInferior = caixa ? Math.min(innerHeight - MARGEM_CURSOR, caixa.bottom - MARGEM_CURSOR) : innerHeight - MARGEM_CURSOR;
     estado.posicao = {
         x: Math.max(limiteEsquerdo, Math.min(limiteDireito, x)),
         y: Math.max(limiteSuperior, Math.min(limiteInferior, y))
@@ -70,6 +71,10 @@ function sincronizarCursorComDialogo() {
     estado.dialogoAtivo = dialogo;
 
     const destino = dialogo || document.body;
+    // Elementos mantidos no `body` ficam atrás de um <dialog> modal, pois o
+    // navegador renderiza o modal no top layer. O painel e a mira precisam
+    // acompanhar o diálogo para continuarem visíveis e interativos.
+    if (estado.painel?.parentElement !== destino) destino.append(estado.painel);
     if (estado.cursor.parentElement !== destino) destino.append(estado.cursor);
     if (!mudouDeCamada || !dialogo) return;
 
@@ -96,6 +101,12 @@ function observarDialogos() {
         attributes: true,
         attributeFilter: ["open"]
     });
+
+    // `toggle` cobre navegadores que atualizam o top layer antes de o
+    // MutationObserver entregar a alteração do atributo `open`.
+    document.addEventListener("toggle", sincronizarCursorComDialogo, true);
+    document.addEventListener("close", sincronizarCursorComDialogo, true);
+    document.addEventListener("cancel", sincronizarCursorComDialogo, true);
 }
 
 function atualizarInterruptores(ativo) {
@@ -159,6 +170,8 @@ function calibrar() {
 function elementoInterativoEm(x, y) {
     const elemento = document.elementFromPoint(x, y)?.closest?.(SELETOR_INTERATIVO);
     if (!elemento || elemento.closest("[hidden], [inert]") || elemento.getAttribute("aria-disabled") === "true") return null;
+    const dialogo = estado.dialogoAtivo?.open ? estado.dialogoAtivo : null;
+    if (dialogo && !dialogo.contains(elemento)) return null;
     return elemento;
 }
 
@@ -218,6 +231,9 @@ function moverCursor(ponto, agora) {
 
 function processarFrame() {
     if (!estado.ativo || !estado.video || !estado.detector) return;
+    // Mantém a mira no mesmo top layer do popup. Isso é especialmente
+    // importante nos diálogos administrativos, abertos dinamicamente.
+    sincronizarCursorComDialogo();
     const agora = performance.now();
 
     if (estado.video.readyState >= 2 && estado.video.currentTime !== estado.ultimaExecucao && agora - estado.ultimaInferencia >= 50) {

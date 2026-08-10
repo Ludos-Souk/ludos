@@ -24,7 +24,9 @@ function calcularTotalPedido(payload) {
     return Math.max(0, precoSeguro - descontoSeguro);
 }
 
-function copiarPix() {
+let pedidoPixEmProcessamento = false;
+
+async function copiarPix() {
     const codigo = document.getElementById('pix-code')?.textContent || '';
     if (!codigo) return;
 
@@ -37,6 +39,9 @@ function copiarPix() {
 }
 
 async function processarPedidoPix(payload) {
+    if (pedidoPixEmProcessamento) return;
+    pedidoPixEmProcessamento = true;
+
     const usuario = await aguardarUsuario();
     if (!usuario?.uid) {
         salvarFeedbackNavegacao("Sua sessão expirou. Entre novamente para concluir o pedido.", "error");
@@ -75,6 +80,7 @@ async function processarPedidoPix(payload) {
         });
 
         sessionStorage.removeItem('produtosSelecionados');
+        sessionStorage.removeItem('pedidoFinalizacao');
         window.location.href = ROTAS.SUCESSO_PEDIDO;
     } catch (erro) {
         console.error('Erro ao criar pedido Pix:', erro);
