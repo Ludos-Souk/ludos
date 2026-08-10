@@ -10,7 +10,8 @@ import {
 } from "../../services/favoritosService.js";
 import { aguardarUsuario, obterUid } from "../../services/authService.js";
 import {
-    listarEnderecos
+    listarEnderecos,
+    buscarUsuarioPorId
 } from "../../services/usuarioService.js";
 import {
     toggleCarrinho,
@@ -533,20 +534,22 @@ function inicializarAtendimentoCliente() {
         botaoEnviar.disabled = true;
         formulario.setAttribute('aria-busy', 'true');
         botaoEnviar.textContent = 'Enviando...';
-        feedback.textContent = 'Registrando sua solicitação...';
+        feedback.textContent = 'Enviando sua solicitação...';
         feedback.className = 'support-feedback';
 
         try {
             const usuario = await aguardarUsuario();
-            await criarSolicitacaoAtendimento({
-                usuarioId: usuario?.uid,
-                email: usuario?.email,
+            if (!usuario) {
+                throw new Error('Entre na sua conta para solicitar atendimento.');
+            }
+
+            const usuarioBanco = await buscarUsuarioPorId(usuario.uid).catch(() => null);
+            const resultado = await criarSolicitacaoAtendimento({
+                nome: usuarioBanco?.nome || usuario.displayName,
                 tipo,
                 duvida
             });
-            feedback.textContent = tipo === 'libras'
-                ? 'Atendimento em Libras solicitado com sucesso.'
-                : 'Sua dúvida foi enviada com sucesso.';
+            feedback.textContent = resultado.mensagem;
             feedback.classList.add('success');
             mostrarToastPedido(feedback.textContent);
             formulario.reset();
