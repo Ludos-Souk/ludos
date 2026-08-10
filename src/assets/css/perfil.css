@@ -1,0 +1,193 @@
+/* Estilos exclusivos da página de perfil. A estrutura global vem de home.css. */
+.profile-page { --profile-line: #e7e8ed; }
+
+.header-icon-link {
+    background: var(--btn-yellow);
+    color: #3e3e43;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    transition: var(--transition-default);
+    border: 0;
+}
+
+.header-icon-link:hover { background: var(--btn-yellow-hover); }
+
+.profile-main {
+    margin-top: 200px;
+    min-height: 900px;
+    padding: 38px 60px 110px;
+}
+
+.profile-main .content-handle { margin-bottom: 58px; }
+
+.profile-title {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto 54px;
+}
+.profile-title h2 { font-size: 28px; }
+
+.profile-back {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #e9eaee;
+    display: grid;
+    place-items: center;
+    color: #555;
+}
+
+.profile-overview {
+    display: grid;
+    grid-template-columns: minmax(250px, .72fr) 1.65fr;
+    gap: 34px;
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+}
+
+.identity-card {
+    position: relative;
+    border: none;
+    border-radius: 30px;
+    box-shadow: var(--shadow-card);
+    background: #fff;
+    min-height: 465px;
+    padding: 42px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar { width: 130px; height: 130px; border-radius: 50%; background: #f2f2f2; display: grid; place-items: center; font-size: 42px; }
+.avatar { position: relative; overflow: hidden; }
+.avatar-placeholder { display: grid; width: 100%; height: 100%; place-items: center; }
+.avatar-placeholder svg { width: 42px; height: 42px; }
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.avatar [hidden] { display: none !important; }
+.edit-avatar { border: 0; border-radius: 50%; width: 36px; height: 36px; margin-top: -30px; margin-left: 65px; background: #e6e6e6; display: grid; place-items: center; z-index: 1; }
+.edit-avatar svg { width: 15px; }
+.edit-avatar:disabled { cursor: wait; opacity: .65; }
+.photo-feedback { min-height: 16px; margin-top: 8px; color: var(--text-body); font-size: 11px; text-align: center; }
+.photo-feedback.error { color: var(--color-error); }
+.identity-data { width: 100%; margin-top: 24px; }
+.identity-data div { border-top: 1px solid var(--profile-line); padding: 15px 8px; }
+.identity-data dt { color: #8b8b92; font-size: 12px; margin-bottom: 7px; }
+.identity-data dd { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logout-link { border: 0; border-top: 1px solid var(--profile-line); background: transparent; width: 100%; margin-top: auto; padding: 18px 8px 0; text-align: center; font-weight: 700; font-size: 13px; }
+.logout-link:disabled { cursor: wait; opacity: .55; }
+
+.profile-shortcuts { display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; align-content: start; }
+.shortcut-card {
+    grid-column: span 2;
+    min-height: 170px;
+    padding: 26px;
+    background: #fff;
+    border-radius: 30px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    font-weight: 650;
+    transition: transform .2s ease, box-shadow .2s ease;
+    border: 0;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.shortcut-wide { grid-column: span 3; min-height: 210px; }
+.shortcut-card svg { color: #9b9ba2; width: 22px; height: 22px; }
+.shortcut-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(0,0,0,.12); }
+
+.accessibility-section {
+    width: 100%;
+    max-width: 1120px;
+    margin: 68px auto 0;
+}
+.accessibility-section h2 { font-size: 25px; margin-bottom: 32px; }
+.accessibility-grid { display: grid; grid-template-columns: 1.15fr 1.05fr .75fr; gap: 24px; }
+.font-size-card, .setting-card, .theme-card { background: #fff; border: 0; border-radius: 30px; box-shadow: var(--shadow-card); }
+.font-size-card { min-height: 210px; padding: 28px; display: flex; flex-direction: column; }
+.font-size-card legend, .setting-card > span:first-child, .theme-card > span:first-child { color: #666; font-size: 13px; font-weight: 600; }
+.font-size-card legend { float: left; width: 100%; }
+.font-size-card output { font-size: 32px; margin: 27px 0; }
+.font-size-card input { width: 100%; accent-color: var(--color-primary-light); }
+.toggle-list { display: grid; gap: 22px; padding: 0; border: 0; min-width: 0; }
+.setting-card, .theme-card { min-height: 94px; padding: 24px 28px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+.theme-card { align-items: flex-start; flex-wrap: wrap; }
+.theme-card .switch { margin-top: auto; margin-right: auto; }
+.setting-card input, .theme-card input { position: absolute; opacity: 0; pointer-events: none; }
+.switch { width: 48px; height: 26px; padding: 3px; border-radius: 999px; background: #e7e7e7; display: block; transition: .2s; }
+.switch::after { content: ''; display: block; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px #aaa; transition: .2s; }
+input:checked + .switch { background: var(--color-primary-light); }
+input:checked + .switch::after { transform: translateX(22px); }
+.switch-large { width: 76px; height: 38px; padding: 4px; flex-basis: 76px; }
+.switch-large::after { width: 30px; height: 30px; }
+input:checked + .switch-large::after { transform: translateX(38px); }
+
+html.accessibility-dark-theme .identity-card,
+html.accessibility-dark-theme .shortcut-card,
+html.accessibility-dark-theme .font-size-card,
+html.accessibility-dark-theme .setting-card,
+html.accessibility-dark-theme .theme-card { background: var(--bg-white); color: var(--text-dark); }
+html.accessibility-dark-theme .identity-data div,
+html.accessibility-dark-theme .logout-link { border-color: #555b68; }
+
+.profile-page .address-option-item { position: relative; }
+.profile-page .address-option-card { width: 100%; padding-right: 140px; font-family: inherit; }
+.profile-page .address-option-card[aria-pressed="true"] { border-color: var(--color-primary-light); }
+.profile-page .address-option-content { grid-template-columns: auto 1fr; }
+.profile-page .address-option-actions {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    z-index: 2;
+    display: flex;
+    transform: translateY(-50%);
+}
+.profile-page .address-empty-message { text-align: center; color: var(--text-body); }
+
+@media (max-width: 520px) {
+    .profile-page .address-option-card { padding: 20px; padding-bottom: 76px; }
+    .profile-page .address-option-actions { top: auto; right: 20px; bottom: 18px; transform: none; }
+}
+
+@media (max-width: 900px) {
+    .profile-main { padding-inline: 32px; }
+    .profile-overview { grid-template-columns: 1fr; }
+    .identity-card { min-height: 410px; }
+    .accessibility-grid { grid-template-columns: 1fr 1fr; }
+    .theme-card { min-height: 210px; }
+}
+
+@media (max-width: 700px) {
+    .profile-header { padding-inline: 18px; }
+    .profile-header .search-bar { display: none; }
+    .profile-header .logo img { height: 75px; }
+    .profile-header .header-icons ul { gap: 8px; }
+    .header-icon-link { width: 38px; height: 38px; font-size: 19px; }
+    .profile-main { margin-top: 165px; padding: 28px 18px 70px; border-radius: 38px; }
+    .profile-main .content-handle { width: 140px; margin-bottom: 38px; }
+    .profile-title { margin-bottom: 34px; }
+    .profile-title h2 { font-size: 22px; }
+    .profile-shortcuts { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .shortcut-card, .shortcut-wide { grid-column: span 1; min-height: 140px; border-radius: 24px; padding: 20px; }
+    .profile-shortcuts .shortcut-card:last-child { grid-column: 1 / -1; }
+    .accessibility-grid { grid-template-columns: 1fr; }
+    .theme-card { min-height: 110px; }
+}
+
+@media (max-width: 430px) {
+    .profile-header .header-icons li:first-child { display: none; }
+    .profile-overview, .profile-shortcuts { gap: 12px; }
+    .identity-card { border: 0; }
+}

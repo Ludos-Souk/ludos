@@ -421,3 +421,23 @@ button[type="submit"]:active {
         font-size: 26px;
     }
 }
+
+/* Preferências globais de acessibilidade, aplicadas pelo router.js. */
+html.accessibility-dyslexic-font body,
+html.accessibility-dyslexic-font body * {
+    font-family: Arial, Verdana, sans-serif !important;
+    letter-spacing: .04em;
+}
+html.accessibility-high-contrast body { filter: contrast(1.35); }
+html.accessibility-dark-theme body {
+    --bg-white: #20232b;
+    --bg-input: #30343e;
+    --text-dark: #f7f7f7;
+    --text-body: #d1d5db;
+    --text-muted: #b8bdc8;
+    background: #20232b;
+    color: #f7f7f7;
+}
+html.accessibility-dark-theme .container,
+html.accessibility-dark-theme .auth { background: #20232b; color: #f7f7f7; }
+html.accessibility-dark-theme input { background: #30343e; color: #f7f7f7; }

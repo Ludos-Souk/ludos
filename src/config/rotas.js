@@ -2,6 +2,7 @@
 // quanto no GitHub Pages, pois a navegação sempre parte de uma página dessa pasta.
 export const ROTAS = Object.freeze({
     HOME: "home.html",
+    PERFIL: "perfil.html",
     LOGIN: "login.html",
     CADASTRO: "cadastro.html",
     ESQUECI_SENHA: "esqueciSenha.html",

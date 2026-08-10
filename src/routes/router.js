@@ -4,6 +4,10 @@ import {
 
 import { auth } from "../config/firebase.js";
 import { ROTAS } from "../config/rotas.js";
+import {
+    aplicarConfiguracoesAcessibilidade,
+    obterConfiguracoesAcessibilidade
+} from "../services/configuracoesService.js";
 
 const ROTAS_AUTENTICACAO = [
     ROTAS.LOGIN,
@@ -21,6 +25,7 @@ const ROTAS_PUBLICAS = [
 
 const ROTAS_PROTEGIDAS = [
     ROTAS.HOME,
+    ROTAS.PERFIL,
     ROTAS.CARRINHO,
     ROTAS.ENDERECO,
     ROTAS.FINALIZAR_PEDIDO,
@@ -61,6 +66,16 @@ export function redirecionarPara(rota) {
     if (obterRotaAtual() !== rota) {
         window.location.replace(rota);
     }
+}
+
+function iniciarNavegacaoGlobal() {
+    const botaoPerfil = document.querySelector(
+        'button[aria-label="Acessar meu perfil"]'
+    );
+
+    botaoPerfil?.addEventListener("click", () => {
+        window.location.href = ROTAS.PERFIL;
+    });
 }
 
 export function iniciarRouter() {
@@ -107,4 +122,6 @@ export function iniciarRouter() {
     });
 }
 
+aplicarConfiguracoesAcessibilidade(obterConfiguracoesAcessibilidade());
+iniciarNavegacaoGlobal();
 iniciarRouter();

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu perfil | Ludos</title>
+    <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="../assets/css/perfil.css">
+</head>
+<body id="topo" class="profile-page">
+    <header class="header sem-banner profile-header">
+        <h1 class="logo">
+            <a href="home.html" aria-label="Ir para a página inicial">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos">
+            </a>
+        </h1>
+
+        <search class="search-bar">
+            <form class="search-form" role="search">
+                <label for="search-input" class="sr-only">Buscar boneco</label>
+                <i class="search-icon" data-lucide="search" aria-hidden="true"></i>
+                <input type="search" id="search-input" placeholder="Buscar Boneco">
+                <button type="button" class="mic-btn" aria-label="Pesquisar por voz">
+                    <i data-lucide="mic" aria-hidden="true"></i>
+                </button>
+            </form>
+        </search>
+
+        <nav class="header-icons" aria-label="Menu principal do usuário">
+            <ul>
+                <li><button class="header-icon-link" id="profile-filter-button" type="button" aria-label="Abrir filtros de produtos"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></li>
+                <li><a class="header-icon-link" href="perfil.html" aria-current="page" aria-label="Acessar meu perfil"><i data-lucide="circle-user" aria-hidden="true"></i></a></li>
+                <li><a class="header-icon-link" href="#" aria-label="Ver meus favoritos"><i data-lucide="heart" aria-hidden="true"></i></a></li>
+                <li><a class="header-icon-link" href="carrinho.html" aria-label="Ver meu carrinho"><i data-lucide="shopping-cart" aria-hidden="true"></i></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content profile-main">
+        <span class="content-handle" aria-hidden="true"></span>
+
+        <header class="profile-title">
+            <a href="home.html" class="profile-back" aria-label="Voltar para a página inicial"><i data-lucide="arrow-left" aria-hidden="true"></i></a>
+            <h2>Meu perfil</h2>
+        </header>
+
+        <section class="profile-overview" aria-labelledby="profile-overview-title">
+            <h2 id="profile-overview-title" class="sr-only">Informações e opções da conta</h2>
+
+            <article class="identity-card" aria-labelledby="identity-title">
+                <h3 id="identity-title" class="sr-only">Dados pessoais</h3>
+                <div class="avatar">
+                    <span id="avatar-placeholder" class="avatar-placeholder" aria-hidden="true">
+                        <i data-lucide="user-round"></i>
+                    </span>
+                    <img id="profile-avatar" src="" alt="" hidden>
+                </div>
+                <input class="sr-only" id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help">
+                <span id="photo-help" class="sr-only">Escolha uma imagem JPG, PNG ou WebP de até 5 MB.</span>
+                <button class="edit-avatar" id="edit-avatar-button" type="button" aria-label="Escolher foto do perfil" disabled><i data-lucide="pencil" aria-hidden="true"></i></button>
+                <p id="photo-feedback" class="photo-feedback" aria-live="polite"></p>
+                <dl class="identity-data">
+                    <div><dt>Nome</dt><dd id="profile-name" aria-live="polite">Carregando...</dd></div>
+                    <div><dt>E-mail vinculado</dt><dd id="profile-email" aria-live="polite">Carregando...</dd></div>
+                </dl>
+                <button class="logout-link" id="logout-button" type="button">Sair</button>
+            </article>
+
+            <nav class="profile-shortcuts" aria-label="Opções da conta">
+                <button type="button" id="open-address-modal" class="shortcut-card shortcut-wide"><i data-lucide="map-pin" aria-hidden="true"></i><span>Endereços</span></button>
+                <a href="cartao.html" class="shortcut-card shortcut-wide"><i data-lucide="credit-card"></i><span>Cartões</span></a>
+                <a href="#" class="shortcut-card"><i data-lucide="heart"></i><span>Favoritos</span></a>
+                <a href="#" class="shortcut-card"><i data-lucide="clipboard-list"></i><span>Meus pedidos</span></a>
+                <a href="avaliacaoProduto.html" class="shortcut-card"><i data-lucide="star"></i><span>Minhas avaliações</span></a>
+            </nav>
+        </section>
+
+        <section class="accessibility-section" aria-labelledby="accessibility-title">
+            <h2 id="accessibility-title">Acessibilidade</h2>
+            <div class="accessibility-grid">
+                <fieldset class="font-size-card">
+                    <legend>Tamanho do texto</legend>
+                    <output id="font-preview" for="font-size" aria-live="polite">Aa</output>
+                    <input id="font-size" type="range" min="90" max="120" value="100" step="5" aria-label="Ajustar tamanho do texto" aria-valuetext="Tamanho padrão">
+                </fieldset>
+
+                <fieldset class="toggle-list">
+                    <legend class="sr-only">Preferências de leitura</legend>
+                    <label class="setting-card" for="dyslexic-font"><span>Dyslexic Font</span><input id="dyslexic-font" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+                    <label class="setting-card" for="high-contrast"><span>Alto contraste</span><input id="high-contrast" type="checkbox" role="switch"><span class="switch" aria-hidden="true"></span></label>
+                </fieldset>
+
+                <label class="theme-card" for="dark-theme"><span>Tema</span><input id="dark-theme" type="checkbox" role="switch"><span class="switch switch-large" aria-hidden="true"></span></label>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-wrapper">
+        <section class="footer-grid">
+            <section class="footer-col">
+                <img src="../assets/images/logo_2.png" alt="Logotipo Ludos" class="footer-logo">
+                <h4>INFORMAÇÕES DE CONTATO</h4>
+                <address><p><i data-lucide="mail" aria-hidden="true"></i> ludos.loja@gmail.com</p><p><i data-lucide="phone" aria-hidden="true"></i> (11) 99250-0693</p></address>
+            </section>
+            <nav class="footer-col" aria-label="Links rápidos"><h4>LINKS RÁPIDOS</h4><p><a href="#topo" class="footer-link">Voltar ao início <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p></nav>
+            <nav class="footer-col" aria-label="Ajuda"><h4>AJUDA</h4><p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p></nav>
+        </section>
+        <hr class="footer-divider">
+        <section class="footer-bottom"><p>Política de privacidade &copy; 2026</p></section>
+    </footer>
+
+    <dialog id="modal-endereco" class="modal-endereco" aria-labelledby="modal-titulo">
+        <article class="modal-content">
+            <header class="modal-header">
+                <h2 id="modal-titulo" class="modal-title">Escolha um endereço de entrega</h2>
+                <button type="button" class="btn-close-modal" id="btn-fechar-modal" aria-label="Fechar seleção de endereço">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </header>
+            <section class="modal-body modal-body-empty" id="address-modal-body" aria-live="polite">
+                <p>Carregando endereços...</p>
+            </section>
+            <footer class="modal-footer">
+                <button type="button" class="btn-confirmar" id="confirm-address">Confirmar</button>
+                <button type="button" class="btn-adicionar" id="add-address">Adicionar endereço</button>
+            </footer>
+        </article>
+    </dialog>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="../routes/router.js"></script>
+    <script type="module" src="../assets/js/perfil.js"></script>
+</body>
+</html>

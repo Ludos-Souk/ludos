@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnStatus) {
         btnStatus.addEventListener('click', function (event) {
             event.preventDefault();
-            window.location.href = ROTAS.HOME;
+            window.location.href = ROTAS.PERFIL;
         });
     }
 

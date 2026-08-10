@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnPerfil = document.querySelector('button[aria-label="Acessar meu perfil"]');
     if (btnPerfil) {
         btnPerfil.addEventListener('click', function () {
-            window.location.href = ROTAS.HOME;
+            window.location.href = ROTAS.PERFIL;
         });
     }
 
