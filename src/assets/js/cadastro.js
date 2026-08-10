@@ -2,6 +2,7 @@ import { ROTAS } from "../../config/rotas.js";
 import { cadastro } from "../../services/authService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 import { inicializarVisibilidadeSenhas } from "./utils/passwordVisibility.js";
+import { mostrarFeedbackGlobal, salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
 
 inicializarVisibilidadeSenhas();
 
@@ -33,9 +34,17 @@ formulario.addEventListener("submit", async function (event) {
 
     try {
         await cadastro(nome, email, senha);
+        salvarFeedbackNavegacao("Conta criada com sucesso. Bem-vindo à Ludos!");
         irParaHome();
     } catch (erro) {
-        console.log(erro.message);
+        const mensagens = {
+            "auth/email-already-in-use": "Este e-mail já está vinculado a uma conta.",
+            "auth/invalid-email": "Digite um e-mail válido.",
+            "auth/weak-password": "Escolha uma senha mais segura, com pelo menos 6 caracteres."
+        };
+        const mensagem = mensagens[erro.code] || "Não foi possível criar sua conta. Tente novamente.";
+        mostrarErro("erro-email", mensagem, "email");
+        mostrarFeedbackGlobal(mensagem, "error");
         restaurar();
     }
 });

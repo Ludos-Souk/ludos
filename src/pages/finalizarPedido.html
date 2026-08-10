@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
     <link rel="stylesheet" href="../assets/css/finalizarPedido.css">
+    <link rel="stylesheet" href="../assets/css/accessibility.css">
 </head>
 <body id="topo">
 
@@ -148,9 +149,14 @@
                         <dd id="resumo-produto">R$ 0,00</dd>
 
                         <dt>Desconto</dt>
-                        <dd class="summary-multiline-col">
+                        <dd class="summary-multiline-col summary-discount-col">
                             <span id="resumo-desconto">R$ 0,00</span>
                             <small id="resumo-desconto-text"></small>
+                            <button type="button" id="btn-adicionar-cupom" class="btn-summary-coupon" aria-haspopup="dialog" aria-controls="modal-cupom">Adicionar cupom</button>
+                            <span class="summary-coupon-applied" id="resumo-cupom-aplicado" hidden>
+                                <small id="resumo-cupom-text"></small>
+                                <button type="button" id="btn-alterar-cupom" aria-label="Alterar cupom aplicado"><i data-lucide="pencil" aria-hidden="true"></i></button>
+                            </span>
                         </dd>
 
                         <dt>Frete</dt>
@@ -221,6 +227,22 @@
                 <button type="button" class="btn-adicionar">Adicionar endereço</button>
             </footer>
         </article>
+    </dialog>
+
+    <dialog id="modal-cupom" class="coupon-checkout-dialog" aria-labelledby="coupon-checkout-title">
+        <form id="form-aplicar-cupom" class="coupon-checkout-card">
+            <button type="button" class="coupon-checkout-close" data-close-coupon aria-label="Fechar janela de cupom"><i data-lucide="x" aria-hidden="true"></i></button>
+            <span class="coupon-checkout-icon" aria-hidden="true"><i data-lucide="badge-percent"></i></span>
+            <h3 id="coupon-checkout-title">Adicionar cupom</h3>
+            <p>Digite o código para verificar o desconto disponível.</p>
+            <label class="coupon-checkout-field">
+                <span class="sr-only">Código do cupom</span>
+                <input id="codigo-cupom" name="codigo" type="text" placeholder="Código do cupom" autocomplete="off" maxlength="30" required>
+            </label>
+            <p id="coupon-checkout-feedback" class="coupon-checkout-feedback" role="status" aria-live="polite"></p>
+            <button type="submit" class="coupon-checkout-redeem">Resgatar</button>
+            <button type="button" id="btn-remover-cupom" class="coupon-checkout-remove" hidden>Remover cupom aplicado</button>
+        </form>
     </dialog>
 
     <script src="https://unpkg.com/lucide@latest"></script>

@@ -6,6 +6,7 @@
     <title>Administração | Ludos</title>
     <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/accessibility.css">
 </head>
 <body id="topo">
     <header class="admin-header">
@@ -17,12 +18,12 @@
             <label class="sr-only" for="admin-search-input">Buscar boneco</label>
             <i data-lucide="search" aria-hidden="true"></i>
             <input id="admin-search-input" type="search" placeholder="Buscar Boneco">
-            <button type="button" aria-label="Pesquisar por voz"><i data-lucide="mic" aria-hidden="true"></i></button>
+            <button type="button" class="mic-btn" aria-label="Pesquisar por voz" aria-pressed="false"><i data-lucide="mic" aria-hidden="true"></i></button>
         </form>
 
         <nav class="admin-header-actions" aria-label="Ações administrativas">
             <div class="admin-filter-wrapper">
-                <button type="button" id="admin-filter-button" aria-label="Abrir ordenação de produtos" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-filter-popup"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button>
+                <button type="button" id="admin-filter-button" aria-label="Abrir ordenação de produtos" aria-haspopup="menu" aria-expanded="false" aria-controls="admin-filter-popup"><i data-lucide="arrow-up-down" aria-hidden="true"></i></button>
                 <section id="admin-filter-popup" class="admin-filter-popup" aria-labelledby="admin-filter-title" hidden>
                     <h2 id="admin-filter-title">Ordenar por</h2>
                     <menu role="menu">
@@ -34,6 +35,7 @@
                     </menu>
                 </section>
             </div>
+            <button type="button" id="admin-accessibility-button" data-open-dialog="admin-accessibility-dialog" aria-label="Abrir configurações de acessibilidade" aria-haspopup="dialog"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button>
             <a href="login.html" aria-label="Sair da área administrativa"><i data-lucide="log-out" aria-hidden="true"></i></a>
         </nav>
     </header>
@@ -127,7 +129,58 @@
         </form>
     </dialog>
 
-    <dialog id="coupon-dialog" class="admin-dialog admin-dialog-small" aria-labelledby="coupon-title"><form id="create-coupon-form" class="dialog-card"><header class="dialog-header"><h2 id="coupon-title">Cadastrar cupom</h2><button type="button" data-close-dialog aria-label="Fechar"><i data-lucide="x"></i></button></header><fieldset class="fields-grid"><legend class="sr-only">Dados do cupom</legend><label><span>Código</span><input name="codigo" placeholder="Ex.: LUDOS10" required></label><label><span>Desconto (%)</span><input name="desconto" type="number" min="0.01" max="100" step="0.01" required></label><label><span>Validade</span><input name="validade" type="date" required></label><label><span>Ativo</span><select name="ativo"><option value="true">Sim</option><option value="false">Não</option></select></label></fieldset><footer class="dialog-actions"><button class="button button-primary" type="submit">Cadastrar cupom</button></footer></form></dialog>
+    <dialog id="coupon-dialog" class="admin-dialog admin-dialog-small coupon-dialog" aria-labelledby="coupon-title">
+        <form id="create-coupon-form" class="dialog-card coupon-dialog-card" autocomplete="off">
+            <button type="button" class="coupon-dialog-close" data-close-dialog aria-label="Fechar cadastro de cupom">
+                <i data-lucide="x" aria-hidden="true"></i>
+            </button>
+            <span class="coupon-dialog-icon" aria-hidden="true"><i data-lucide="badge-percent"></i></span>
+            <h2 id="coupon-title">Cadastrar cupom</h2>
+            <fieldset class="coupon-fields">
+                <legend class="sr-only">Dados do novo cupom</legend>
+                <label><span class="sr-only">Código do cupom</span><input name="codigo" type="text" placeholder="Código do cupom" autocomplete="off" required></label>
+                <label><span class="sr-only">Porcentagem de desconto</span><input name="desconto" type="number" min="0.01" max="100" step="0.01" placeholder="Porcentagem de desconto" required></label>
+                <label class="coupon-date-field"><span>Data de validade do cupom</span><input name="validade" type="date" aria-label="Data de validade do cupom" required></label>
+                <input name="ativo" type="hidden" value="true">
+            </fieldset>
+            <footer class="coupon-dialog-actions"><button class="button button-primary" type="submit">Cadastrar cupom</button></footer>
+        </form>
+    </dialog>
+
+    <dialog id="admin-accessibility-dialog" class="admin-dialog admin-accessibility-dialog" aria-labelledby="admin-accessibility-title">
+        <article class="dialog-card admin-accessibility-card">
+            <header class="dialog-header admin-accessibility-header">
+                <div>
+                    <p class="eyebrow">Preferências de leitura</p>
+                    <h2 id="admin-accessibility-title">Acessibilidade</h2>
+                </div>
+                <button type="button" data-close-dialog aria-label="Fechar configurações de acessibilidade"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+
+            <section class="admin-accessibility-grid" aria-label="Configurações de acessibilidade">
+                <fieldset class="admin-font-card">
+                    <legend>Tamanho do texto</legend>
+                    <output id="admin-font-preview" for="admin-font-size" aria-live="polite">Aa</output>
+                    <input id="admin-font-size" type="range" min="90" max="120" value="100" step="5" aria-label="Ajustar tamanho do texto" aria-valuetext="100% do tamanho padrão">
+                </fieldset>
+
+                <fieldset class="admin-accessibility-toggles">
+                    <legend class="sr-only">Preferências de leitura</legend>
+                    <label class="admin-setting-card" for="admin-dyslexic-font">
+                        <span>Dyslexic Font</span>
+                        <input id="admin-dyslexic-font" type="checkbox" role="switch">
+                        <span class="switch admin-access-switch" aria-hidden="true"></span>
+                    </label>
+                    <label class="admin-setting-card" for="admin-eye-tracking">
+                        <span>Eye Tracking <small>Navegação facial</small></span>
+                        <input id="admin-eye-tracking" type="checkbox" role="switch" aria-describedby="admin-eye-tracking-help">
+                        <span class="switch admin-access-switch" aria-hidden="true"></span>
+                    </label>
+                    <span id="admin-eye-tracking-help" class="sr-only">Permite navegar por movimentos do rosto usando a câmera. O vídeo é processado somente neste dispositivo.</span>
+                </fieldset>
+            </section>
+        </article>
+    </dialog>
 
     <dialog id="delete-dialog" class="admin-dialog admin-dialog-small" aria-labelledby="delete-title"><form id="delete-product-form" class="dialog-card"><header class="dialog-header"><h2 id="delete-title">Excluir produto?</h2><button type="button" data-close-dialog aria-label="Fechar"><i data-lucide="x"></i></button></header><p>Essa ação removerá permanentemente o produto selecionado. Deseja continuar?</p><footer class="dialog-actions"><button class="button button-neutral" type="button" data-close-dialog>Cancelar</button><button class="button button-danger" type="submit">Excluir</button></footer></form></dialog>
 

@@ -134,6 +134,42 @@ input[type="checkbox"]:checked + .custom-checkbox {
     gap: 24px;
 }
 
+.cart-state {
+    grid-column: 1 / -1;
+    display: grid;
+    min-height: 220px;
+    padding: 36px 28px;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    border-radius: var(--radius-lg, 46px);
+    background: var(--bg-white, #fff);
+    color: var(--text-dark, #222);
+    text-align: center;
+    box-shadow: var(--shadow-card, 0 10px 30px rgba(0,0,0,.08));
+}
+
+.cart-state h3,
+.cart-state p {
+    margin: 0;
+}
+
+.cart-state h3 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.25;
+}
+
+.cart-state p {
+    max-width: 36ch;
+    color: var(--text-muted, #777);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.cart-state.error {
+    color: var(--color-error, #a72b3a);
+}
+
 .cart-product-card {
     background: var(--bg-white, #ffffff);
     padding: 24px; 

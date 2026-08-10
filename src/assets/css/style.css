@@ -6,17 +6,17 @@
 :root {
     /* Cores principais */
     --color-primary:       #15338B;
-    --color-primary-light: #6B8CFF;
-    --color-primary-soft:  #C8D2FF;
+    --color-primary-light: #2F6BFF;
+    --color-primary-soft:  #9CBAFF;
 
     /* Backgrounds */
-    --bg-main:  #F4F5F9;
+    --bg-main:  #ececec;
     --bg-white: #ffffff;
     --bg-input: #F4F4F4;
 
     /* Textos */
-    --text-dark:        #222222;
-    --text-muted:       #666666;
+    --text-dark:        #102a67;
+    --text-muted:       #4e5d87;
     --text-placeholder: #9A9A9A;
     --text-body:        #555;
 
@@ -24,9 +24,9 @@
     --color-error: #EF4444;
 
     /* Botão amarelo */
-    --btn-yellow:      #FFDC7A;
+    --btn-yellow:      #FFD978;
     --btn-yellow-dark: #ffcc00;
-    --btn-yellow-text: #333333;
+    --btn-yellow-text: #6A5423;
 
     /* Tipografia */
     --font-primary:   "Montserrat", sans-serif;
@@ -62,11 +62,11 @@ body {
 }
 
 body {
-    font-family: var(--font-secondary);
+    font-family: var(--font-primary);
     font-optical-sizing: auto;
     font-weight: 400;
     background: var(--bg-main);
-    color: var(--text-dark);
+    color: var(--color-primary);
 }
 
 /* ============================================================
@@ -255,7 +255,7 @@ form {
     border-radius: var(--radius-pill);
     padding: 0 48px 0 22px;
     transition: var(--transition-default);
-    color: var(--text-dark);
+    color: var(--color-primary);
 }
 
 h1, h2, h3, h4, .switch {
@@ -265,8 +265,8 @@ h1, h2, h3, h4, .switch {
 .input-group input:-webkit-autofill,
 .input-group input:-webkit-autofill:hover,
 .input-group input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--text-dark);
-    caret-color: var(--text-dark);
+    -webkit-text-fill-color: var(--color-primary);
+    caret-color: var(--color-primary);
     box-shadow: 0 0 0 1000px var(--bg-input) inset;
     border-radius: var(--radius-pill);
     transition: background-color 9999s ease-out 0s;
@@ -274,7 +274,7 @@ h1, h2, h3, h4, .switch {
 
 .input-group input:autofill {
     background: var(--bg-input);
-    color: var(--text-dark);
+    color: var(--color-primary);
     filter: none;
 }
 

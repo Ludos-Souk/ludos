@@ -13,6 +13,8 @@ import {
     obterUid,
     aguardarUsuario
 } from "../../services/authService.js";
+import { mostrarFeedbackGlobal, salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
 // #endregion
 
 
@@ -23,10 +25,7 @@ if (window.lucide) {
 
 // Cabeçalho / busca
 const header = document.querySelector('.header');
-const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
-const btnMicrofone = document.querySelector('.mic-btn');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // Navegação
 const btnVoltar = document.querySelector('.btn-back');
@@ -80,19 +79,18 @@ function alterarEnderecoSelecionado() {
 }
 
 async function carregarEnderecoParaEdicao(enderecoId) {
-    const usuario = await aguardarUsuario();
+    formulario?.setAttribute("aria-busy", "true");
+    try {
+        const usuario = await aguardarUsuario();
 
-    if (!usuario) {
-        console.log("Usuário não autenticado");
-        return;
-    }
+        if (!usuario) {
+            throw new Error("Sua sessão expirou. Entre novamente para editar o endereço.");
+        }
 
-    const endereco = await buscarEnderecoPorId(
-        obterUid(),
-        enderecoId,
-    );
+        const endereco = await buscarEnderecoPorId(obterUid(), enderecoId);
+        if (!endereco) throw new Error("O endereço selecionado não foi encontrado.");
 
-    if (botao) botao.textContent = "Alterar";
+        if (botao) botao.textContent = "Alterar";
 
     if (inputEtiqueta) inputEtiqueta.value = endereco.etiqueta || "";
     if (inputCep) inputCep.value = endereco.cep || "";
@@ -104,7 +102,12 @@ async function carregarEnderecoParaEdicao(enderecoId) {
     if (inputComplemento) inputComplemento.value = endereco.complemento || "";
     if (inputInfoAdicionais) inputInfoAdicionais.value = endereco.informacoesAdicionais || "";
     if (inputNome) inputNome.value = endereco.nome || "";
-    if (inputEmail) inputEmail.value = endereco.email || "";
+        if (inputEmail) inputEmail.value = endereco.email || "";
+    } catch (erro) {
+        mostrarFeedbackGlobal(erro.message || "Não foi possível carregar o endereço.", "error");
+    } finally {
+        formulario?.setAttribute("aria-busy", "false");
+    }
 }
 
 
@@ -134,61 +137,6 @@ function inicializarScrollHeader() {
         });
     }
 })();
-
-
-// --- Pesquisa por voz (Speech Recognition) ---
-
-function inicializarPesquisaPorVoz() {
-    if (!btnMicrofone) return;
-
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            if (inputBusca) inputBusca.value = textoFalado;
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento: " + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-
-    } else {
-        alert("Seu navegador não tem suporte para pesquisa por voz.");
-    }
-}
-
-
-// --- Formulário de busca ---
-
-function inicializarFormularioBusca() {
-    if (!searchForm) return;
-
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        const busca = inputBusca ? inputBusca.value.trim() : "";
-
-        if (busca) {
-            sessionStorage.setItem("href-pesquisa", busca);
-            window.location.href = ROTAS.HOME;
-        }
-    });
-}
 
 
 // --- Navegação (voltar) ---
@@ -249,6 +197,8 @@ function inicializarInputsClear() {
 async function carregarEstados() {
     if (!selectUf) return;
 
+    selectUf.disabled = true;
+    selectUf.setAttribute("aria-busy", "true");
     try {
         const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
         const estados = await response.json();
@@ -279,6 +229,10 @@ async function carregarEstados() {
             option.textContent = label;
             selectUf.appendChild(option);
         });
+        mostrarFeedbackGlobal("Não foi possível carregar todos os estados. Exibimos opções básicas.", "error");
+    } finally {
+        selectUf.disabled = false;
+        selectUf.setAttribute("aria-busy", "false");
     }
 }
 
@@ -286,6 +240,8 @@ async function carregarEstados() {
 // --- Preenchimento automático via CEP ---
 
 async function preencherEnderecoPeloCep(cep) {
+    if (cep.replace(/\D/g, "").length !== 8) return;
+    inputCep?.setAttribute("aria-busy", "true");
     try {
         const dados = await buscarCep(cep);
 
@@ -293,8 +249,12 @@ async function preencherEnderecoPeloCep(cep) {
         if (selectUf) selectUf.value = dados.uf || "";
         if (inputCidade) inputCidade.value = dados.localidade || "";
         if (inputBairro) inputBairro.value = dados.bairro || "";
+        mostrarFeedbackGlobal("Endereço preenchido a partir do CEP.");
     } catch (erro) {
         console.error(erro.message);
+        mostrarFeedbackGlobal(erro.message || "Não foi possível localizar este CEP.", "error");
+    } finally {
+        inputCep?.setAttribute("aria-busy", "false");
     }
 }
 
@@ -328,8 +288,7 @@ function inicializarFormularioEndereco() {
             const uid = obterUid();
 
             if (!uid) {
-                console.log("Usuário não autenticado.");
-                return;
+                throw new Error("Sua sessão expirou. Entre novamente para salvar o endereço.");
             }
 
             const endereco = new Endereco(
@@ -360,9 +319,16 @@ function inicializarFormularioEndereco() {
                 })
             );
 
+            salvarFeedbackNavegacao(
+                editEndereco ? "Endereço atualizado com sucesso." : "Endereço adicionado com sucesso."
+            );
             window.location.href = ROTAS.HOME;
         } catch (erro) {
             console.error(erro);
+            mostrarFeedbackGlobal(
+                erro.message || "Não foi possível salvar o endereço. Revise os dados e tente novamente.",
+                "error"
+            );
             if (botao) {
                 botao.textContent = editEndereco ? "Alterar" : "Adicionar";
                 botao.disabled = false;
@@ -378,10 +344,16 @@ function inicializarFormularioEndereco() {
 
 inicializarIconesLucide();
 inicializarScrollHeader();
-inicializarPesquisaPorVoz();
+configurarPesquisaCabecalho({
+    input: inputBusca,
+    aoPesquisar: (busca) => {
+        if (!busca) return;
+        sessionStorage.setItem("href-pesquisa", busca);
+        window.location.href = ROTAS.HOME;
+    }
+});
 inicializarBtnVoltar();
 inicializarInputsClear();
-inicializarFormularioBusca();
 inicializarCepAutoPreenchimento();
 inicializarFormularioEndereco();
 

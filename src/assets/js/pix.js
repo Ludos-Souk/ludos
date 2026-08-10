@@ -4,6 +4,8 @@ import { criarPedido } from "../../services/pedidoService.js";
 import { aguardarUsuario } from "../../services/authService.js";
 import { removerProduto } from "../../services/carrinhoService.js";
 import { reduzirEstoqueProduto } from "../../services/produtoService.js";
+import { mostrarFeedbackGlobal, salvarFeedbackNavegacao } from "./utils/asyncFeedback.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
 
 function formatarMoeda(valor) {
     const numero = Number(valor);
@@ -26,12 +28,18 @@ function copiarPix() {
     const codigo = document.getElementById('pix-code')?.textContent || '';
     if (!codigo) return;
 
-    navigator.clipboard.writeText(codigo).catch(() => {});
+    try {
+        await navigator.clipboard.writeText(codigo);
+        mostrarFeedbackGlobal("Código Pix copiado com sucesso.");
+    } catch {
+        mostrarFeedbackGlobal("Não foi possível copiar o código Pix. Selecione e copie manualmente.", "error");
+    }
 }
 
 async function processarPedidoPix(payload) {
     const usuario = await aguardarUsuario();
     if (!usuario?.uid) {
+        salvarFeedbackNavegacao("Sua sessão expirou. Entre novamente para concluir o pedido.", "error");
         window.location.href = ROTAS.ERRO_PEDIDO;
         return;
     }
@@ -70,6 +78,7 @@ async function processarPedidoPix(payload) {
         window.location.href = ROTAS.SUCESSO_PEDIDO;
     } catch (erro) {
         console.error('Erro ao criar pedido Pix:', erro);
+        salvarFeedbackNavegacao("Não foi possível confirmar o pedido por Pix. Tente novamente.", "error");
         window.location.href = ROTAS.ERRO_PEDIDO;
     }
 }
@@ -119,6 +128,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (window.lucide) {
         window.lucide.createIcons();
     }
+
+    configurarPesquisaCabecalho({
+        aoPesquisar: (busca) => {
+            if (!busca) return;
+            sessionStorage.setItem("href-pesquisa", busca);
+            window.location.href = ROTAS.HOME;
+        }
+    });
 
     const payloadJson = sessionStorage.getItem('pedidoFinalizacao');
     const payload = payloadJson ? JSON.parse(payloadJson) : null;

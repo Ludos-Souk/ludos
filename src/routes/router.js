@@ -9,6 +9,12 @@ import {
     obterConfiguracoesAcessibilidade
 } from "../services/configuracoesService.js";
 import { buscarUsuarioPorId } from "../services/usuarioService.js";
+import {
+    exibirFeedbackPendente,
+    iniciarTratamentoErrosGlobais
+} from "../assets/js/utils/asyncFeedback.js";
+import { iniciarOtimizacaoImagens } from "../assets/js/utils/imagePerformance.js";
+import { iniciarNavegacaoFacial } from "../assets/js/utils/faceNavigation.js";
 
 const ROTAS_AUTENTICACAO = [
     ROTAS.LOGIN,
@@ -71,6 +77,18 @@ export function ehRotaProtegida(rota) {
     return ROTAS_PROTEGIDAS.includes(rota);
 }
 
+function obterConfiguracoesVisuaisDaRota(rota) {
+    const configuracoes = obterConfiguracoesAcessibilidade();
+    if (!ehRotaAutenticacao(rota)) return configuracoes;
+
+    return {
+        ...configuracoes,
+        altoContraste: false,
+        temaEscuro: false,
+        tema: "light"
+    };
+}
+
 export function redirecionarPara(rota) {
 
     if (obterRotaAtual() !== rota) {
@@ -85,6 +103,14 @@ function iniciarNavegacaoGlobal() {
 
     botaoPerfil?.addEventListener("click", () => {
         window.location.href = ROTAS.PERFIL;
+    });
+
+    const botaoFavoritos = document.querySelector(
+        'button[aria-label="Ver meus favoritos"]'
+    );
+
+    botaoFavoritos?.addEventListener("click", () => {
+        window.location.href = `${ROTAS.PERFIL}?abrir=favoritos`;
     });
 }
 
@@ -136,6 +162,11 @@ export function iniciarRouter() {
     });
 }
 
-aplicarConfiguracoesAcessibilidade(obterConfiguracoesAcessibilidade());
+iniciarNavegacaoFacial();
+aplicarConfiguracoesAcessibilidade(obterConfiguracoesVisuaisDaRota(obterRotaAtual()));
+iniciarOtimizacaoImagens();
+iniciarTratamentoErrosGlobais();
 iniciarNavegacaoGlobal();
-iniciarRouter();
+iniciarRouter().then(paginaLiberada => {
+    if (paginaLiberada) exibirFeedbackPendente();
+});

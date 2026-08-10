@@ -10,7 +10,8 @@ import {
 } from "../../services/favoritosService.js";
 import { aguardarUsuario, obterUid } from "../../services/authService.js";
 import {
-    listarEnderecos
+    listarEnderecos,
+    buscarUsuarioPorId
 } from "../../services/usuarioService.js";
 import {
     toggleCarrinho,
@@ -30,6 +31,8 @@ import {
 import Avaliacao from "../../models/Avaliacao.js";
 import { criarAvaliacoesPedido } from "../../services/avaliacaoService.js";
 import { configurarPromocaoPrimeiraCompra } from "./utils/promocaoPrimeiraCompra.js";
+import { configurarPesquisaCabecalho } from "./utils/ui.js";
+import { criarSolicitacaoAtendimento } from "../../services/atendimentoService.js";
 // #endregion
 
 
@@ -47,10 +50,7 @@ const banner = document.querySelector('.promo-banner');
 const header = document.querySelector('.header');
 
 // Busca
-const searchForm = document.querySelector('.search-form');
 const inputBusca = document.getElementById('search-input');
-const btnMicrofone = document.querySelector('.mic-btn');
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // Catálogo de produtos
 const listaProdutos = document.querySelector('#lista-bonecos-firebase');
@@ -364,50 +364,6 @@ function inicializarFiltroMenu() {
 }
 
 
-// --- Pesquisa por voz (Speech Recognition) ---
-
-function inicializarPesquisaPorVoz() {
-    if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        recognition.onstart = function() {
-            btnMicrofone.style.color = 'blue';
-        };
-
-        recognition.onresult = function(event) {
-            const textoFalado = event.results[0][0].transcript;
-            inputBusca.value = textoFalado;
-            filtrarPorNome(textoFalado);
-        };
-
-        recognition.onend = function() {
-            btnMicrofone.style.color = '#888';
-        };
-
-        recognition.onerror = function(event) {
-            alert("Erro no reconhecimento:" + event.error);
-        };
-
-        btnMicrofone.addEventListener('click', function() {
-            recognition.start();
-        });
-
-    } else {
-        alert("Seu navegador não tem suporte para pesquisa por voz.");
-    }
-}
-
-
-// --- Formulário de busca ---
-
-function inicializarFormularioBusca() {
-    searchForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-    });
-}
-
 function filtrarPorNome(nome) {
     const container = document.getElementById("lista-bonecos-firebase");
 
@@ -442,15 +398,6 @@ function filtrarPorNome(nome) {
 
     });
 }
-
-function inicializarFiltroBusca() {
-    inputBusca.addEventListener("input", (event) => {
-        filtrarPorNome(
-            inputBusca.value.trim()
-        );
-    });
-}
-
 
 // --- Navegação vinda de outras páginas (sessionStorage) ---
 
@@ -515,10 +462,109 @@ async function carregarEnderecos() {
         return;
     }
 
-    const enderecos = await listarEnderecos(uid);
-    if (enderecos.length) {
-        carregarListaEnderecos(enderecos);
+    modalBody?.setAttribute("aria-busy", "true");
+    modalBody?.replaceChildren(criarMensagemEstado("Carregando endereços..."));
+    try {
+        const enderecos = await listarEnderecos(uid);
+        if (enderecos.length) {
+            carregarListaEnderecos(enderecos);
+        } else {
+            modalBody?.replaceChildren(criarMensagemEstado("Você ainda não possui endereços cadastrados."));
+        }
+    } catch (erro) {
+        console.error("Não foi possível carregar os endereços:", erro);
+        modalBody?.replaceChildren(criarMensagemEstado("Não foi possível carregar seus endereços."));
+    } finally {
+        modalBody?.setAttribute("aria-busy", "false");
     }
+}
+
+function inicializarAtendimentoCliente() {
+    const dialogo = document.getElementById('support-dialog');
+    const formulario = document.getElementById('support-form');
+    const campoDuvida = document.getElementById('support-message');
+    const opcaoLibras = document.getElementById('support-libras');
+    const feedback = document.getElementById('support-feedback');
+    const botaoAbrir = document.getElementById('open-support-dialog');
+    const linkRodape = document.getElementById('footer-support-link');
+    if (!dialogo || !formulario || !campoDuvida || !opcaoLibras || !feedback) return;
+
+    const sincronizarModos = () => {
+        const possuiTexto = campoDuvida.value.trim().length > 0;
+        campoDuvida.disabled = opcaoLibras.checked;
+        opcaoLibras.disabled = possuiTexto;
+        campoDuvida.closest('.support-message-field')?.classList.toggle('is-disabled', opcaoLibras.checked);
+        opcaoLibras.closest('.support-libras-option')?.classList.toggle('is-disabled', possuiTexto);
+        feedback.textContent = '';
+    };
+    const abrir = evento => {
+        evento?.preventDefault();
+        sincronizarModos();
+        dialogo.showModal();
+        requestAnimationFrame(() => (opcaoLibras.checked ? opcaoLibras : campoDuvida).focus());
+    };
+    const fechar = () => dialogo.open && dialogo.close();
+
+    botaoAbrir?.addEventListener('click', abrir);
+    linkRodape?.addEventListener('click', abrir);
+    document.getElementById('close-support-dialog')?.addEventListener('click', fechar);
+    dialogo.addEventListener('click', evento => {
+        if (evento.target === dialogo) fechar();
+    });
+    dialogo.addEventListener('cancel', evento => {
+        evento.preventDefault();
+        fechar();
+    });
+    campoDuvida.addEventListener('input', sincronizarModos);
+    opcaoLibras.addEventListener('change', sincronizarModos);
+
+    formulario.addEventListener('submit', async evento => {
+        evento.preventDefault();
+        const duvida = campoDuvida.value.trim();
+        const tipo = opcaoLibras.checked ? 'libras' : 'texto';
+        if (tipo === 'texto' && !duvida) {
+            feedback.textContent = 'Digite sua dúvida ou selecione o atendimento em Libras.';
+            feedback.className = 'support-feedback error';
+            campoDuvida.focus();
+            return;
+        }
+
+        const botaoEnviar = formulario.querySelector('.support-submit');
+        const textoOriginal = botaoEnviar.textContent;
+        botaoEnviar.disabled = true;
+        formulario.setAttribute('aria-busy', 'true');
+        botaoEnviar.textContent = 'Enviando...';
+        feedback.textContent = 'Enviando sua solicitação...';
+        feedback.className = 'support-feedback';
+
+        try {
+            const usuario = await aguardarUsuario();
+            if (!usuario) {
+                throw new Error('Entre na sua conta para solicitar atendimento.');
+            }
+
+            const usuarioBanco = await buscarUsuarioPorId(usuario.uid).catch(() => null);
+            const resultado = await criarSolicitacaoAtendimento({
+                nome: usuarioBanco?.nome || usuario.displayName,
+                tipo,
+                duvida
+            });
+            feedback.textContent = resultado.mensagem;
+            feedback.classList.add('success');
+            mostrarToastPedido(feedback.textContent);
+            formulario.reset();
+            sincronizarModos();
+            setTimeout(fechar, 650);
+        } catch (erro) {
+            console.error('Não foi possível enviar a solicitação de atendimento:', erro);
+            feedback.textContent = erro.message || 'Não foi possível enviar sua solicitação. Tente novamente.';
+            feedback.classList.add('error');
+        } finally {
+            formulario.setAttribute('aria-busy', 'false');
+            botaoEnviar.disabled = false;
+            botaoEnviar.textContent = textoOriginal;
+        }
+    });
 }
 
 function inicializarModalEndereco() {
@@ -1293,6 +1339,7 @@ async function carregarCatalogo() {
 
     try {
 
+        container.setAttribute("aria-busy", "true");
         container.replaceChildren(criarMensagemEstado("Carregando produtos..."));
 
         const produtos =
@@ -1344,12 +1391,19 @@ async function carregarCatalogo() {
         container.replaceChildren(criarMensagemEstado("Não foi possível carregar os produtos."));
 
         return [];
+    } finally {
+        container.setAttribute("aria-busy", "false");
     }
 }
 
 function renderCatalogo(lista, container) {
 
     container.replaceChildren();
+
+    if (!lista.length) {
+        container.append(criarMensagemEstado("Nenhum produto disponível no momento."));
+        return;
+    }
 
     const fragment =
         document.createDocumentFragment();
@@ -1852,6 +1906,7 @@ function inicializarPedidosHome() {
 
 
 inicializarNavegacaoCarrinho();
+inicializarAtendimentoCliente();
 configurarEndereco();
 configurarOrdem();
 configurarCarrinho();
@@ -1868,11 +1923,13 @@ bannerFechado = !(await configurarPromocaoPrimeiraCompra({
     conteudo: document.querySelector(".main-content")
 }));
 inicializarBanner();
-inicializarPesquisaPorVoz();
+configurarPesquisaCabecalho({
+    input: inputBusca,
+    aoPesquisar: filtrarPorNome,
+    pesquisarAoDigitar: true
+});
 inicializarPopupFiltro();
 inicializarFiltroMenu();
-inicializarFormularioBusca();
-inicializarFiltroBusca();
 inicializarModalEndereco();
 inicializarBtnConfirmar();
 inicializarModalBodyListeners();

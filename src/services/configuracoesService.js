@@ -6,7 +6,10 @@ const ACESSIBILIDADE_PADRAO = Object.freeze({
     tamanhoTexto: 100,
     fonteDislexia: false,
     altoContraste: false,
-    temaEscuro: false
+    temaEscuro: false,
+    tema: "light",
+    eyeTracking: false,
+    daltonismo: "protanopia"
 });
 
 const SELETOR_TEXTOS = [
@@ -18,6 +21,8 @@ const SELETOR_TEXTOS = [
 
 let escalaTextoAtual = 1;
 let observadorTextos = null;
+let mediaTema = null;
+let ouvirTemaSistema = null;
 
 export function listarConfiguracoes() {
 
@@ -98,10 +103,18 @@ export function existeConfiguracao(chave) {
 }
 
 export function obterConfiguracoesAcessibilidade() {
-    return {
+    const salvas = obterConfiguracao(CHAVE_ACESSIBILIDADE) || {};
+    const configuracoes = {
         ...ACESSIBILIDADE_PADRAO,
-        ...(obterConfiguracao(CHAVE_ACESSIBILIDADE) || {})
+        ...salvas
     };
+
+    if (salvas.tema === "system") {
+        configuracoes.tema = "contrast";
+    } else if (!Object.prototype.hasOwnProperty.call(salvas, "tema") && salvas.temaEscuro) {
+        configuracoes.tema = "dark";
+    }
+    return configuracoes;
 }
 
 export function salvarConfiguracoesAcessibilidade(alteracoes) {
@@ -110,6 +123,12 @@ export function salvarConfiguracoesAcessibilidade(alteracoes) {
         ...alteracoes
     };
 
+    salvarConfiguracao(CHAVE_ACESSIBILIDADE, configuracoes);
+    return configuracoes;
+}
+
+export function redefinirConfiguracoesAcessibilidade() {
+    const configuracoes = { ...ACESSIBILIDADE_PADRAO };
     salvarConfiguracao(CHAVE_ACESSIBILIDADE, configuracoes);
     return configuracoes;
 }
@@ -156,6 +175,36 @@ function observarNovosTextos() {
     });
 }
 
+function aplicarTema(raiz, preferencias) {
+    const temaSalvo = preferencias.tema || (preferencias.temaEscuro ? "dark" : "contrast");
+    mediaTema ||= window.matchMedia("(prefers-color-scheme: dark)");
+
+    if (ouvirTemaSistema) mediaTema.removeEventListener?.("change", ouvirTemaSistema);
+
+    const atualizar = () => {
+        const escuro = temaSalvo === "dark" || temaSalvo === "contrast";
+        raiz.classList.toggle("accessibility-dark-theme", escuro);
+        raiz.classList.toggle("accessibility-high-contrast", temaSalvo === "contrast");
+        raiz.style.colorScheme = escuro ? "dark" : "light";
+    };
+
+    atualizar();
+    ouvirTemaSistema = null;
+
+    raiz.classList.toggle("accessibility-color-vision", temaSalvo === "color-vision");
+    [
+        "protanopia",
+        "deuteranopia",
+        "tritanopia",
+        "protanomalia",
+        "deuteranomalia",
+        "tritanomalia",
+        "acromatopsia"
+    ].forEach(tipo => {
+        raiz.classList.toggle(`accessibility-${tipo}`, temaSalvo === "color-vision" && preferencias.daltonismo === tipo);
+    });
+}
+
 export function aplicarConfiguracoesAcessibilidade(configuracoes) {
     if (typeof document === "undefined") return;
 
@@ -169,7 +218,10 @@ export function aplicarConfiguracoesAcessibilidade(configuracoes) {
     redimensionarTextos();
     observarNovosTextos();
     raiz.classList.toggle("accessibility-dyslexic-font", preferencias.fonteDislexia);
-    raiz.classList.toggle("accessibility-high-contrast", preferencias.altoContraste);
-    raiz.classList.toggle("accessibility-dark-theme", preferencias.temaEscuro);
-    raiz.style.colorScheme = preferencias.temaEscuro ? "dark" : "light";
+    aplicarTema(raiz, preferencias);
+
+    raiz.classList.toggle("accessibility-eye-tracking", Boolean(preferencias.eyeTracking));
+    window.dispatchEvent(new CustomEvent("ludos:accessibility-change", {
+        detail: { ...preferencias }
+    }));
 }

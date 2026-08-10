@@ -6,6 +6,7 @@
     <title>Página inicial | Ludos</title>
     <link rel="icon" type="image/png" href="../assets/images/logo_2.png">
     <link rel="stylesheet" href="../assets/css/home.css">
+    <link rel="stylesheet" href="../assets/css/accessibility.css">
 </head>
 <body id="topo">
 
@@ -85,10 +86,10 @@
                     <span class="side-card-text">Carrinho</span>
                 </article>
 
-                <article class="card side-card">
+                <button type="button" class="card side-card support-card" id="open-support-dialog" aria-haspopup="dialog" aria-controls="support-dialog">
                     <i class="side-icon" data-lucide="bot" aria-hidden="true"></i>
                     <span class="side-card-text">Atendimento ao cliente</span>
-                </article>
+                </button>
 
                 <article class="card address-card">
                     <address class="address-info">
@@ -100,7 +101,7 @@
             </aside>
         </section>
 
-        <section id="lista-bonecos-firebase" class="products-grid" aria-label="Produtos em destaque">
+        <section id="lista-bonecos-firebase" class="products-grid" aria-label="Produtos em destaque" aria-live="polite" aria-busy="true">
         </section>
     </main>
 
@@ -120,7 +121,7 @@
             </nav>
             <nav class="footer-col" aria-label="Ajuda e Suporte">
                 <h4>AJUDA</h4>
-                <p><a href="#" class="footer-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
+                <p><a href="#support-dialog" class="footer-link" id="footer-support-link">Atendimento ao cliente <i class="icon-small" data-lucide="arrow-up-right" aria-hidden="true"></i></a></p>
             </nav>
         </section>
 
@@ -165,6 +166,30 @@
                 <button type="button" class="btn-review-cancel" id="cancel-order-review">Agora não</button>
                 <button type="submit" class="btn-review-submit">Enviar avaliações</button>
             </footer>
+        </form>
+    </dialog>
+
+    <dialog id="support-dialog" class="support-dialog" aria-labelledby="support-dialog-title" aria-describedby="support-dialog-description">
+        <form id="support-form" class="support-dialog-content">
+            <button type="button" id="close-support-dialog" class="support-dialog-close" aria-label="Fechar atendimento ao cliente"><i data-lucide="x" aria-hidden="true"></i></button>
+            <span class="support-dialog-icon" aria-hidden="true"><i data-lucide="bot"></i></span>
+            <h2 id="support-dialog-title" class="sr-only">Atendimento ao cliente</h2>
+            <p id="support-dialog-description" class="support-dialog-intro">Digite sua dúvida no campo abaixo. Sua mensagem será encaminhada à nossa equipe de suporte, que analisará sua solicitação e enviará uma resposta para o e-mail vinculado à sua conta em até 7 dias úteis.</p>
+
+            <label class="support-message-field" for="support-message">
+                <span class="sr-only">Digite sua dúvida</span>
+                <textarea id="support-message" name="duvida" rows="3" maxlength="3000" placeholder="Digite aqui sua dúvida"></textarea>
+            </label>
+
+            <label class="support-libras-option" for="support-libras">
+                <input id="support-libras" name="libras" type="checkbox">
+                <span class="support-checkbox" aria-hidden="true"><i data-lucide="check"></i></span>
+                <span>Preciso de atendimento especializado em Libras.</span>
+            </label>
+
+            <p class="support-libras-help">Ao solicitar o atendimento em Libras, você receberá por e-mail um link do Google Meet com a data e o horário agendados para o seu atendimento. Acesse o link no dia e horário informados para realizar o atendimento com nossa equipe especializada.</p>
+            <p id="support-feedback" class="support-feedback" role="status" aria-live="polite"></p>
+            <button type="submit" class="support-submit">Enviar</button>
         </form>
     </dialog>
 

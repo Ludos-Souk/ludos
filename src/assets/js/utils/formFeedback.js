@@ -9,7 +9,10 @@ export function criarGerenciadorErros(campos) {
         const erro = document.getElementById(id);
         erro.textContent = mensagem;
         erro.classList.add("show");
-        document.getElementById(idInput).parentElement.classList.add("input-group--error");
+        erro.setAttribute("role", "alert");
+        const input = document.getElementById(idInput);
+        input.setAttribute("aria-invalid", "true");
+        input.parentElement.classList.add("input-group--error");
         erros += 1;
     }
 
@@ -17,7 +20,9 @@ export function criarGerenciadorErros(campos) {
         const erro = document.getElementById(id);
         erro.textContent = "";
         erro.classList.remove("show");
-        document.getElementById(idInput).parentElement.classList.remove("input-group--error");
+        const input = document.getElementById(idInput);
+        input.setAttribute("aria-invalid", "false");
+        input.parentElement.classList.remove("input-group--error");
     }
 
     function limparTodosErros() {
@@ -40,11 +45,13 @@ export function criarGerenciadorErros(campos) {
 export function criarControleBotao(botao, textoPadrao) {
     function definirCarregando(textoCarregando) {
         botao.disabled = true;
+        botao.setAttribute("aria-busy", "true");
         botao.textContent = textoCarregando;
     }
 
     function restaurar() {
         botao.disabled = false;
+        botao.setAttribute("aria-busy", "false");
         botao.textContent = textoPadrao;
     }
 

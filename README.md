@@ -91,8 +91,10 @@ O projeto busca oferecer uma experiência:
 
 - Alteração do tamanho dos textos;
 - Fonte alternativa para facilitar a leitura;
-- Alto contraste;
-- Tema escuro;
+- Guia visual de leitura que acompanha ponteiro e foco;
+- Temas automático, claro e escuro;
+- Adaptações de cores para protanopia, deuteranopia e tritanopia;
+- Redefinição das preferências de acessibilidade;
 - Persistência das preferências;
 - Aplicação automática das preferências nas páginas;
 - Suporte a conteúdos criados dinamicamente;
@@ -116,7 +118,7 @@ A interface administrativa possui:
 - Confirmação de exclusão;
 - Layout responsivo.
 
-> A integração da área administrativa com os serviços e o banco de dados ainda está em desenvolvimento.
+As operações da área administrativa são integradas ao Firebase Firestore e ao Cloudinary. Produtos podem ser cadastrados, alterados e excluídos, enquanto cupons são persistidos em coleção própria. O acesso é restrito a usuários com a função `admin`.
 
 ## Tecnologias utilizadas
 
@@ -243,6 +245,17 @@ Armazena os pedidos realizados e sua associação com o usuário.
 
 Armazena avaliações, comentários, notas, produtos e usuários relacionados.
 
+### `cupons`
+
+Armazena o código, percentual de desconto, validade e estado ativo de cada cupom cadastrado pela área administrativa.
+
+### Relações principais
+
+- Cada endereço, pedido, favorito e avaliação é associado ao identificador do usuário autenticado;
+- Cada item de pedido referencia um produto e registra sua quantidade;
+- O pedido preserva valores de subtotal, desconto e total utilizados no momento da compra;
+- A avaliação referencia o produto, o usuário e, quando aplicável, o pedido que autorizou a avaliação.
+
 ### `bandeiras_cartao`
 
 Armazena informações utilizadas para identificar e exibir as bandeiras dos cartões.
@@ -304,6 +317,16 @@ Para utilizar outro projeto Firebase:
 6. Substitua a configuração presente em `firebase.js`;
 7. Configure as regras de acesso do Firestore.
 
+Para acessar a área administrativa, o documento correspondente em `usuarios` deve possuir:
+
+```js
+{
+  role: "admin"
+}
+```
+
+Usuários comuns devem manter `role: "cliente"`. As regras do Firestore devem impedir que um cliente altere a própria função ou execute operações administrativas.
+
 > As chaves públicas de configuração do Firebase identificam a aplicação, mas a segurança dos dados deve ser garantida pelas regras do Authentication e do Firestore.
 
 ## Configuração do Cloudinary
@@ -321,6 +344,29 @@ src/services/cloudinaryService.js
 - Nome da conta Cloudinary;
 - Upload preset;
 - Permissões adequadas para upload.
+
+O projeto envia apenas arquivos de imagem validados como JPG, PNG ou WebP, com limite de 5 MB. Em uma implantação pública, o upload preset deve limitar formatos, tamanho e origem dos envios.
+
+## Pagamentos demonstrativos
+
+O checkout não utiliza um gateway financeiro real. A identificação da bandeira serve apenas para feedback visual e os cartões exibidos no perfil são demonstrativos. Número completo, CVV e demais dados sensíveis não são persistidos pelo projeto.
+
+O Pix também representa um fluxo acadêmico: o pedido é criado e confirmado sem comunicação com uma instituição financeira.
+
+## Estados e feedback da interface
+
+Os fluxos assíncronos apresentam estados explícitos de carregamento, sucesso, erro e conteúdo vazio. Mensagens globais utilizam regiões acessíveis (`role="status"`, `role="alert"` e `aria-live`), enquanto botões de envio ficam desabilitados durante operações para evitar duplicidade.
+
+Utilitários compartilhados em `src/assets/js/utils` concentram:
+
+- Feedback global e feedback após navegação;
+- Estados de formulários;
+- Pesquisa de cabeçalho e reconhecimento de voz;
+- Debounce de busca e consultas;
+- Otimização de imagens dinâmicas;
+- Preferências e promoção de primeira compra.
+
+As imagens não prioritárias recebem carregamento tardio e decodificação assíncrona, inclusive quando são adicionadas ao DOM depois do carregamento inicial.
 
 ## Responsividade
 
@@ -427,23 +473,19 @@ Não foram adicionadas instruções ocultas, textos invisíveis ou mecanismos de
 
 ## Limitações conhecidas
 
-- A área administrativa ainda não está integrada ao banco;
 - Não existe gateway de pagamento real;
+- Os cartões apresentados no checkout e no perfil são demonstrativos e nenhum número completo ou CVV é persistido;
 - Algumas integrações dependem de serviços externos e de conexão com a internet;
 - Testes automatizados ainda não foram implementados;
 - O projeto possui finalidade acadêmica e não está preparado para operação comercial.
 
 ## Melhorias futuras
 
-- Integrar completamente a área administrativa;
-- Implementar histórico completo de pedidos;
-- Adicionar gerenciamento de cupons;
 - Criar testes automatizados;
-- Melhorar o tratamento centralizado de erros;
-- Adicionar estados de carregamento em todas as operações;
 - Executar auditorias Lighthouse e axe;
 - Melhorar as regras de segurança do Firestore;
-- Criar uma versão de demonstração publicada.
+- Adicionar monitoramento de falhas dos serviços externos;
+- Evoluir a simulação de pagamento para um ambiente sandbox de gateway.
 
 ## Entrega acadêmica
 
