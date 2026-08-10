@@ -69,9 +69,9 @@
             <nav class="profile-shortcuts" aria-label="Opções da conta">
                 <button type="button" id="open-address-modal" class="shortcut-card shortcut-wide"><i data-lucide="map-pin" aria-hidden="true"></i><span>Endereços</span></button>
                 <a href="cartao.html" class="shortcut-card shortcut-wide"><i data-lucide="credit-card"></i><span>Cartões</span></a>
-                <a href="#" class="shortcut-card"><i data-lucide="heart"></i><span>Favoritos</span></a>
-                <a href="#" class="shortcut-card"><i data-lucide="clipboard-list"></i><span>Meus pedidos</span></a>
-                <a href="avaliacaoProduto.html" class="shortcut-card"><i data-lucide="star"></i><span>Minhas avaliações</span></a>
+                <button type="button" id="open-favorites-modal" class="shortcut-card"><i data-lucide="heart" aria-hidden="true"></i><span>Favoritos</span></button>
+                <button type="button" id="open-orders-modal" class="shortcut-card"><i data-lucide="clipboard-list" aria-hidden="true"></i><span>Meus pedidos</span></button>
+                <button type="button" id="open-reviews-modal" class="shortcut-card"><i data-lucide="star" aria-hidden="true"></i><span>Minhas avaliações</span></button>
             </nav>
         </section>
 
@@ -124,6 +124,51 @@
                 <button type="button" class="btn-confirmar" id="confirm-address">Confirmar</button>
                 <button type="button" class="btn-adicionar" id="add-address">Adicionar endereço</button>
             </footer>
+        </article>
+    </dialog>
+
+    <dialog id="favorites-modal" class="profile-dialog" aria-labelledby="favorites-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="favorites-modal-title">Meus favoritos</h2>
+                    <p>Os produtos que você guardou para ver depois.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar favoritos"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="favorites-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando favoritos...</p>
+            </section>
+        </article>
+    </dialog>
+
+    <dialog id="orders-modal" class="profile-dialog profile-dialog-wide" aria-labelledby="orders-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="orders-modal-title">Meus pedidos</h2>
+                    <p>Acompanhe seu histórico de compras e entregas.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar pedidos"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="orders-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando pedidos...</p>
+            </section>
+        </article>
+    </dialog>
+
+    <dialog id="reviews-modal" class="profile-dialog" aria-labelledby="reviews-modal-title">
+        <article class="profile-dialog-content">
+            <header class="profile-dialog-header">
+                <div>
+                    <h2 id="reviews-modal-title">Minhas avaliações</h2>
+                    <p>Veja as opiniões que você compartilhou sobre os produtos.</p>
+                </div>
+                <button type="button" class="profile-dialog-close" data-close-profile-dialog aria-label="Fechar avaliações"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="reviews-modal-body" class="profile-dialog-body" aria-live="polite" aria-busy="false">
+                <p class="profile-dialog-state">Carregando avaliações...</p>
+            </section>
         </article>
     </dialog>
 
