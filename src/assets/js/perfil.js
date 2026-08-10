@@ -9,6 +9,10 @@ import {
     listarEnderecos
 } from "../../services/usuarioService.js";
 import { uploadImagem } from "../../services/cloudinaryService.js";
+import { listarFavoritos, removerFavorito } from "../../services/favoritosService.js";
+import { buscarProdutoPorId } from "../../services/produtoService.js";
+import { listarPedidosUsuario } from "../../services/pedidoService.js";
+import { listarAvaliacoesUsuario } from "../../services/avaliacaoService.js";
 import {
     aplicarConfiguracoesAcessibilidade,
     obterConfiguracoesAcessibilidade,
@@ -36,11 +40,298 @@ const corpoModalEndereco = document.getElementById("address-modal-body");
 const botaoFecharModal = document.getElementById("btn-fechar-modal");
 const botaoConfirmarEndereco = document.getElementById("confirm-address");
 const botaoAdicionarEndereco = document.getElementById("add-address");
+const botaoAbrirFavoritos = document.getElementById("open-favorites-modal");
+const botaoAbrirPedidos = document.getElementById("open-orders-modal");
+const modalFavoritos = document.getElementById("favorites-modal");
+const modalPedidos = document.getElementById("orders-modal");
+const corpoModalFavoritos = document.getElementById("favorites-modal-body");
+const corpoModalPedidos = document.getElementById("orders-modal-body");
+const botaoAbrirAvaliacoes = document.getElementById("open-reviews-modal");
+const modalAvaliacoes = document.getElementById("reviews-modal");
+const corpoModalAvaliacoes = document.getElementById("reviews-modal-body");
 let usuarioAtual = null;
 let enderecoSelecionado = null;
+let acionadorDialogoPerfil = null;
 
 function atualizarIcones() {
     window.lucide?.createIcons();
+}
+
+function criarElemento(tag, classe, texto) {
+    const elemento = document.createElement(tag);
+    if (classe) elemento.className = classe;
+    if (texto !== undefined) elemento.textContent = texto;
+    return elemento;
+}
+
+function criarIcone(nome) {
+    const icone = document.createElement("i");
+    icone.dataset.lucide = nome;
+    icone.setAttribute("aria-hidden", "true");
+    return icone;
+}
+
+function exibirEstadoDialogo(container, mensagem, icone = "inbox") {
+    const estado = criarElemento("section", "profile-dialog-empty");
+    estado.append(criarIcone(icone), criarElemento("p", "", mensagem));
+    container.replaceChildren(estado);
+    container.setAttribute("aria-busy", "false");
+    atualizarIcones();
+}
+
+function abrirProduto(produtoId) {
+    sessionStorage.setItem("produtoId", produtoId);
+    window.location.href = ROTAS.AVALIACAO_PRODUTO;
+}
+
+function criarCardFavorito(produto) {
+    const card = criarElemento("article", "profile-favorite-card");
+    const imagemContainer = criarElemento("div", "profile-favorite-image");
+
+    if (produto.imagem) {
+        const imagem = document.createElement("img");
+        imagem.src = produto.imagem;
+        imagem.alt = `Imagem de ${produto.nome}`;
+        imagem.addEventListener("error", () => imagemContainer.replaceChildren(criarIcone("image")));
+        imagemContainer.append(imagem);
+    } else {
+        imagemContainer.append(criarIcone("image"));
+    }
+
+    const informacoes = criarElemento("div", "profile-favorite-info");
+    informacoes.append(
+        criarElemento("span", "profile-item-eyebrow", produto.franquia || "Produto"),
+        criarElemento("h3", "", produto.nome),
+        criarElemento("strong", "profile-item-price", Number(produto.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }))
+    );
+
+    const acoes = criarElemento("div", "profile-item-actions");
+    const visualizar = criarElemento("button", "profile-primary-action", "Ver produto");
+    visualizar.type = "button";
+    visualizar.addEventListener("click", () => abrirProduto(produto.id));
+    const remover = criarElemento("button", "profile-icon-action");
+    remover.type = "button";
+    remover.setAttribute("aria-label", `Remover ${produto.nome} dos favoritos`);
+    remover.append(criarIcone("heart-off"));
+    remover.addEventListener("click", () => {
+        removerFavorito(produto.id);
+        card.remove();
+        if (!corpoModalFavoritos.querySelector(".profile-favorite-card")) {
+            exibirEstadoDialogo(corpoModalFavoritos, "Você ainda não possui produtos favoritos.", "heart");
+        }
+    });
+    acoes.append(visualizar, remover);
+    card.append(imagemContainer, informacoes, acoes);
+    return card;
+}
+
+async function abrirModalFavoritos(event) {
+    acionadorDialogoPerfil = event.currentTarget;
+    corpoModalFavoritos.setAttribute("aria-busy", "true");
+    corpoModalFavoritos.replaceChildren(criarElemento("p", "profile-dialog-state", "Carregando favoritos..."));
+    modalFavoritos.showModal();
+    body.classList.add("modal-open");
+    modalFavoritos.querySelector(".profile-dialog-close")?.focus();
+
+    try {
+        const ids = [...new Set(listarFavoritos())];
+        if (!ids.length) return exibirEstadoDialogo(corpoModalFavoritos, "Você ainda não possui produtos favoritos.", "heart");
+        const produtos = (await Promise.all(ids.map(buscarProdutoPorId))).filter(Boolean);
+        if (!produtos.length) return exibirEstadoDialogo(corpoModalFavoritos, "Os produtos favoritos não estão mais disponíveis.", "heart-off");
+        const grade = criarElemento("div", "profile-favorites-grid");
+        produtos.forEach(produto => grade.append(criarCardFavorito(produto)));
+        corpoModalFavoritos.replaceChildren(grade);
+        corpoModalFavoritos.setAttribute("aria-busy", "false");
+        atualizarIcones();
+    } catch (erro) {
+        console.error("Não foi possível carregar os favoritos:", erro);
+        exibirEstadoDialogo(corpoModalFavoritos, "Não foi possível carregar seus favoritos.", "circle-alert");
+    }
+}
+
+function converterData(valor) {
+    if (valor?.toDate) return valor.toDate();
+    const data = new Date(valor ?? 0);
+    return Number.isNaN(data.getTime()) ? new Date(0) : data;
+}
+
+function obterStatusPedido(pedido) {
+    const status = String(pedido.status || "Pendente");
+    const normalizado = status.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (normalizado.includes("cancel")) return { texto: "Cancelado", classe: "cancelled" };
+    if (["entregue", "retirado", "concluido", "finalizado"].some(item => normalizado.includes(item))) return { texto: pedido.formaEntrega?.includes("Retirar") ? "Retirado" : "Entregue", classe: "completed" };
+    if (["enviado", "transporte"].some(item => normalizado.includes(item))) return { texto: "Em transporte", classe: "shipping" };
+    if (["pronto", "disponivel"].some(item => normalizado.includes(item))) return { texto: "Pronto para retirada", classe: "shipping" };
+    if (["prepar", "separ"].some(item => normalizado.includes(item))) return { texto: "Em preparação", classe: "preparing" };
+    return { texto: status, classe: "pending" };
+}
+
+async function carregarItensPedido(pedido, cacheProdutos) {
+    const itens = Array.isArray(pedido.produtos) ? pedido.produtos : [];
+    const produtos = await Promise.all(itens.map(async item => {
+        const id = item?.produtoId ?? item?.id;
+        if (!id) return null;
+        if (!cacheProdutos.has(id)) cacheProdutos.set(id, buscarProdutoPorId(id));
+        const produto = await cacheProdutos.get(id);
+        return { id, produto, quantidade: Number(item.quantidade) || 1 };
+    }));
+    return produtos.filter(Boolean);
+}
+
+function criarCardPedido(pedido, itens) {
+    const card = criarElemento("article", "profile-order-card");
+    const cabecalho = criarElemento("header", "profile-order-header");
+    const identificacao = criarElemento("div", "");
+    identificacao.append(
+        criarElemento("span", "profile-item-eyebrow", `Pedido #${String(pedido.id || "------").slice(-6).toUpperCase()}`),
+        criarElemento("h3", "", converterData(pedido.criadoEm).toLocaleDateString("pt-BR"))
+    );
+    const statusPedido = obterStatusPedido(pedido);
+    cabecalho.append(identificacao, criarElemento("span", `profile-order-status ${statusPedido.classe}`, statusPedido.texto));
+
+    const lista = criarElemento("ul", "profile-order-products");
+    itens.forEach(item => {
+        const produto = item.produto;
+        const linha = criarElemento("li", "profile-order-product");
+        const imagem = criarElemento("span", "profile-order-product-image");
+        if (produto?.imagem) {
+            const img = document.createElement("img");
+            img.src = produto.imagem;
+            img.alt = "";
+            imagem.append(img);
+        } else imagem.append(criarIcone("package"));
+        linha.append(imagem, criarElemento("span", "", produto?.nome || "Produto indisponível"), criarElemento("strong", "", `${item.quantidade}x`));
+        lista.append(linha);
+    });
+
+    const rodape = criarElemento("footer", "profile-order-footer");
+    const entrega = String(pedido.formaEntrega || "Receber").toLowerCase().includes("retir") ? "Retirada na loja" : "Entrega";
+    rodape.append(
+        criarElemento("span", "", entrega),
+        criarElemento("strong", "", Number(pedido.preco || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }))
+    );
+    card.append(cabecalho, lista, rodape);
+    return card;
+}
+
+async function abrirModalPedidos(event) {
+    if (!usuarioAtual) return;
+    acionadorDialogoPerfil = event.currentTarget;
+    corpoModalPedidos.setAttribute("aria-busy", "true");
+    corpoModalPedidos.replaceChildren(criarElemento("p", "profile-dialog-state", "Carregando pedidos..."));
+    modalPedidos.showModal();
+    body.classList.add("modal-open");
+    modalPedidos.querySelector(".profile-dialog-close")?.focus();
+
+    try {
+        const pedidos = await listarPedidosUsuario(usuarioAtual.uid);
+        pedidos.sort((a, b) => converterData(b.criadoEm) - converterData(a.criadoEm));
+        if (!pedidos.length) return exibirEstadoDialogo(corpoModalPedidos, "Você ainda não realizou nenhum pedido.", "package-open");
+        const cacheProdutos = new Map();
+        const lista = criarElemento("div", "profile-orders-list");
+        for (const pedido of pedidos) {
+            lista.append(criarCardPedido(pedido, await carregarItensPedido(pedido, cacheProdutos)));
+        }
+        corpoModalPedidos.replaceChildren(lista);
+        corpoModalPedidos.setAttribute("aria-busy", "false");
+        atualizarIcones();
+    } catch (erro) {
+        console.error("Não foi possível carregar os pedidos:", erro);
+        exibirEstadoDialogo(corpoModalPedidos, "Não foi possível carregar seus pedidos.", "circle-alert");
+    }
+}
+
+function criarEstrelasAvaliacao(nota) {
+    const estrelas = criarElemento("span", "profile-review-stars");
+    const notaValida = Math.max(0, Math.min(5, Number(nota) || 0));
+    estrelas.setAttribute("role", "img");
+    estrelas.setAttribute("aria-label", `Nota ${notaValida} de 5 estrelas`);
+    for (let indice = 1; indice <= 5; indice += 1) {
+        const estrela = criarElemento("span", indice <= notaValida ? "active" : "", "★");
+        estrela.setAttribute("aria-hidden", "true");
+        estrelas.append(estrela);
+    }
+    return estrelas;
+}
+
+function criarCardAvaliacao(avaliacao, produto) {
+    const card = criarElemento("article", "profile-review-card");
+    const cabecalho = criarElemento("header", "profile-review-header");
+    const imagem = criarElemento("span", "profile-review-image");
+    if (produto?.imagem) {
+        const img = document.createElement("img");
+        img.src = produto.imagem;
+        img.alt = "";
+        img.addEventListener("error", () => {
+            imagem.replaceChildren(criarIcone("image"));
+            atualizarIcones();
+        });
+        imagem.append(img);
+    } else {
+        imagem.append(criarIcone("image"));
+    }
+    const identificacao = criarElemento("div", "profile-review-product");
+    identificacao.append(
+        criarElemento("span", "profile-item-eyebrow", produto?.franquia || "Produto"),
+        criarElemento("h3", "", produto?.nome || "Produto indisponível")
+    );
+    cabecalho.append(imagem, identificacao, criarEstrelasAvaliacao(avaliacao.nota));
+
+    const comentario = criarElemento(
+        "blockquote",
+        `profile-review-comment${avaliacao.comentario ? "" : " empty"}`,
+        avaliacao.comentario || "Nenhum comentário foi adicionado."
+    );
+    const rodape = criarElemento("footer", "profile-review-footer");
+    const data = converterData(avaliacao.criadoEm);
+    rodape.append(criarElemento("time", "", data.getTime() > 0 ? data.toLocaleDateString("pt-BR") : "Data não informada"));
+    if (data.getTime() > 0) rodape.querySelector("time").dateTime = data.toISOString();
+    if (produto) {
+        const visualizar = criarElemento("button", "", "Ver produto");
+        visualizar.type = "button";
+        visualizar.addEventListener("click", () => abrirProduto(produto.id));
+        rodape.append(visualizar);
+    }
+    card.append(cabecalho, comentario, rodape);
+    return card;
+}
+
+async function abrirModalAvaliacoes(event) {
+    if (!usuarioAtual) return;
+    acionadorDialogoPerfil = event.currentTarget;
+    corpoModalAvaliacoes.setAttribute("aria-busy", "true");
+    corpoModalAvaliacoes.replaceChildren(criarElemento("p", "profile-dialog-state", "Carregando avaliações..."));
+    modalAvaliacoes.showModal();
+    body.classList.add("modal-open");
+    modalAvaliacoes.querySelector(".profile-dialog-close")?.focus();
+
+    try {
+        const avaliacoes = await listarAvaliacoesUsuario(usuarioAtual.uid);
+        avaliacoes.sort((a, b) => converterData(b.criadoEm) - converterData(a.criadoEm));
+        if (!avaliacoes.length) return exibirEstadoDialogo(corpoModalAvaliacoes, "Você ainda não avaliou nenhum produto.", "message-circle-star");
+        const cacheProdutos = new Map();
+        const lista = criarElemento("div", "profile-reviews-list");
+        for (const avaliacao of avaliacoes) {
+            if (avaliacao.produtoId && !cacheProdutos.has(avaliacao.produtoId)) {
+                cacheProdutos.set(avaliacao.produtoId, buscarProdutoPorId(avaliacao.produtoId));
+            }
+            const produto = avaliacao.produtoId ? await cacheProdutos.get(avaliacao.produtoId) : null;
+            lista.append(criarCardAvaliacao(avaliacao, produto));
+        }
+        corpoModalAvaliacoes.replaceChildren(lista);
+        corpoModalAvaliacoes.setAttribute("aria-busy", "false");
+        atualizarIcones();
+    } catch (erro) {
+        console.error("Não foi possível carregar as avaliações:", erro);
+        exibirEstadoDialogo(corpoModalAvaliacoes, "Não foi possível carregar suas avaliações.", "circle-alert");
+    }
+}
+
+function fecharDialogoPerfil(dialogo) {
+    dialogo?.close();
+    body.classList.remove("modal-open");
+    acionadorDialogoPerfil?.focus();
+    acionadorDialogoPerfil = null;
 }
 
 function atualizarHeaderNoScroll() {
@@ -324,6 +615,23 @@ avatar?.addEventListener("error", () => {
     feedbackFoto.textContent = "Não foi possível carregar a foto atual.";
 });
 botaoAbrirEnderecos?.addEventListener("click", abrirModalEndereco);
+botaoAbrirFavoritos?.addEventListener("click", abrirModalFavoritos);
+botaoAbrirPedidos?.addEventListener("click", abrirModalPedidos);
+botaoAbrirAvaliacoes?.addEventListener("click", abrirModalAvaliacoes);
+document.querySelector('a[aria-label="Ver meus favoritos"]')?.addEventListener("click", event => {
+    event.preventDefault();
+    abrirModalFavoritos(event);
+});
+document.querySelectorAll(".profile-dialog").forEach(dialogo => {
+    dialogo.querySelector("[data-close-profile-dialog]")?.addEventListener("click", () => fecharDialogoPerfil(dialogo));
+    dialogo.addEventListener("click", ({ target }) => {
+        if (target === dialogo) fecharDialogoPerfil(dialogo);
+    });
+    dialogo.addEventListener("cancel", event => {
+        event.preventDefault();
+        fecharDialogoPerfil(dialogo);
+    });
+});
 botaoFecharModal?.addEventListener("click", fecharModalEndereco);
 botaoAdicionarEndereco?.addEventListener("click", () => {
     window.location.href = ROTAS.ENDERECO;
