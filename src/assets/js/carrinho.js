@@ -627,7 +627,7 @@ function renderCart() {
             calcularTotal();
         });
 
-        btnMenos.addEventListener("click", () => {
+        btnMenos.addEventListener("click", (event) => {
             const quantidadeAtual =
                 Number(quantidade.textContent);
             if (quantidadeAtual === 1) {
@@ -647,7 +647,7 @@ function renderCart() {
             calcularTotal();
         });
 
-        btnCarrinho.addEventListener("click", () => {
+        btnCarrinho.addEventListener("click", (event) => {
             abrirModalExclusao(article, item.id, event.currentTarget);
         });
 

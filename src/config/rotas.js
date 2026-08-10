@@ -3,6 +3,7 @@
 export const ROTAS = Object.freeze({
     HOME: "home.html",
     PERFIL: "perfil.html",
+    ADMIN: "administrador.html",
     LOGIN: "login.html",
     CADASTRO: "cadastro.html",
     ESQUECI_SENHA: "esqueciSenha.html",

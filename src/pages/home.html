@@ -61,42 +61,21 @@
         <h2 class="sr-only">Painel de controle e listagem de produtos</h2>
 
         <section class="dashboard-grid" aria-label="Resumo da sua conta">
-            <article class="card orders-card">
+            <article class="card orders-card" id="orders-card" aria-labelledby="orders-card-title">
                 <header class="orders-header">
-                    <a href="#" class="orders-link">Meus pedidos</a>
+                    <h3 id="orders-card-title" class="orders-link">Meus pedidos</h3>
                     <i class="arrow-icon" data-lucide="chevron-right" aria-hidden="true"></i>
                 </header>
-                <h3>Os status dos seus pedidos aparecerão aqui.</h3>
-                <button class="btn-orders">Fazer pedido</button>
+                <section id="orders-slider" class="orders-slider" aria-label="Acompanhamento dos seus pedidos" aria-live="polite">
+                    <p class="orders-loading">Carregando seus pedidos...</p>
+                </section>
+                <footer id="orders-controls" class="orders-controls" hidden>
+                    <button type="button" id="previous-order" aria-label="Ver pedido anterior"><i data-lucide="chevron-left" aria-hidden="true"></i></button>
+                    <p id="order-position" aria-live="polite"></p>
+                    <button type="button" id="next-order" aria-label="Ver próximo pedido"><i data-lucide="chevron-right" aria-hidden="true"></i></button>
+                    <button type="button" id="toggle-orders-rotation" aria-label="Pausar troca automática de pedidos" aria-pressed="false"><i data-lucide="pause" aria-hidden="true"></i></button>
+                </footer>
             </article>
-
-            <!-- <article class="card orders-card" aria-labelledby="orders-card-title">
-                <header class="orders-header">
-                    <h3 id="orders-card-title" class="sr-only">Status do seu pedido mais recente</h3>
-                    <a href="#" class="orders-link" aria-label="Ver todos os meus pedidos">Meus pedidos</a>
-                    <i class="arrow-icon" data-lucide="chevron-right" aria-hidden="true"></i>
-                </header>
-
-                <figure class="order-product-bubble">
-                    <img src="../assets/images/seu-funko.png" alt="Miniatura do Boneco Funko Pop">
-                    <figcaption class="bubble-text">Boneco Funko Pop J...</figcaption>
-                </figure>
-
-                <section class="order-status-wrapper" aria-labelledby="status-text">
-                    <i data-lucide="balloon" class="status-icon" aria-hidden="true"></i>
-                    <h4 id="status-text" class="status-text">Seu pedido chegou! :)</h4>
-                </section>
-
-                <section class="order-progress-bar" aria-label="Progresso de entrega: 4 de 5 etapas concluídas, pedido entregue">
-                    <span class="progress-step active" aria-hidden="true"></span>
-                    <span class="progress-step active" aria-hidden="true"></span>
-                    <span class="progress-step active" aria-hidden="true"></span>
-                    <span class="progress-step active" aria-hidden="true"></span>
-                    <span class="progress-step" aria-hidden="true"></span>
-                </section>
-
-                <button type="button" class="btn-evaluate" aria-label="Avaliar o pedido entregue">Avaliar</button>
-            </article> -->
 
             <aside class="side-cards" aria-label="Acesso rápido">
                 <article class="card side-card cart-card">
@@ -168,6 +147,24 @@
                 <button type="button" class="btn-adicionar">Adicionar endereço</button>
             </footer>
         </article>
+    </dialog>
+
+    <dialog id="order-review-dialog" class="order-review-dialog" aria-labelledby="order-review-title" aria-describedby="order-review-description">
+        <form id="order-review-form" class="order-review-content">
+            <header class="order-review-header">
+                <div>
+                    <h2 id="order-review-title">Avaliar produtos</h2>
+                    <p id="order-review-description">Conte como foi sua experiência com os produtos deste pedido.</p>
+                </div>
+                <button type="button" id="close-order-review" class="order-review-close" aria-label="Fechar avaliação"><i data-lucide="x" aria-hidden="true"></i></button>
+            </header>
+            <section id="order-review-products" class="order-review-products" aria-label="Produtos para avaliar"></section>
+            <p id="order-review-feedback" class="order-review-feedback" role="status" aria-live="polite"></p>
+            <footer class="order-review-actions">
+                <button type="button" class="btn-review-cancel" id="cancel-order-review">Agora não</button>
+                <button type="submit" class="btn-review-submit">Enviar avaliações</button>
+            </footer>
+        </form>
     </dialog>
 
     <script src="https://unpkg.com/lucide@latest"></script>

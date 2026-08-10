@@ -27,6 +27,14 @@ a { color:inherit; text-decoration:none; }
 .admin-header-actions button,.admin-header-actions a { display:grid; width:42px; height:42px; place-items:center; border:0; border-radius:50%; background:var(--yellow); }
 .admin-header-actions svg { width:20px; height:20px; }
 .admin-header-actions a { background:var(--pink); }
+.admin-filter-wrapper { position:relative; }
+.admin-filter-popup { position:absolute; z-index:30; top:calc(100% + 14px); right:0; width:230px; padding:22px; border-radius:28px; background:#fff; color:#222; box-shadow:0 12px 38px rgba(0,0,0,.18); }
+.admin-filter-popup[hidden] { display:none; }
+.admin-filter-popup h2 { margin-bottom:16px; font:700 16px "Montserrat",sans-serif; }
+.admin-filter-popup menu { display:grid; gap:10px; list-style:none; }
+.admin-header-actions .admin-filter-popup button { display:block; width:100%; height:auto; padding:12px 15px; border-radius:999px; background:#f0f0f2; color:#555; font-size:13px; font-weight:600; text-align:left; }
+.admin-header-actions .admin-filter-popup button:hover { background:#e0e1e5; }
+.admin-header-actions .admin-filter-popup button.selected { background:var(--yellow); color:#222; }
 .admin-main { min-height:720px; padding:40px 60px 100px; border-radius:70px; background:var(--surface); }
 .admin-handle { display:block; width:200px; height:5px; margin:0 auto 58px; border-radius:9px; background:#d9d9df; }
 .catalog-header { display:flex; width:100%; max-width:1500px; justify-content:space-between; align-items:end; gap:24px; margin:0 auto 42px; }
@@ -48,6 +56,7 @@ a { color:inherit; text-decoration:none; }
 .products-table td:first-child { border-radius:34px 0 0 34px; }.products-table td:last-child { overflow:visible; border-radius:0 34px 34px 0; }
 .product-thumb { display:grid; width:44px; height:50px; place-items:center; border-radius:9px; background:#ececf1; color:#999; }
 .product-thumb svg { width:23px; height:23px; }
+.product-thumb img { width:100%; height:100%; border-radius:inherit; object-fit:cover; }
 .row-actions { position:relative; }
 .row-menu-button { display:grid; width:34px; height:34px; place-items:center; border:0; border-radius:50%; background:#eeeef1; color:#222; transition:background .2s,transform .2s; }
 .row-menu-button:hover { background:#dddfe5; transform:scale(1.04); }
@@ -57,6 +66,21 @@ a { color:inherit; text-decoration:none; }
 .row-menu button { display:flex; width:100%; gap:9px; align-items:center; padding:11px 12px; border:0; border-radius:14px; background:#f1f1f3; text-align:left; }
 .row-menu li+li { margin-top:7px; }.row-menu .danger { background:var(--pink); }
 .row-menu svg { width:15px; }
+.table-state { height:120px !important; border-radius:34px !important; text-align:center; color:var(--muted); }
+.table-state.error { color:#c93442; }
+.admin-toast { position:fixed; z-index:100; right:24px; bottom:24px; display:grid; grid-template-columns:auto minmax(0,1fr) auto; width:min(390px,calc(100% - 32px)); padding:17px 18px; align-items:center; gap:12px; border-radius:22px; background:#fff; color:#178447; box-shadow:0 14px 45px rgba(0,0,0,.2); transform:translateX(calc(100% + 40px)); opacity:0; transition:transform .3s ease,opacity .3s ease; }
+.admin-toast[hidden] { display:none; }
+.admin-toast.show { transform:translateX(0); opacity:1; }
+.admin-toast.error { color:#c93442; }
+.admin-toast>span { display:grid; place-items:center; }
+.admin-toast>span svg { width:22px; height:22px; }
+.admin-toast p { color:#222; font-weight:600; }
+.admin-toast button { display:grid; width:32px; height:32px; place-items:center; border:0; border-radius:50%; background:#f0f0f2; }
+.admin-toast button svg { width:16px; }
+.file-field small { margin-top:7px; color:#777; font-size:10px; }
+.file-field input[type="file"] { font-size:0; color:transparent; }
+.file-field input[type="file"]::file-selector-button { margin-right:10px; padding:9px 15px; border:0; border-radius:999px; background:#fff; color:#333; font:600 12px "DM Sans",sans-serif; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.file-field input[type="file"]:hover::file-selector-button { background:var(--yellow); }
 .admin-footer { position:relative; display:grid; grid-template-columns:1.5fr 1fr 1fr; gap:120px; min-height:360px; padding:90px 90px 58px; color:#fff; background:var(--admin-primary); }
 .admin-footer img { width:100px; margin-bottom:42px; }.admin-footer h2 { margin-bottom:24px; color:#c8d2ff; font:600 14px "Montserrat"; }.admin-footer p,.admin-footer a { font-size:13px; line-height:2; }.admin-footer nav { padding-top:85px; }.admin-footer svg { width:14px; vertical-align:middle; }.copyright { position:absolute; right:70px; bottom:25px; color:#999; }
 .admin-dialog { width:min(760px,calc(100% - 28px)); max-height:calc(100vh - 28px); margin:auto; border:0; border-radius:48px; background:transparent; }
@@ -64,7 +88,7 @@ a { color:inherit; text-decoration:none; }
 .admin-dialog::backdrop { background:rgba(25,25,30,.5); backdrop-filter:blur(3px); }
 .dialog-card { padding:42px; border-radius:48px; background:#fff; }
 .dialog-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:34px; }.dialog-header h2 { font:700 24px "Montserrat"; }.dialog-header button { display:grid; width:42px; height:42px; place-items:center; border:0; border-radius:50%; background:#f1f1f2; }
-.edit-layout { display:grid; grid-template-columns:minmax(0,1fr) 230px; gap:34px; }.fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; border:0; }.fields-grid label { display:flex; min-width:0; padding:12px 18px; flex-direction:column; border-radius:28px; background:#f1f1f2; }.fields-grid label:focus-within { box-shadow:0 0 0 2px #6b8cff; }.fields-grid label span { color:#777; font-size:11px; }.fields-grid input,.fields-grid textarea,.fields-grid select { width:100%; border:0; outline:0; background:transparent; color:#333; }.fields-grid textarea { min-height:84px; resize:vertical; }.field-full { grid-column:1/-1; }.product-preview h3 { margin-bottom:18px; font-size:13px; }.product-preview article { display:flex; padding:18px; flex-direction:column; gap:9px; border-radius:28px; box-shadow:var(--shadow); }.preview-image { display:grid; height:170px; place-items:center; border-radius:18px; background:#f1f1f3; }.preview-image svg { width:50px; height:50px; color:#aaa; }.product-preview h4 { font-size:13px; }.product-preview button { height:36px; border:0; border-radius:999px; background:var(--yellow); }.dialog-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:34px; }
+.edit-layout { display:grid; grid-template-columns:minmax(0,1fr) 230px; gap:34px; }.fields-grid { display:grid; grid-template-columns:1fr 1fr; align-items:start; gap:18px; border:0; }.fields-grid label { display:flex; min-width:0; min-height:72px; padding:12px 18px; flex-direction:column; border-radius:28px; background:#f1f1f2; }.fields-grid .file-field { min-height:92px; }.fields-grid label:focus-within { box-shadow:0 0 0 2px #6b8cff; }.fields-grid label span { color:#777; font-size:11px; }.fields-grid input,.fields-grid textarea,.fields-grid select { width:100%; min-height:25px; border:0; outline:0; background:transparent; color:#333; }.fields-grid textarea { min-height:84px; resize:vertical; }.field-full { grid-column:1/-1; }.product-preview h3 { margin-bottom:18px; font-size:13px; }.product-preview article { display:flex; padding:18px; flex-direction:column; gap:9px; border-radius:28px; box-shadow:var(--shadow); }.preview-image { display:grid; height:170px; place-items:center; overflow:hidden; border-radius:18px; background:#f1f1f3; }.preview-image img { width:100%; height:100%; object-fit:contain; }.preview-image svg { width:50px; height:50px; color:#aaa; }.product-preview h4 { font-size:13px; }.product-preview button { height:36px; border:0; border-radius:999px; background:var(--yellow); }.dialog-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:34px; }.dialog-actions button:disabled{cursor:wait;opacity:.65}
 
 /* Mesmas proporções visuais da home, mantendo a identidade escura do admin. */
 @media(min-width:901px){

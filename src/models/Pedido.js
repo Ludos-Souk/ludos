@@ -11,7 +11,8 @@ export default class Pedido {
         parcelas,
         status,
         usuarioId,
-        criadoEm
+        criadoEm,
+        avaliado = false
     ) {
         this.id = id;
         this.produtos = produtos;
@@ -24,6 +25,7 @@ export default class Pedido {
         this.status = status;
         this.usuarioId = usuarioId;
         this.criadoEm = criadoEm;
+        this.avaliado = Boolean(avaliado);
     }
 
     toFirestore() {
@@ -37,7 +39,8 @@ export default class Pedido {
             parcelas: this.parcelas,
             status: this.status,
             usuarioId: this.usuarioId,
-            criadoEm: this.criadoEm
+            criadoEm: this.criadoEm,
+            avaliado: this.avaliado
         };
     }
 }

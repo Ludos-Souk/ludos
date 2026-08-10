@@ -1,5 +1,6 @@
 import { ROTAS } from "../../config/rotas.js";
 import { login } from "../../services/authService.js";
+import { buscarUsuarioPorId } from "../../services/usuarioService.js";
 import { criarGerenciadorErros, criarControleBotao } from "./utils/formFeedback.js";
 
 const formulario = document.getElementById("login-form");
@@ -34,8 +35,8 @@ formulario.addEventListener("submit", async function (event) {
     }
 
     try {
-        await login(email, senha);
-        irParaHome();
+        const usuarioAutenticado = await login(email, senha);
+        await redirecionarPorRole(usuarioAutenticado.uid);
     } catch (erro) {
         exibirErroDeLogin(erro);
         restaurar();
@@ -56,6 +57,9 @@ function exibirErroDeLogin(erro) {
     mostrarErro("erro-email", mensagem, "email");
 }
 
-function irParaHome() {
-    window.location.href = ROTAS.HOME;
+async function redirecionarPorRole(uid) {
+    const usuario = await buscarUsuarioPorId(uid);
+    window.location.href = usuario?.role === "admin"
+        ? ROTAS.ADMIN
+        : ROTAS.HOME;
 }
