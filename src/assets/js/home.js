@@ -64,6 +64,7 @@ const filterMenu = document.querySelector('.filter-menu');
 // Estado
 let bannerFechado = false;
 let timeoutToast = null;
+let limparLayoutToast = null;
 let pedidosDoUsuario = [];
 let indicePedidoAtual = 0;
 let temporizadorPedidos = null;
@@ -199,19 +200,19 @@ export function mostrarToastCarrinho(
     mensagem = "Produto adicionado ao carrinho com sucesso!"
 ) {
     const header = document.querySelector('.header');
-    const mainContent = document.querySelector('.main-content'); 
+    const mainContent = document.querySelector('.main-content');
+
+    const toastExistente = document.getElementById("cart-toast");
+    if (toastExistente) {
+        toastExistente.remove();
+        limparLayoutToast?.();
+    }
 
     if (!bannerFechado) {
         banner.classList.add("oculto");
     }
 
     header.classList.remove("sem-banner");
-    mainContent.style.marginTop = "290px"; 
-
-    const toastExistente = document.getElementById("cart-toast");
-    if (toastExistente) {
-        toastExistente.remove();
-    }
 
     if (timeoutToast) {
         clearTimeout(timeoutToast);
@@ -262,6 +263,31 @@ export function mostrarToastCarrinho(
 
     header.appendChild(toast);
 
+    const atualizarEspacoToast = () => {
+        if (!toast.isConnected) return;
+        const limiteToast = toast.getBoundingClientRect().bottom;
+        mainContent.style.marginTop = `${Math.ceil(limiteToast + 28)}px`;
+    };
+
+    const restaurarLayout = () => {
+        window.removeEventListener("resize", atualizarEspacoToast);
+
+        if (!bannerFechado) {
+            banner.classList.remove("oculto");
+            mainContent.style.removeProperty("margin-top");
+        } else {
+            header.classList.add("sem-banner");
+            mainContent.style.marginTop = "160px";
+        }
+
+        if (limparLayoutToast === restaurarLayout) limparLayoutToast = null;
+    };
+
+    limparLayoutToast = restaurarLayout;
+
+    requestAnimationFrame(atualizarEspacoToast);
+    window.addEventListener("resize", atualizarEspacoToast);
+
     if (window.scrollY > 30) {
         toast.classList.add("compact");
     }
@@ -272,13 +298,7 @@ export function mostrarToastCarrinho(
 
     btnClose.addEventListener("click", () => { 
         toast.remove();
-        
-        if (!bannerFechado) {
-            banner.classList.remove("oculto");
-        } else {
-            header.classList.add("sem-banner");
-            mainContent.style.marginTop = "160px"; 
-        }
+        restaurarLayout();
     });
 
     btnCart.addEventListener("click", () => {
@@ -288,13 +308,7 @@ export function mostrarToastCarrinho(
     timeoutToast = setTimeout(() => {
         toast.remove();
         timeoutToast = null;
-
-        if (!bannerFechado) {
-            banner.classList.remove("oculto");
-        } else {
-            header.classList.add("sem-banner");
-            mainContent.style.marginTop = "160px"; 
-        }
+        restaurarLayout();
     }, 20000);
 }
 

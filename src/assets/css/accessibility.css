@@ -20,6 +20,16 @@
     border: 2px solid #172a5d; box-shadow: 0 2px 12px rgba(0,0,0,.35); pointer-events: none;
 }
 .face-navigation-cursor::after { content: ""; position: absolute; inset: 7px; border-radius: inherit; background: #ffdc7a; }
+dialog[open] > .face-navigation-cursor {
+    z-index: 2147483647;
+    visibility: visible;
+    opacity: 1;
+}
+dialog[open] > .face-navigation-panel {
+    z-index: 2147483646;
+    visibility: visible;
+    opacity: 1;
+}
 .face-navigation-target { outline: 4px solid #4f7dff !important; outline-offset: 4px !important; }
 html.accessibility-dark-theme .face-navigation-panel,
 html.accessibility-high-contrast .face-navigation-panel { border-color: #67a0ff; background: #404040; color: #fff; }
