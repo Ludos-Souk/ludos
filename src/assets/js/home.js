@@ -1659,22 +1659,23 @@ async function enviarAvaliacoes(event) {
     botaoEnviar.disabled = true;
     feedbackAvaliacao.textContent = "Enviando suas avaliações...";
     try {
+        // Lê somente o próprio perfil para gravar o nome público junto das novas avaliações.
+        const perfilAutor = await buscarUsuarioPorId(usuario.uid).catch(() => null);
+        const nomeAutor = perfilAutor?.nome || usuario.displayName || "Cliente Ludos";
+
         const avaliacoes = campos.map((campo, indice) => {
             const nota = Number(campo.querySelector(`input[name="nota-${indice}"]`).value);
             const comentario = campo.querySelector(`textarea[name="comentario-${indice}"]`).value.trim();
-            return new Avaliacao(null, comentario, new Date().toISOString(), nota, campo.dataset.produtoId, usuario.uid);
+            return new Avaliacao(
+                null,
+                comentario,
+                new Date().toISOString(),
+                nota,
+                campo.dataset.produtoId,
+                usuario.uid,
+                nomeAutor
+            );
         });
-        await criarAvaliacoesPedido(avaliacoes, pedidoEmAvaliacao.id);
-        const idAvaliado = pedidoEmAvaliacao.id;
-        modalAvaliacao.close();
-        formularioAvaliacao.reset();
-        pedidoEmAvaliacao = null;
-        botaoAvaliacaoAtivo = null;
-        pedidosDoUsuario = pedidosDoUsuario.filter(pedido => pedido.id !== idAvaliado);
-        indicePedidoAtual = Math.min(indicePedidoAtual, Math.max(0, pedidosDoUsuario.length - 1));
-        pedidosDoUsuario.length ? await renderizarPedidoAtual() : mostrarEstadoSemPedidos();
-        reiniciarRotacaoPedidos();
-        mostrarToastPedido("Avaliações enviadas. Obrigado pela sua opinião!");
     } catch (erro) {
         console.error("Erro ao avaliar pedido:", erro);
         feedbackAvaliacao.textContent = "Não foi possível enviar as avaliações. Tente novamente.";

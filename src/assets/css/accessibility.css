@@ -316,6 +316,21 @@ html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(input, te
     opacity: 1;
 }
 
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .support-message-field {
+    border-color: #777 !important;
+    background-color: #3b3b3b !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .support-message-field:focus-within {
+    border-color: #8bb4ff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .support-message-field textarea {
+    background-color: transparent !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
 html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-gradient {
     background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .1), transparent 72%) !important;
 }
@@ -336,6 +351,31 @@ html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon {
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon:is(:hover, :focus-visible) {
     background-color: #666 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-qtd {
+    border: 1px solid #777 !important;
+    background-color: #555 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-qtd:is(:hover, :focus-visible) {
+    background-color: #666 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .address-option-card {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    .address-option-card:is(:hover, :focus-within, .selecionado) {
+    background-color: #505050 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    .address-option-card.selecionado {
+    border-color: #8bb4ff !important;
 }
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon.is-favorite {
@@ -361,7 +401,7 @@ html.accessibility-dark-theme:not(.accessibility-high-contrast)
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(.edit-avatar,
     .profile-dialog-close, .profile-icon-action, .btn-close-modal, .btn-back,
-    .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-back-icon, .back-button, .profile-back, .order-review-close, .order-toast-close,
     .btn-close-toast, .add-icon-circle) {
     border: 1px solid #777 !important;
     background-color: #555 !important;
@@ -374,6 +414,52 @@ html.accessibility-dark-theme:not(.accessibility-high-contrast) :where(.shortcut
     color: #f2f2f2 !important;
     stroke: currentColor !important;
     opacity: 1 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.search-icon, .mic-btn, .btn-arrow, .admin-search > svg, .admin-search .mic-btn) {
+    color: #fff !important;
+    stroke: currentColor !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .mic-btn.listening {
+    color: #8bb4ff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.header-icons .filter-popup, .admin-filter-popup) {
+    border: 1px solid #777 !important;
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.header-icons .filter-popup h3, .admin-filter-popup h2) {
+    color: #fff !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.header-icons .filter-popup .btn-filter-option,
+        .admin-header-actions .admin-filter-popup button) {
+    border: 1px solid transparent !important;
+    background-color: #555 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.header-icons .filter-popup .btn-filter-option,
+        .admin-header-actions .admin-filter-popup button):is(:hover, :focus-visible) {
+    border-color: #8bb4ff !important;
+    background-color: #626262 !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.header-icons .filter-popup .btn-filter-option.selecionado,
+        .admin-header-actions .admin-filter-popup button.selected) {
+    border-color: var(--btn-yellow) !important;
+    background-color: var(--btn-yellow) !important;
+    color: #222 !important;
 }
 
 html.accessibility-high-contrast {
@@ -451,6 +537,21 @@ html.accessibility-high-contrast :where(input, textarea)::placeholder {
     opacity: 1;
 }
 
+html.accessibility-high-contrast .support-message-field {
+    border: 2px solid #67a0ff !important;
+    background-color: #303030 !important;
+}
+
+html.accessibility-high-contrast .support-message-field:focus-within {
+    border-color: #ffdc7a !important;
+}
+
+html.accessibility-high-contrast .support-message-field textarea {
+    background-color: transparent !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
 html.accessibility-high-contrast :where(.btn-icon, .icon-button, .orders-controls button,
     .btn-change-address, .btn-orders, .profile-back, .back-button) {
     border: 1px solid #67a0ff !important;
@@ -511,6 +612,46 @@ html.accessibility-high-contrast .header-icons .filter-popup .btn-filter-option.
     color: #222 !important;
 }
 
+html.accessibility-high-contrast
+    :where(.search-icon, .mic-btn, .btn-arrow, .admin-search > svg, .admin-search .mic-btn) {
+    color: #fff !important;
+    stroke: currentColor !important;
+}
+
+html.accessibility-high-contrast .mic-btn.listening {
+    color: #ffdc7a !important;
+}
+
+html.accessibility-high-contrast .admin-filter-popup {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html.accessibility-high-contrast .admin-filter-popup h2 {
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .admin-header-actions .admin-filter-popup button {
+    border: 1px solid transparent !important;
+    background-color: #505050 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+}
+
+html.accessibility-high-contrast
+    .admin-header-actions .admin-filter-popup button:is(:hover, :focus-visible) {
+    border-color: #67a0ff !important;
+    background-color: #5b5b5b !important;
+}
+
+html.accessibility-high-contrast .admin-header-actions .admin-filter-popup button.selected {
+    border-color: #ffdc7a !important;
+    background-color: #ffdc7a !important;
+    color: #222 !important;
+}
+
 html.accessibility-high-contrast .btn-icon {
     border: 2px solid #67a0ff !important;
     background-color: #404040 !important;
@@ -519,6 +660,31 @@ html.accessibility-high-contrast .btn-icon {
 
 html.accessibility-high-contrast .btn-icon:is(:hover, :focus-visible) {
     background-color: #505050 !important;
+}
+
+html.accessibility-high-contrast .btn-qtd {
+    border: 2px solid #67a0ff !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast .btn-qtd:is(:hover, :focus-visible) {
+    background-color: #505050 !important;
+}
+
+html.accessibility-high-contrast .address-option-card {
+    border-color: transparent !important;
+    background-color: #404040 !important;
+    color: #fff !important;
+}
+
+html.accessibility-high-contrast
+    .address-option-card:is(:hover, :focus-within, .selecionado) {
+    background-color: #505050 !important;
+}
+
+html.accessibility-high-contrast .address-option-card.selecionado {
+    border-color: #67a0ff !important;
 }
 
 html.accessibility-high-contrast .btn-icon.is-favorite {
@@ -548,7 +714,7 @@ html.accessibility-high-contrast :where(button, a, [role="button"]) > i > svg {
 }
 
 html.accessibility-high-contrast :where(.edit-avatar, .profile-dialog-close,
-    .profile-icon-action, .btn-close-modal, .btn-back, .btn-back-icon, .back-button,
+    .profile-icon-action, .btn-close-modal, .btn-back, .btn-back-icon, .back-button, .profile-back,
     .order-review-close, .order-toast-close, .btn-close-toast, .add-icon-circle) {
     border: 2px solid #67a0ff !important;
     background-color: #404040 !important;
@@ -565,11 +731,11 @@ html.accessibility-high-contrast :where(.shortcut-card, .side-card, .payment-ico
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast)
     :where(.edit-avatar, .profile-dialog-close, .profile-icon-action, .btn-close-modal,
-    .btn-back, .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-back, .btn-back-icon, .back-button, .profile-back, .order-review-close, .order-toast-close,
     .btn-close-toast, .add-icon-circle):is(:hover, :focus-visible),
 html.accessibility-high-contrast
     :where(.edit-avatar, .profile-dialog-close, .profile-icon-action, .btn-close-modal,
-    .btn-back, .btn-back-icon, .back-button, .order-review-close, .order-toast-close,
+    .btn-back, .btn-back-icon, .back-button, .profile-back, .order-review-close, .order-toast-close,
     .btn-close-toast, .add-icon-circle):is(:hover, :focus-visible) {
     background-color: #5b5b5b !important;
     color: #fff !important;
@@ -659,6 +825,52 @@ html.accessibility-high-contrast .product-image-fade {
 
 html.accessibility-high-contrast :where(.footer-wrapper, .header, .profile-header, .admin-header) {
     filter: none !important;
+}
+
+/* Mantém estrelas preenchidas e vazias visualmente diferentes nos temas escuros. */
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.avaliacao-estrelas .estrela, .profile-review-stars > span) {
+    color: #9da1aa !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    :where(.avaliacao-estrelas .estrela.ativa, .profile-review-stars > span.active) {
+    color: #ffd75e !important;
+    text-shadow: 0 0 8px rgba(255, 215, 94, .22);
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .review-star-button {
+    background-color: transparent !important;
+    color: #9da1aa !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast)
+    .review-star-button:is(:hover, :focus-visible, .selected) {
+    color: #ffd75e !important;
+}
+
+/* No alto contraste, amarelo identifica a nota e cinza-claro identifica estrelas vazias. */
+html.accessibility-high-contrast
+    :where(.avaliacao-estrelas .estrela, .profile-review-stars > span) {
+    color: #b8bec8 !important;
+}
+
+html.accessibility-high-contrast
+    :where(.avaliacao-estrelas .estrela.ativa, .profile-review-stars > span.active) {
+    color: #ffdc7a !important;
+    text-shadow: 0 0 0 1px #111;
+}
+
+html.accessibility-high-contrast .review-star-button {
+    border: 1px solid transparent !important;
+    background-color: transparent !important;
+    color: #b8bec8 !important;
+}
+
+html.accessibility-high-contrast
+    .review-star-button:is(:hover, :focus-visible, .selected) {
+    border-color: #ffdc7a !important;
+    color: #ffdc7a !important;
 }
 
 @media (forced-colors: active) {
