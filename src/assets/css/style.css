@@ -485,7 +485,7 @@ button[type="submit"]:active {
 
 html.accessibility-dyslexic-font body,
 html.accessibility-dyslexic-font body * {
-    font-family: Arial, Verdana, sans-serif !important;
+    font-family: "OpenDyslexic", Arial, Verdana, sans-serif !important;
     letter-spacing: .04em;
 }
 

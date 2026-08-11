@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const inputNumero = document.getElementById('numero-cartao');
     const inputCvv = document.getElementById('cvv');
+    const inputVencimento = document.getElementById('vencimento');
     const brandImg = document.getElementById('card-brand-img');
     const displayNumero = document.getElementById('card-display-number');
     const displayCvv = document.getElementById('card-display-cvv');
@@ -19,6 +20,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let consultaBandeiraAtual = 0;
 
     if (!inputNumero) return;
+
+    if (inputVencimento) {
+        const hoje = new Date();
+        const mesAtual = String(hoje.getMonth() + 1).padStart(2, '0');
+        inputVencimento.min = `${hoje.getFullYear()}-${mesAtual}`;
+    }
 
     if (brandImg) {
         brandImg.hidden = true;

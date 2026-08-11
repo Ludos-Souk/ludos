@@ -17,21 +17,9 @@ import { configurarPesquisaCabecalho } from "./utils/ui.js";
 let produtosDoResumo = [];
 let primeiraCompraDoResumo = false;
 let cupomAplicado = null;
+let acionadorModalEndereco = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-
-    if (window.lucide) {
-        lucide.createIcons();
-    }
-
-    try {
-        await configurarEndereco();
-    } catch (erro) {
-        console.error("Não foi possível configurar o endereço:", erro);
-        mostrarFeedbackGlobal("Não foi possível carregar o endereço padrão.", "error");
-    }
-
-    // Inicializa busca do cabeçalho (submit -> redireciona para home com termo)
+function configurarPesquisaCheckout() {
     const inputBusca = document.getElementById('search-input');
     configurarPesquisaCabecalho({
         input: inputBusca,
@@ -41,7 +29,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = ROTAS.HOME;
         }
     });
+}
 
+async function carregarDadosIniciaisCheckout() {
+    try {
+        await configurarEndereco();
+    } catch (erro) {
+        console.error("Não foi possível configurar o endereço:", erro);
+        mostrarFeedbackGlobal("Não foi possível carregar o endereço padrão.", "error");
+    }
     let ehPrimeiraCompra = false;
     try {
         ehPrimeiraCompra = await verificarPrimeiraCompra();
@@ -50,209 +46,155 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarFeedbackGlobal("Não foi possível validar o desconto de primeira compra.", "error");
     }
     await carregarProdutosSelecionados(ehPrimeiraCompra);
-    configurarCupomCheckout();
+}
 
+function marcarOpcaoAtiva(opcoes, selecionada) {
+    opcoes.forEach(opcao => {
+        const ativa = opcao === selecionada;
+        opcao.classList.toggle('active', ativa);
+        opcao.setAttribute('aria-pressed', String(ativa));
+    });
+}
+
+function configurarEntregaCheckout() {
     const deliveryBtns = document.querySelectorAll('.delivery-toggle button');
-
     deliveryBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            deliveryBtns.forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-pressed', 'false');
-            });
-            btn.classList.add('active');
-            btn.setAttribute('aria-pressed', 'true');
-
+            marcarOpcaoAtiva(deliveryBtns, btn);
             atualizarResumoEntrega(btn.dataset.type);
         });
     });
+    const inicial = document.querySelector('.delivery-toggle button.active');
+    if (inicial) atualizarResumoEntrega(inicial.dataset.type);
+}
 
+function selecionarMetodoPagamento(optionSelecionada, paymentOptions, paymentContainer) {
+    marcarOpcaoAtiva(paymentOptions, optionSelecionada);
+    const method = optionSelecionada.dataset.method;
+    paymentContainer.dataset.activeMethod = method;
+    if (method === 'pix') {
+        renderizarResumoPagamento('pix');
+        return;
+    }
+    const parcela = document.querySelector('.installment-btn.active');
+    renderizarResumoPagamento('credit', parcela?.textContent || '1x de R$ 104');
+}
+
+function configurarPagamentoCheckout() {
     const paymentOptions = document.querySelectorAll('.payment-option');
     const paymentContainer = document.querySelector('.payment-options');
     const btnAddCard = document.querySelector('.btn-add-card');
-    const resumoPagamento = document.getElementById('resumo-pagamento');
+    btnAddCard?.addEventListener('click', () => { window.location.href = ROTAS.CARTAO; });
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', () => selecionarMetodoPagamento(option, paymentOptions, paymentContainer));
+    });
+    const inicial = document.querySelector('.payment-option.active');
+    if (inicial) selecionarMetodoPagamento(inicial, paymentOptions, paymentContainer);
+    return paymentContainer;
+}
 
-    if (btnAddCard) {
-        btnAddCard.addEventListener('click', () => {
-            window.location.href = ROTAS.CARTAO;
-        });
-    }
-    const btnChangeAddress = document.querySelector('.btn-change-address');
+function abrirSeletorEnderecos(modalEndereco) {
+    if (!modalEndereco) return;
+    abrirModalEndereco();
+    carregarEnderecos();
+}
+
+function configurarEnderecosCheckout() {
     const modalEndereco = document.getElementById('modal-endereco');
     const btnFecharModal = document.getElementById('btn-fechar-modal');
     const modalBody = document.querySelector('.modal-body');
     const btnConfirmar = document.querySelector('.btn-confirmar');
     const btnIrParaCadastro = document.querySelector('.btn-adicionar');
-
-    paymentOptions.forEach(option => {
-        option.addEventListener('click', () => selecionarMetodoPagamento(option));
-    });
-
-    function selecionarMetodoPagamento(optionSelecionada) {
-        paymentOptions.forEach(opt => {
-            opt.classList.remove('active');
-            opt.setAttribute('aria-pressed', 'false');
-        });
-
-        optionSelecionada.classList.add('active');
-        optionSelecionada.setAttribute('aria-pressed', 'true');
-
-        const method = optionSelecionada.dataset.method;
-        paymentContainer.dataset.activeMethod = method;
-
-        if (method === 'pix') {
-            renderizarResumoPagamento('pix');
-        } else if (method === 'credit') {
-            const activeInstallment = document.querySelector('.installment-btn.active');
-            const installmentText = activeInstallment ? activeInstallment.textContent : '1x de R$ 104';
-            renderizarResumoPagamento('credit', installmentText);
-        }
-    }
-
-    const initialActive = document.querySelector('.payment-option.active');
-    if (initialActive) {
-        selecionarMetodoPagamento(initialActive);
-    }
-
-    const initialDelivery = document.querySelector('.delivery-toggle button.active');
-    if (initialDelivery) {
-        atualizarResumoEntrega(initialDelivery.dataset.type);
-    }
-
-    if (btnChangeAddress) {
-        btnChangeAddress.addEventListener('click', () => {
-            if (modalEndereco) {
-                abrirModalEndereco();
-                carregarEnderecos();
-            }
-        });
-    }
-
-    if (modalEndereco) {
-        inicializarModalEndereco(modalEndereco, btnFecharModal, modalBody, btnConfirmar, btnIrParaCadastro);
-    }
-
+    document.querySelector('.btn-change-address')?.addEventListener('click', () => abrirSeletorEnderecos(modalEndereco));
+    if (modalEndereco) inicializarModalEndereco(modalEndereco, btnFecharModal, modalBody, btnConfirmar, btnIrParaCadastro);
     const enderecoWrapper = document.getElementById('checkout-address-wrapper');
-    if (enderecoWrapper) {
-        enderecoWrapper.addEventListener('click', (event) => {
-            const btnEdit = event.target.closest('.btn-edit, .btn-change-address');
-            if (!btnEdit) {
-                return;
-            }
-
-            if (modalEndereco) {
-                abrirModalEndereco();
-                carregarEnderecos();
-            }
-        });
-    }
-
-    if (btnConfirmar) {
-        btnConfirmar.addEventListener('click', () => {
-            document.body.classList.remove('modal-open');
-            modalEndereco?.close();
-        });
-    }
-
+    enderecoWrapper?.addEventListener('click', event => {
+        if (event.target.closest('.btn-edit, .btn-change-address')) abrirSeletorEnderecos(modalEndereco);
+    });
+    btnConfirmar?.addEventListener('click', () => modalEndereco?.close());
     inicializarModalBodyListeners(modalBody);
+}
 
-    (function() {
-        const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
-        if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
+function configurarNavegacaoCheckout() {
+    document.querySelector('button[aria-label="Ver meu carrinho"]')
+        ?.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
+    document.getElementById('btn-filter')?.addEventListener('click', () => {
+        if (window.location.pathname.endsWith(ROTAS.HOME)) return;
+        sessionStorage.setItem('open-filter', 'true');
+        window.location.href = ROTAS.HOME;
+    });
+}
 
-        const btnFiltro = document.getElementById('btn-filter');
-        if (btnFiltro) {
-            btnFiltro.addEventListener('click', (e) => {
-                if (!window.location.pathname.endsWith(ROTAS.HOME)) {
-                    sessionStorage.setItem('open-filter', 'true');
-                    window.location.href = ROTAS.HOME;
-                }
-            });
-        }
-    })();
-
+function configurarParcelasCheckout(paymentContainer) {
     const installmentBtns = document.querySelectorAll('.installment-btn');
-
     installmentBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            installmentBtns.forEach(b => {
-                b.classList.remove('active');
-                b.setAttribute('aria-pressed', 'false');
-            });
-            btn.classList.add('active');
-            btn.setAttribute('aria-pressed', 'true');
-
+            marcarOpcaoAtiva(installmentBtns, btn);
             if(paymentContainer.dataset.activeMethod === 'credit') {
                 renderizarResumoPagamento('credit', btn.textContent);
             }
         });
     });
+}
 
-    const btnFinalizarPedido = document.querySelector('.btn-buy.btn-continue');
-    if (btnFinalizarPedido) {
-        btnFinalizarPedido.addEventListener('click', async () => {
-            const textoOriginal = btnFinalizarPedido.textContent;
-            btnFinalizarPedido.disabled = true;
-            btnFinalizarPedido.textContent = 'Finalizando pedido...';
-            const payload = montarPayloadPedido();
-            sessionStorage.setItem('pedidoFinalizacao', JSON.stringify(payload));
+function criarPedidoDoPayload(payload, uid) {
+    return new Pedido(null, payload.produtos, payload.preco, payload.desconto, payload.endereco,
+        payload.formaEntrega, payload.metodo, payload.parcelas, 'Pendente', uid, new Date().toISOString());
+}
 
-            if (payload.metodo === 'Pix') {
-                btnFinalizarPedido.textContent = 'Abrindo pagamento Pix...';
-                window.location.href = ROTAS.PIX;
-                return;
-            }
+async function persistirPedidoCheckout(payload) {
+    const usuario = await aguardarUsuario();
+    if (!usuario?.uid) throw new Error('Sua sessão expirou. Entre novamente para concluir o pedido.');
+    await criarPedido(criarPedidoDoPayload(payload, usuario.uid));
+    await Promise.all(payload.produtos.map(item => item?.produtoId && item.quantidade > 0
+        ? reduzirEstoqueProduto(item.produtoId, item.quantidade)
+        : Promise.resolve()));
+    payload.produtos.forEach(item => { if (item?.produtoId) removerProduto(item.produtoId); });
+    sessionStorage.removeItem('produtosSelecionados');
+}
 
-            try {
-                const usuario = await aguardarUsuario();
-                if (!usuario?.uid) {
-                    throw new Error('Sua sessão expirou. Entre novamente para concluir o pedido.');
-                }
-
-                const pedido = new Pedido(
-                    null,
-                    payload.produtos,
-                    payload.preco,
-                    payload.desconto,
-                    payload.endereco,
-                    payload.formaEntrega,
-                    payload.metodo,
-                    payload.parcelas,
-                    'Pendente',
-                    usuario.uid,
-                    new Date().toISOString()
-                );
-
-                await criarPedido(pedido);
-
-                await Promise.all(payload.produtos.map(item => {
-                    if (item?.produtoId && item.quantidade > 0) {
-                        return reduzirEstoqueProduto(item.produtoId, item.quantidade);
-                    }
-                    return Promise.resolve();
-                }));
-
-                payload.produtos.forEach(item => {
-                    if (item?.produtoId) {
-                        removerProduto(item.produtoId);
-                    }
-                });
-
-                sessionStorage.removeItem('produtosSelecionados');
-                window.location.href = ROTAS.SUCESSO_PEDIDO;
-            } catch (erro) {
-                console.error('Erro ao criar pedido:', erro);
-                salvarFeedbackNavegacao(
-                    erro.message || 'Não foi possível finalizar o pedido. Tente novamente.',
-                    'error'
-                );
-                btnFinalizarPedido.disabled = false;
-                btnFinalizarPedido.textContent = textoOriginal;
-                window.location.href = ROTAS.ERRO_PEDIDO;
-            }
-        });
+async function finalizarPedidoCheckout(botao) {
+    const textoOriginal = botao.textContent;
+    botao.disabled = true;
+    botao.textContent = 'Finalizando pedido...';
+    const payload = montarPayloadPedido();
+    sessionStorage.setItem('pedidoFinalizacao', JSON.stringify(payload));
+    if (payload.metodo === 'Pix') {
+        botao.textContent = 'Abrindo pagamento Pix...';
+        window.location.href = ROTAS.PIX;
+        return;
     }
-});
+    try {
+        await persistirPedidoCheckout(payload);
+        window.location.href = ROTAS.SUCESSO_PEDIDO;
+    } catch (erro) {
+        console.error('Erro ao criar pedido:', erro);
+        salvarFeedbackNavegacao(erro.message || 'Não foi possível finalizar o pedido. Tente novamente.', 'error');
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+        window.location.href = ROTAS.ERRO_PEDIDO;
+    }
+}
+
+function configurarFinalizacaoPedido() {
+    const botao = document.querySelector('.btn-buy.btn-continue');
+    botao?.addEventListener('click', () => finalizarPedidoCheckout(botao));
+}
+
+async function inicializarCheckout() {
+    window.lucide?.createIcons();
+    configurarPesquisaCheckout();
+    await carregarDadosIniciaisCheckout();
+    configurarCupomCheckout();
+    configurarEntregaCheckout();
+    const paymentContainer = configurarPagamentoCheckout();
+    configurarEnderecosCheckout();
+    configurarNavegacaoCheckout();
+    configurarParcelasCheckout(paymentContainer);
+    configurarFinalizacaoPedido();
+}
+
+document.addEventListener('DOMContentLoaded', inicializarCheckout);
 
 function renderizarResumoPagamento(method, installmentText = '') {
     const resumoPagamento = document.getElementById('resumo-pagamento');
@@ -628,6 +570,9 @@ function abrirModalEndereco() {
         return;
     }
 
+    acionadorModalEndereco = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     modalEndereco.showModal();
 
     requestAnimationFrame(() => {
@@ -651,19 +596,32 @@ async function carregarEnderecos() {
 }
 
 function inicializarModalEndereco(modalEndereco, btnFecharModal, modalBody, btnConfirmar, btnIrParaCadastro) {
+    const fecharModal = () => {
+        if (modalEndereco.open) modalEndereco.close();
+    };
+
     if (btnFecharModal) {
-        btnFecharModal.addEventListener('click', () => {
-            document.body.classList.remove('modal-open');
-            modalEndereco.close();
-        });
+        btnFecharModal.addEventListener('click', fecharModal);
     }
 
     if (modalEndereco) {
         modalEndereco.addEventListener('click', (event) => {
             if (event.target === modalEndereco) {
-                document.body.classList.remove('modal-open');
-                modalEndereco.close();
+                fecharModal();
             }
+        });
+
+        modalEndereco.addEventListener('cancel', (event) => {
+            event.preventDefault();
+            fecharModal();
+        });
+
+        modalEndereco.addEventListener('close', () => {
+            document.body.classList.remove('modal-open');
+            if (acionadorModalEndereco?.isConnected) {
+                acionadorModalEndereco.focus({ preventScroll: true });
+            }
+            acionadorModalEndereco = null;
         });
     }
 
@@ -681,29 +639,34 @@ function carregarListaEnderecos(enderecos) {
     modalBody.classList.remove('modal-body-empty');
     modalBody.replaceChildren();
 
-    const lista = document.createElement('ul');
+    const lista = document.createElement('section');
     lista.className = 'address-list';
-    lista.role = 'listbox';
-    lista.ariaLabel = 'Selecione um endereço de entrega';
+    lista.setAttribute('aria-label', 'Endereços de entrega disponíveis');
 
     const fragment = document.createDocumentFragment();
 
     enderecos.forEach(endereco => {
-        const item = document.createElement('li');
-        item.role = 'option';
-        item.dataset.id = endereco.id;
-
         const card = document.createElement('article');
         card.className = 'address-option-card';
         card.dataset.id = endereco.id;
         card.dataset.etiqueta = endereco.etiqueta;
 
-        if (obterConfiguracao('enderecoPadrao')?.id === endereco.id) {
+        const selecionado = obterConfiguracao('enderecoPadrao')?.id === endereco.id;
+
+        if (selecionado) {
             card.classList.add('selecionado');
         }
 
-        card.tabIndex = 0;
-        card.setAttribute('role', 'button');
+        const botaoSelecionar = document.createElement('button');
+        botaoSelecionar.type = 'button';
+        botaoSelecionar.className = 'address-select-button';
+        botaoSelecionar.dataset.id = endereco.id;
+        botaoSelecionar.dataset.etiqueta = endereco.etiqueta;
+        botaoSelecionar.setAttribute('aria-pressed', String(selecionado));
+        botaoSelecionar.setAttribute(
+            'aria-label',
+            `Selecionar endereço ${endereco.etiqueta}: ${endereco.rua}, número ${endereco.numero}, ${endereco.cidade}`
+        );
 
         const header = document.createElement('header');
         const tag = document.createElement('h4');
@@ -711,8 +674,8 @@ function carregarListaEnderecos(enderecos) {
         tag.textContent = endereco.etiqueta;
         header.append(tag);
 
-        const content = document.createElement('section');
-        content.className = 'address-option-content';
+        const content = document.createElement('span');
+        content.className = 'address-option-main';
 
         const icone = document.createElement('i');
         icone.setAttribute('data-lucide', 'map-pin');
@@ -742,10 +705,10 @@ function carregarListaEnderecos(enderecos) {
         botaoEditar.dataset.id = endereco.id;
         botaoEditar.textContent = 'Editar';
 
-        content.append(icone, address, botaoEditar);
-        card.append(header, content);
-        item.append(card);
-        fragment.append(item);
+        content.append(icone, address);
+        botaoSelecionar.append(header, content);
+        card.append(botaoSelecionar, botaoEditar);
+        fragment.append(card);
     });
 
     lista.append(fragment);
@@ -754,29 +717,33 @@ function carregarListaEnderecos(enderecos) {
     if (window.lucide) {
         window.lucide.createIcons();
     }
+
+    if (document.getElementById('modal-endereco')?.open) {
+        requestAnimationFrame(() => {
+            (lista.querySelector('.address-select-button[aria-pressed="true"]')
+                || lista.querySelector('.address-select-button'))?.focus();
+        });
+    }
 }
 
 function inicializarModalBodyListeners(modalBody) {
     if (!modalBody) return;
 
     modalBody.addEventListener('click', (event) => {
-        if (event.target.closest('.btn-edit-address')) {
-            return;
-        }
-
-        const card = event.target.closest('.address-option-card');
-        if (!card) {
-            return;
-        }
+        const botaoSelecionar = event.target.closest('.address-select-button');
+        if (!botaoSelecionar) return;
 
         document.querySelectorAll('.address-option-card').forEach(card => {
             card.classList.remove('selecionado');
+            card.querySelector('.address-select-button')?.setAttribute('aria-pressed', 'false');
         });
 
+        const card = botaoSelecionar.closest('.address-option-card');
         card.classList.add('selecionado');
+        botaoSelecionar.setAttribute('aria-pressed', 'true');
 
-        const id = card.dataset.id;
-        const etiqueta = card.dataset.etiqueta;
+        const id = botaoSelecionar.dataset.id;
+        const etiqueta = botaoSelecionar.dataset.etiqueta;
 
         salvarConfiguracao('enderecoPadrao', { id, etiqueta });
         criarCardEndereco(etiqueta);
@@ -871,7 +838,7 @@ function criarCheckoutProductStrip(produto, quantidade) {
     section.dataset.desconto = produto.desconto ?? 0;
 
     const figure = document.createElement('figure');
-    figure.className = 'product-images';
+    figure.className = 'product-images product-image-fade';
 
     const imagem = document.createElement('img');
     imagem.className = 'checkout-product-image';

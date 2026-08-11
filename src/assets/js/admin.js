@@ -132,7 +132,7 @@ function criarCelula(rotulo, conteudo, classe = "") {
 
 function criarMiniatura(produto) {
     const moldura = document.createElement("span");
-    moldura.className = "product-thumb";
+    moldura.className = "product-thumb product-image-fade";
 
     if (produto.imagem) {
         const imagem = document.createElement("img");
@@ -303,7 +303,12 @@ function criarProdutoDoFormulario(formulario, imagem, criadoEm, id = null) {
 function atualizarPreview(formulario, imagemPadrao = "") {
     const preview = formulario.closest("dialog").querySelector(".product-preview");
     const arquivo = formulario.elements.imagem.files?.[0];
+    const textoSeletor = formulario.querySelector(".file-picker-text");
     const moldura = preview.querySelector(".preview-image");
+    if (textoSeletor) {
+        textoSeletor.textContent = arquivo?.name || (imagemPadrao ? "Trocar imagem" : "Carregar imagem");
+        textoSeletor.title = arquivo?.name || "";
+    }
     if (urlTemporariaPreview) URL.revokeObjectURL(urlTemporariaPreview);
     urlTemporariaPreview = arquivo ? URL.createObjectURL(arquivo) : null;
     const url = urlTemporariaPreview || imagemPadrao;

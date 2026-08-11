@@ -81,8 +81,8 @@
                     <div class="grid-2-cols grid-vencimento-cvv">
                         <label class="input-wrapper">
                             <span class="sr-only">Vencimento</span>
-                            <input type="text" id="vencimento" name="vencimento" placeholder="Vencimento"
-                                   maxlength="7" inputmode="numeric" autocomplete="cc-exp">
+                            <input type="month" id="vencimento" name="vencimento"
+                                   aria-label="Mês e ano de vencimento do cartão" autocomplete="cc-exp" required>
                             <button type="button" class="btn-clear-input" aria-label="Limpar campo">
                                 <i data-lucide="x" aria-hidden="true"></i>
                             </button>

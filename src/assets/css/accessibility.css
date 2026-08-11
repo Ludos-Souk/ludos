@@ -1,4 +1,20 @@
 /* Temas globais de acessibilidade. Este arquivo deve ser carregado após o CSS da página. */
+@font-face {
+    font-family: "OpenDyslexic";
+    src: url("../fonts/opendyslexic-regular.woff2") format("woff2");
+    font-weight: 400 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "OpenDyslexic";
+    src: url("../fonts/opendyslexic-bold.woff2") format("woff2");
+    font-weight: 700 900;
+    font-style: normal;
+    font-display: swap;
+}
+
 .face-navigation-panel {
     position: fixed; z-index: 3200; right: 20px; bottom: 20px;
     display: grid; grid-template-columns: 62px minmax(145px, 1fr) auto auto;
@@ -46,7 +62,7 @@ html.accessibility-dyslexic-font body,
 html.accessibility-dyslexic-font body :where(h1, h2, h3, h4, h5, h6, p, span,
     a, button, label, input, textarea, select, option, li, dt, dd, output, small,
     strong, em, address, legend, table, th, td) {
-    font-family: Arial, Verdana, Tahoma, sans-serif !important;
+    font-family: "OpenDyslexic", Arial, Verdana, Tahoma, sans-serif !important;
     letter-spacing: .04em !important;
     word-spacing: .08em;
 }
@@ -306,6 +322,10 @@ html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-g
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-gradient::after {
     background: linear-gradient(to bottom, transparent, #444) !important;
+}
+
+html.accessibility-dark-theme:not(.accessibility-high-contrast) .product-image-fade {
+    --product-image-fade-color: #444;
 }
 
 html.accessibility-dark-theme:not(.accessibility-high-contrast) .btn-icon {
@@ -631,6 +651,10 @@ html.accessibility-high-contrast .product-image-gradient {
 
 html.accessibility-high-contrast .product-image-gradient::after {
     background: linear-gradient(to bottom, transparent, #404040) !important;
+}
+
+html.accessibility-high-contrast .product-image-fade {
+    --product-image-fade-color: #404040;
 }
 
 html.accessibility-high-contrast :where(.footer-wrapper, .header, .profile-header, .admin-header) {
