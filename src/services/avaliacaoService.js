@@ -64,7 +64,8 @@ export async function listarAvaliacoesProduto(
             dados.criadoEm,
             dados.nota,
             dados.produtoId,
-            dados.usuarioId
+            dados.usuarioId,
+            dados.nomeUsuario || null
         );
 
     });
@@ -92,7 +93,8 @@ export async function listarAvaliacoesUsuario(usuarioId) {
             dados.criadoEm,
             dados.nota,
             dados.produtoId,
-            dados.usuarioId
+            dados.usuarioId,
+            dados.nomeUsuario || null
         );
     });
 }

@@ -157,15 +157,20 @@ function criarSeletorProduto(item, index) {
 function criarCabecalhoCardCarrinho(item, index) {
     const cabecalho = document.createElement("header");
     const acoes = criarAcoesCardCarrinho(item);
+    const grupoAcoes = document.createElement("div");
+
     cabecalho.className = "cart-card-header";
-    cabecalho.append(acoes.menu);
+    grupoAcoes.className = "cart-card-actions";
+
     if (item.desconto > 0) {
         const badge = document.createElement("mark");
         badge.className = "badge discount-badge";
         badge.textContent = `${item.desconto}% OFF`;
-        cabecalho.append(badge);
+        grupoAcoes.append(badge);
     }
-    cabecalho.append(criarSeletorProduto(item, index));
+
+    grupoAcoes.append(acoes.menu);
+    cabecalho.append(grupoAcoes, criarSeletorProduto(item, index));
     return { cabecalho, ...acoes };
 }
 

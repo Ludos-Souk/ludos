@@ -200,13 +200,26 @@ input[type="checkbox"]:checked + .custom-checkbox {
 .cart-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 16px;
+}
+
+.cart-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
 }
 
 .cart-actions-left {
     display: flex;
+    align-items: center;
     gap: 12px;
+}
+
+.cart-card-header .discount-badge {
+    flex: 0 0 auto;
 }
 
 .cart-product-image {

@@ -237,7 +237,7 @@ input:focus-visible {
 .search-icon {
     position: absolute;
     left: 25px;
-    color: #000;
+    color: var(--text-dark);
     font-size: 18px;
 }
 
@@ -246,7 +246,7 @@ input:focus-visible {
     right: 25px;
     background: none;
     border: none;
-    color: #000;
+    color: var(--text-dark);
     font-size: 18px;
 }
 
@@ -399,11 +399,6 @@ input:focus-visible {
 
 .promo-banner[hidden] { display: none; }
 
-.arrow-icon {
-    font-size: 24px;
-    color: var(--text-dark);
-}
-
 .orders-card h3 {
     font-size: 20px;
     font-weight: 600;
@@ -520,7 +515,7 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
     font-size: 18px;
     display: flex;
     align-items: center;
-    color: #111;
+    color: var(--text-dark);
     gap: 3px;
 }
 
@@ -850,7 +845,7 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 .btn-arrow {
     background: none;
     border: none;
-    color: #444;
+    color: var(--text-body);
     font-size: 24px;
     width: 32px;
     height: 32px;
@@ -860,7 +855,7 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 }
 
 .btn-arrow:hover {
-    color: #000;
+    color: var(--text-dark);
 }
 
 /* ============================================================
@@ -993,7 +988,7 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 .modal-title {
     font-size: 20px;
     font-weight: 600;
-    color: #111;
+    color: var(--text-dark);
     margin-bottom: 20px;
     padding-right: 30px;
 }
@@ -1168,7 +1163,7 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 .address-option-main > i,
 .address-option-content > i {
     font-size: 24px;
-    color: #111;
+    color: var(--text-dark);
 }
 
 .address-text {
@@ -1181,13 +1176,13 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 .address-name {
     font-weight: 600;
     font-size: 15px;
-    color: #333;
+    color: var(--text-body);
 }
 
 .address-street {
     font-weight: 700;
     font-size: 16px;
-    color: #111;
+    color: var(--text-dark);
 }
 
 .address-cep {
@@ -1196,8 +1191,8 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 }
 
 .btn-edit-address {
-    background: #e2e4ea;
-    color: #333;
+    background: var(--bg-hover);
+    color: var(--text-dark);
     border: none;
     border-radius: 999px;
     padding: 12px 24px;
@@ -1207,7 +1202,8 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
 }
 
 .btn-edit-address:hover {
-    background: #d1d4dc;
+    background: var(--bg-hover);
+    filter: brightness(.94);
 }
 
 .address-select-button:focus-visible,
@@ -1285,7 +1281,7 @@ body.modal-open {
 .btn-back:hover,
 .btn-back:focus-visible {
     background-color: var(--bg-hover);
-    color: #111;
+    color: var(--text-dark);
 }
 
 .page-title-group {
@@ -1675,7 +1671,7 @@ select {
 .filter-popup h3 {
     font-size: 16px;
     font-weight: 700;
-    color: #000000;
+    color: var(--text-dark);
     margin: 0;
     text-align: left;
 }
@@ -1690,12 +1686,12 @@ select {
     width: 100%;
     height: auto;
     padding: 14px 18px;
-    background-color: #807E7D1A;
+    background-color: var(--bg-subtle);
     border: none;
     border-radius: 999px;
     font-weight: 600;
     font-size: 14px;
-    color: #4342428A;
+    color: var(--text-body);
     text-align: left;
     display: block;
     transition: background-color var(--transition-default), color var(--transition-default);
@@ -1703,8 +1699,8 @@ select {
 
 .header-icons .filter-popup .btn-filter-option:hover,
 .header-icons .filter-popup .btn-filter-option:focus-visible {
-    background-color: #c1c3c7;
-    color: #111;
+    background-color: var(--bg-hover);
+    color: var(--text-dark);
 }
 
 .header-icons .filter-popup .btn-filter-option.selecionado {

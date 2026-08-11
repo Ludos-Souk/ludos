@@ -1,3 +1,5 @@
+// Responsabilidade do arquivo: Monta os detalhes do produto, quantidade, carrinho, favoritos, avaliações e relacionados.
+
 import { ROTAS } from "../../config/rotas.js";
 // #region Imports
 import { listarAvaliacoesProduto } from "../../services/avaliacaoService.js";
@@ -10,6 +12,7 @@ import { mostrarFeedbackGlobal } from "./utils/asyncFeedback.js";
 // #endregion
 
 // #region Utilitários de UI
+/** Cria um marcador que o Lucide transformará no ícone solicitado. */
 function criarIcone(dataLucide) {
     const icone = document.createElement("i");
     icone.setAttribute("data-lucide", dataLucide);
@@ -17,6 +20,7 @@ function criarIcone(dataLucide) {
     return icone;
 }
 
+/** Cria o parágrafo usado para comunicar carregamento, erro ou ausência de dados. */
 function criarMensagemEstado(texto, classe = "sem-avaliacoes") {
     const mensagem = document.createElement("p");
     mensagem.className = classe;
@@ -39,13 +43,16 @@ configurarPesquisaCabecalho({
 /* Header navigation helpers: cart and filter fallback */
 (function() {
     const btnCart = document.querySelector('button[aria-label="Ver meu carrinho"]');
+    // Escuta o evento "click" em if (btnCart) btnCart e executa o tratamento abaixo.
     if (btnCart) btnCart.addEventListener('click', () => { window.location.href = ROTAS.CARRINHO; });
 
     const btnPerfil = document.querySelector('button[aria-label="Acessar meu perfil"]');
+    // Escuta o evento "click" em if (btnPerfil) btnPerfil e executa o tratamento abaixo.
     if (btnPerfil) btnPerfil.addEventListener('click', () => { window.location.href = ROTAS.PERFIL; });
 
     const btnFavoritos = document.querySelector('button[aria-label="Ver meus favoritos"]');
     if (btnFavoritos) {
+        // Escuta o evento "click" em btnFavoritos e executa o tratamento abaixo.
         btnFavoritos.addEventListener('click', () => {
             window.location.href = `${ROTAS.PERFIL}?abrir=favoritos`;
         });
@@ -53,6 +60,7 @@ configurarPesquisaCabecalho({
 
     const btnFiltro = document.getElementById('btn-filter');
     if (btnFiltro) {
+        // Escuta o evento "click" em btnFiltro e executa o tratamento abaixo.
         btnFiltro.addEventListener('click', (e) => {
             if (!window.location.pathname.endsWith(ROTAS.HOME)) {
                 sessionStorage.setItem('open-filter', 'true');
@@ -79,6 +87,7 @@ let bannerFechado   = false;
 // #endregion
 
 // #region Banner promocional (mesmo comportamento da home)
+/** Exibe ou oculta o banner promocional conforme o estado atual. */
 function alternarBanner() {
     bannerFechado = true;
     banner.classList.add("oculto");
@@ -87,6 +96,7 @@ function alternarBanner() {
 }
 window.alternarBanner = alternarBanner;
 
+// Escuta o evento "scroll" em window e executa o tratamento abaixo.
 window.addEventListener("scroll", () => {
     if (window.scrollY > 30) {
         banner?.classList.add("compact");
@@ -121,7 +131,6 @@ try {
         buscarProdutoPorId(idProduto),
         buscarProdutosAtivos()
     ]);
-
     if (!produto) {
         const container = document.getElementById("produto-detalhe");
         container?.replaceChildren(criarMensagemEstado("Produto não encontrado."));
@@ -138,6 +147,7 @@ try {
 // #endregion
 
 // #region Render do produto
+/** Reconstrói a área principal com dados, imagem, preço, estoque e avaliações. */
 async function renderProduto(produto) {
 
     const container =
@@ -159,7 +169,6 @@ async function renderProduto(produto) {
         info.elemento,
         colunaAvaliacoes
     );
-
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -191,8 +200,10 @@ async function renderProduto(produto) {
     );
 }
 
+/** Faz o botão de compra adicionar o produto atual ao carrinho. */
 function configurarComprar(btnComprar, produtoId) {
 
+    // Escuta o evento "click" em btnComprar e executa o tratamento abaixo.
     btnComprar.addEventListener("click", () => {
         const quantidade = quantidadeProduto(produtoId);
         if (quantidade <= 0) {
@@ -212,6 +223,7 @@ function configurarComprar(btnComprar, produtoId) {
     });
 }
 
+/** Monta a coluna com franquia, nome, descrição, preço e ações do produto. */
 function criarColunaInfo(produto) {
 
     const coluna =
@@ -276,6 +288,7 @@ function criarColunaInfo(produto) {
 
 }
 
+/** Monta os botões de favoritar e adicionar ao carrinho no topo do produto. */
 function criarTopoAcoes(produto) {
 
     const topo =
@@ -283,7 +296,6 @@ function criarTopoAcoes(produto) {
 
     topo.className =
         "produto-topo-acoes";
-
     if (produto.desconto > 0) {
 
         const badge =
@@ -311,6 +323,7 @@ function criarTopoAcoes(produto) {
     btnFavorito.className =
         "btn-icon";
 
+    btnFavorito.setAttribute("aria-label", "Adicionar aos favoritos");
     if (ehFavorito(produto.id)) {
         btnFavorito.classList.add(
             "is-favorite"
@@ -331,6 +344,7 @@ function criarTopoAcoes(produto) {
     btnCarrinho.className =
         "btn-icon";
 
+    btnCarrinho.setAttribute("aria-label", "Adicionar ao carrinho");
     if (estaNoCarrinho(produto.id)) {
         btnCarrinho.classList.add(
             "is-cart"
@@ -354,6 +368,7 @@ function criarTopoAcoes(produto) {
 
 }
 
+/** Monta a área de preço normal ou promocional do produto. */
 function criarPreco(produto) {
 
     const preco =
@@ -395,6 +410,7 @@ function criarPreco(produto) {
 
 }
 
+/** Monta o seletor de quantidade respeitando estoque e quantidade no carrinho. */
 function criarControleQuantidade() {
 
     const container =
@@ -412,6 +428,8 @@ function criarControleQuantidade() {
     btnMenos.className =
         "btn-qtd";
 
+    btnMenos.setAttribute("aria-label", "Diminuir quantidade");
+
     btnMenos.appendChild(criarIcone("minus"));
 
     const valor =
@@ -419,6 +437,8 @@ function criarControleQuantidade() {
 
     valor.className =
         "qtd-valor";
+
+    valor.setAttribute("aria-live", "polite");
 
     const btnMais =
         document.createElement("button");
@@ -428,6 +448,8 @@ function criarControleQuantidade() {
 
     btnMais.className =
         "btn-qtd";
+
+    btnMais.setAttribute("aria-label", "Aumentar quantidade");
 
     btnMais.appendChild(criarIcone("plus"));
 
@@ -448,6 +470,7 @@ function criarControleQuantidade() {
 
 }
 
+/** Monta a coluna que receberá a média e a lista de avaliações do produto. */
 function criarColunaAvaliacoes() {
 
     const coluna =
@@ -485,29 +508,41 @@ function criarColunaAvaliacoes() {
 
 }
 
+/** Sincroniza os botões de quantidade com estoque, interface e carrinho persistido. */
 function configurarQuantidade(
     btnMais,
     btnMenos,
     valor,
     produto
 ) {
+    const atualizarControle = (quantidade) => {
+        valor.textContent = quantidade;
+        valor.setAttribute("aria-label", `Quantidade: ${quantidade}`);
+        btnMenos.disabled = quantidade <= 0;
+        btnMais.disabled = quantidade >= produto.estoque;
+    };
+
+    // Começa com a quantidade já armazenada ou zero para um produto novo.
     if (estaNoCarrinho(produto.id)) {
-        valor.textContent = quantidadeProduto(produto.id);
+        atualizarControle(quantidadeProduto(produto.id));
     } else {
-        valor.textContent = 0
+        atualizarControle(0);
     }
 
 
+    // Aumenta a quantidade escolhida quando o usuário aciona o botão de mais.
     btnMais.addEventListener(
         "click",
         () => {
             let quantidade = parseInt(valor.textContent);
 
+            // Impede que a quantidade ultrapasse o estoque atual.
             if ( quantidade < produto.estoque) {
                 quantidade++;
-                valor.textContent = quantidade;
+                atualizarControle(quantidade);
             }
 
+            // Cria a entrada na primeira unidade e depois apenas atualiza sua quantidade.
             if (!estaNoCarrinho(produto.id) && quantidade > 0) {
                 adicionarProduto(produto.id, quantidade);
                 document.getElementById("btn-carrinho-detalhe").classList.add("is-cart");
@@ -517,15 +552,17 @@ function configurarQuantidade(
         }
     );
 
+    // Diminui a quantidade escolhida quando o usuário aciona o botão de menos.
     btnMenos.addEventListener(
         "click",
         () => {
             let quantidade = parseInt(valor.textContent);
             if (quantidade > 0) {
                 quantidade--;
-                valor.textContent = quantidade;
+                atualizarControle(quantidade);
             }
 
+            // Zero remove completamente o item e também o estado visual do botão.
             if (quantidade === 0) {
                 if (estaNoCarrinho(produto.id)) {
                     removerProduto(produto.id);
@@ -538,6 +575,7 @@ function configurarQuantidade(
     );
 }
 
+/** Monta a coluna visual com a imagem principal do produto. */
 function criarColunaImagem(produto) {
 
     const coluna =
@@ -584,30 +622,37 @@ function criarColunaImagem(produto) {
 
 }
 
+/** Alterna o produto nos favoritos e atualiza o estado visual do botão. */
 function configurarFavorito(botaoFavorito, produto) {
+    // Escuta o evento "click" em botaoFavorito e executa o tratamento abaixo.
     botaoFavorito.addEventListener("click", (e) => {
         e.currentTarget.classList.toggle("is-favorite");
         toggleFavorito(produto.id);
     });
 }
 
+/** Alterna a presença no carrinho e mantém o contador da página coerente. */
 function configurarCarrinho(botaoCarrinho, produto) {
+    // Escuta o evento "click" em botaoCarrinho e executa o tratamento abaixo.
     botaoCarrinho.addEventListener("click", (e) => {
         e.currentTarget.classList.toggle("is-cart");
         toggleCarrinho(produto.id);
 
-        if (estaNoCarrinho(produto.id) && document.querySelector(".qtd-valor").textContent == 0 ) {
-            document.querySelector(".qtd-valor").textContent = 1;
-        } else {
-            document.querySelector(".qtd-valor").textContent = 0;
-        }
+        const valor = document.querySelector(".qtd-valor");
+        const quantidade = estaNoCarrinho(produto.id) && Number(valor.textContent) === 0 ? 1 : 0;
+        const [btnMenos, btnMais] = document.querySelectorAll(".produto-quantidade .btn-qtd");
 
-        alterarQuantidade(produto.id, parseInt(document.querySelector(".qtd-valor").textContent));
+        valor.textContent = quantidade;
+        valor.setAttribute("aria-label", `Quantidade: ${quantidade}`);
+        btnMenos.disabled = quantidade <= 0;
+        btnMais.disabled = quantidade >= produto.estoque;
+        alterarQuantidade(produto.id, quantidade);
     });
 }
 // #endregion
 
 // #region Avaliações
+/** Busca avaliações do produto e atualiza média, distribuição e comentários. */
 async function carregarAvaliacoes(idProduto) {
     const lista = document.getElementById("avaliacoes-lista");
     lista.setAttribute("aria-busy", "true");
@@ -637,6 +682,7 @@ async function carregarAvaliacoes(idProduto) {
     }
 }
 
+/** Monta nome do autor, nota, data e comentário de uma avaliação. */
 async function criarCardAvaliacao(avaliacao) {
 
     const artigo =
@@ -697,6 +743,7 @@ async function criarCardAvaliacao(avaliacao) {
 
 }
 
+/** Converte uma nota numérica em cinco estrelas preenchidas ou vazias. */
 function renderEstrelas(nota) {
     return Array.from({ length: 5 }, (_, i) => {
         const estrela = document.createElement("span");
@@ -709,11 +756,11 @@ function renderEstrelas(nota) {
 // #endregion
 
 // #region Grid de produtos relacionados (mesma lógica da home, tamanho menor)
+/** Renderiza produtos da mesma franquia, excluindo o item atualmente aberto. */
 function renderRelacionados(lista, idAtual) {
     const container = document.getElementById("lista-relacionados");
 
     const relacionados = lista.filter(p => p.id !== idAtual);
-
     if (relacionados.length === 0) {
         container.style.display = "none";
         return;
@@ -727,7 +774,6 @@ function renderRelacionados(lista, idAtual) {
     });
 
     container.appendChild(fragment);
-
     if (window.lucide) {
         window.lucide.createIcons();
     }
@@ -760,6 +806,7 @@ function renderRelacionados(lista, idAtual) {
     });
 }
 
+/** Monta um card navegável de produto relacionado. */
 function criarCardRelacionado(produto) {
     const card = document.createElement("article");
     card.className = "product-card";
@@ -767,7 +814,6 @@ function criarCardRelacionado(produto) {
 
     const topo = document.createElement("header");
     topo.className = "product-top";
-
     if (produto.desconto > 0) {
         const badge = document.createElement("mark");
         badge.className = "badge discount-badge";
