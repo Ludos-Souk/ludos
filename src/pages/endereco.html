@@ -65,7 +65,9 @@
 
                     <label class="input-wrapper">
                         <span class="sr-only">CEP</span>
-                        <input type="text" id="cep-input" placeholder="CEP" name="cep" autocomplete="postal-code" required>
+                        <input type="text" id="cep-input" placeholder="CEP" name="cep"
+                               inputmode="numeric" maxlength="9" pattern="[0-9]{5}-?[0-9]{3}"
+                               title="Digite um CEP válido com 8 números" autocomplete="postal-code" required>
                         <button type="button" class="btn-clear-input" aria-label="Limpar campo"><i data-lucide="x" aria-hidden="true"></i></button>
                     </label>
                 </section>

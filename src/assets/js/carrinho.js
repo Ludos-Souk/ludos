@@ -7,7 +7,6 @@ import {
     ehFavorito
 } from "../../services/favoritosService.js";
 import {
-    verificarLogin,
     obterUid
 } from "../../services/authService.js";
 import {
@@ -80,8 +79,6 @@ const summarySubtotal = document.getElementById('summary-subtotal');
 const summaryDiscount = document.getElementById('summary-discount');
 const summaryTotal = document.getElementById('summary-total');
 
-const VALOR_DESCONTO = 0; 
-
 let cartData = [];
 
 async function inicializar() {
@@ -106,611 +103,235 @@ async function inicializar() {
     }
 }
 
+function criarIcone(nome) {
+    const icone = document.createElement("i");
+    icone.setAttribute("data-lucide", nome);
+    return icone;
+}
+
+function criarBotaoIcone(classe, nomeIcone, rotulo) {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = classe;
+    botao.setAttribute("aria-label", rotulo);
+    botao.append(criarIcone(nomeIcone));
+    return botao;
+}
+
+function criarAcoesCardCarrinho(item) {
+    const menu = document.createElement("menu");
+    menu.className = "cart-actions-left";
+    const favorito = criarBotaoIcone("btn-icon action-btn", "heart", "Adicionar aos favoritos");
+    const carrinho = criarBotaoIcone("btn-icon is-cart action-btn", "shopping-cart", "Remover do carrinho");
+    const itemFavorito = document.createElement("li");
+    const itemCarrinho = document.createElement("li");
+
+    favorito.classList.toggle("is-favorite", ehFavorito(item.id));
+    favorito.setAttribute("aria-label", ehFavorito(item.id) ? "Remover dos favoritos" : "Adicionar aos favoritos");
+    itemFavorito.append(favorito);
+    itemCarrinho.append(carrinho);
+    menu.append(itemFavorito, itemCarrinho);
+    return { menu, favorito, carrinho };
+}
+
+function criarSeletorProduto(item, index) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    const indicador = document.createElement("span");
+
+    label.className = "custom-checkbox-label";
+    label.style.width = "auto";
+    label.addEventListener("click", event => event.stopPropagation());
+    input.type = "checkbox";
+    input.className = "sr-only item-checkbox";
+    input.dataset.index = index;
+    input.checked = true;
+    input.setAttribute("aria-label", `Selecionar ${item.nome} por ${formatarMoeda(item.preco)}`);
+    indicador.className = "custom-checkbox";
+    indicador.setAttribute("aria-hidden", "true");
+    indicador.append(criarIcone("check"));
+    label.append(input, indicador);
+    return label;
+}
+
+function criarCabecalhoCardCarrinho(item, index) {
+    const cabecalho = document.createElement("header");
+    const acoes = criarAcoesCardCarrinho(item);
+    cabecalho.className = "cart-card-header";
+    cabecalho.append(acoes.menu);
+    if (item.desconto > 0) {
+        const badge = document.createElement("mark");
+        badge.className = "badge discount-badge";
+        badge.textContent = `${item.desconto}% OFF`;
+        cabecalho.append(badge);
+    }
+    cabecalho.append(criarSeletorProduto(item, index));
+    return { cabecalho, ...acoes };
+}
+
+function criarImagemCardCarrinho(item) {
+    const imagem = document.createElement("img");
+    imagem.src = item.imagem;
+    imagem.alt = "";
+    imagem.className = "product-image";
+    imagem.setAttribute("aria-hidden", "true");
+    return imagem;
+}
+
+function atualizarQuantidadeExibida(elemento, valor) {
+    elemento.textContent = valor;
+    elemento.setAttribute("aria-label", `Quantidade ${valor}`);
+}
+
+function criarControleQuantidade(item, index) {
+    const controle = document.createElement("div");
+    const menos = criarBotaoIcone("btn-minus action-btn", "minus", "Diminuir quantidade");
+    const mais = criarBotaoIcone("btn-plus action-btn", "plus", "Aumentar quantidade");
+    const quantidade = document.createElement("span");
+    menos.dataset.index = index;
+    mais.dataset.index = index;
+    controle.className = "quantity-control";
+    controle.addEventListener("click", event => event.stopPropagation());
+    atualizarQuantidadeExibida(quantidade, quantidadeProduto(item.id));
+    controle.append(menos, quantidade, mais);
+    return { controle, menos, mais, quantidade };
+}
+
+function criarInformacoesCardCarrinho(item, index) {
+    const info = document.createElement("section");
+    const franquia = document.createElement("span");
+    const nome = document.createElement("h4");
+    const preco = document.createElement("p");
+    const estoque = document.createElement("span");
+    const quantidade = criarControleQuantidade(item, index);
+    info.className = "cart-product-info";
+    franquia.className = "brand";
+    franquia.textContent = item.franquia;
+    nome.className = "title";
+    nome.textContent = item.nome;
+    preco.className = "price";
+    preco.textContent = formatarMoeda(item.preco);
+    preco.setAttribute("aria-label", `Preço unitário ${formatarMoeda(item.preco)}`);
+    estoque.className = "stock-info";
+    estoque.textContent = `Disponível: ${item.estoque}`;
+    info.append(franquia, nome, preco, quantidade.controle, estoque);
+    return { info, ...quantidade };
+}
+
+function alterarQuantidadeCard(item, elemento, incremento) {
+    const atual = Number(elemento.textContent);
+    const novaQuantidade = atual + incremento;
+    if (novaQuantidade > item.estoque) return false;
+    alterarQuantidade(item.id, novaQuantidade);
+    atualizarQuantidadeExibida(elemento, novaQuantidade);
+    calcularTotal();
+    return true;
+}
+
+function configurarEventosCardCarrinho(article, item, elementos) {
+    elementos.favorito.addEventListener("click", () => {
+        elementos.favorito.classList.toggle("is-favorite");
+        toggleFavorito(item.id);
+    });
+    elementos.mais.addEventListener("click", () => alterarQuantidadeCard(item, elementos.quantidade, 1));
+    elementos.menos.addEventListener("click", event => {
+        if (Number(elementos.quantidade.textContent) === 1) {
+            abrirModalExclusao(article, item.id, event.currentTarget);
+            return;
+        }
+        alterarQuantidadeCard(item, elementos.quantidade, -1);
+    });
+    elementos.carrinho.addEventListener("click", event => {
+        abrirModalExclusao(article, item.id, event.currentTarget);
+    });
+}
+
+function criarCardCarrinho(item, index) {
+    const article = document.createElement("article");
+    const cabecalho = criarCabecalhoCardCarrinho(item, index);
+    const informacoes = criarInformacoesCardCarrinho(item, index);
+    article.className = "cart-product-card selecionado";
+    article.dataset.index = index;
+    article.append(cabecalho.cabecalho, criarImagemCardCarrinho(item), informacoes.info);
+    configurarEventosCardCarrinho(article, item, { ...cabecalho, ...informacoes });
+    return article;
+}
+
+function renderizarCarrinhoVazio() {
+    const vazio = document.createElement("section");
+    const titulo = document.createElement("h3");
+    const orientacao = document.createElement("p");
+    vazio.className = "cart-state empty";
+    vazio.setAttribute("aria-labelledby", "cart-empty-title");
+    titulo.id = "cart-empty-title";
+    titulo.textContent = "Seu carrinho está vazio.";
+    orientacao.textContent = "Adicione produtos para continuar sua compra.";
+    vazio.append(titulo, orientacao);
+    cartContainer.append(vazio);
+    selectAllCheckbox.checked = false;
+    document.querySelector(".select-all-wrapper")?.classList.remove("selecionado");
+    calcularTotal();
+    btnContinuar.disabled = true;
+}
+
 function renderCart() {
-
     cartContainer.replaceChildren();
-
     if (cartData.length === 0) {
-        const vazio = document.createElement("section");
-        vazio.className = "cart-state empty";
-        vazio.setAttribute("aria-labelledby", "cart-empty-title");
-        const tituloVazio = document.createElement("h3");
-        tituloVazio.id = "cart-empty-title";
-        tituloVazio.textContent = "Seu carrinho está vazio.";
-        const orientacaoVazio = document.createElement("p");
-        orientacaoVazio.textContent = "Adicione produtos para continuar sua compra.";
-        vazio.append(tituloVazio, orientacaoVazio);
-        cartContainer.append(vazio);
-        selectAllCheckbox.checked = false;
-        document.querySelector(".select-all-wrapper")?.classList.remove("selecionado");
-        calcularTotal();
-        btnContinuar.disabled = true;
+        renderizarCarrinhoVazio();
         return;
     }
-
-    let todosSelecionados =
-        cartData.length > 0;
-
-    const fragment =
-        document.createDocumentFragment();
-
-    cartData.forEach((item, index) => {
-        // ============================
-        // Card
-        // ============================
-
-        const article =
-            document.createElement(
-                "article"
-            );
-
-        article.className =
-            "cart-product-card";
-
-        article.classList.add(
-            "selecionado"
-        );
-        
-        article.dataset.index =
-            index;
-
-        article.tabIndex = 0;
-
-        article.setAttribute(
-            "role",
-            "checkbox"
-        );
-
-        article.setAttribute(
-            "aria-checked",
-            true
-        );
-
-        article.setAttribute(
-            "aria-label",
-            `Selecionar ${item.nome} por ${formatarMoeda(item.preco)}`
-        );
-
-        // ============================
-        // Header
-        // ============================
-
-        const header =
-            document.createElement(
-                "header"
-            );
-
-        header.className =
-            "cart-card-header";
-
-
-        const menu =
-            document.createElement(
-                "menu"
-            );
-
-        menu.className =
-            "cart-actions-left";
-
-        // Favorito
-
-        const favoritoLi =
-            document.createElement(
-                "li"
-            );
-
-        const btnFavorito =
-            document.createElement(
-                "button"
-            );
-
-        btnFavorito.type =
-            "button";
-
-        btnFavorito.className =
-            "btn-icon action-btn";
-
-        if (ehFavorito(item.id)) {
-            btnFavorito.classList.add(
-                "is-favorite"
-            );
-        }
-
-        btnFavorito.setAttribute(
-            "aria-label",
-            ehFavorito(item.id)
-                ? "Remover dos favoritos"
-                : "Adicionar aos favoritos"
-        );
-
-        const iconeFavorito =
-            document.createElement(
-                "i"
-            );
-
-        iconeFavorito.setAttribute(
-            "data-lucide",
-            "heart"
-        );
-
-        btnFavorito.append(
-            iconeFavorito
-        );
-
-        favoritoLi.append(
-            btnFavorito
-        );
-
-        // Carrinho
-
-        const carrinhoLi =
-            document.createElement(
-                "li"
-            );
-
-        const btnCarrinho =
-            document.createElement(
-                "button"
-            );
-
-        btnCarrinho.type =
-            "button";
-
-        btnCarrinho.className =
-            "btn-icon is-cart action-btn";
-
-        btnCarrinho.setAttribute(
-            "aria-label",
-            "Remover do carrinho"
-        );
-
-        const iconeCarrinho =
-            document.createElement(
-                "i"
-            );
-
-        iconeCarrinho.setAttribute(
-            "data-lucide",
-            "shopping-cart"
-        );
-
-        btnCarrinho.append(
-            iconeCarrinho
-        );
-
-        carrinhoLi.append(
-            btnCarrinho
-        );
-
-        menu.append(
-            favoritoLi,
-            carrinhoLi
-        );
-
-        // ============================
-        // Checkbox
-        // ============================
-
-        const label =
-            document.createElement(
-                "label"
-            );
-
-        label.className =
-            "custom-checkbox-label";
-
-        label.style.width =
-            "auto";
-
-        label.addEventListener(
-            "click",
-            e => e.stopPropagation()
-        );
-
-        const input =
-            document.createElement(
-                "input"
-            );
-
-        input.type =
-            "checkbox";
-
-        input.className =
-            "sr-only item-checkbox";
-
-        input.dataset.index =
-            index;
-
-        input.checked = true;
-
-        input.tabIndex = -1;
-
-        const checkbox =
-            document.createElement(
-                "span"
-            );
-
-        checkbox.className =
-            "custom-checkbox";
-
-        checkbox.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        const iconeCheck =
-            document.createElement(
-                "i"
-            );
-
-        iconeCheck.setAttribute(
-            "data-lucide",
-            "check"
-        );
-
-        checkbox.append(
-            iconeCheck
-        );
-
-        label.append(
-            input,
-            checkbox
-        );
-
-        header.append(
-            menu
-        );
-
-        if (item.desconto > 0) {
-            const badge = document.createElement(
-                "mark"
-            );
-            badge.className =
-                "badge discount-badge";
-            badge.textContent =
-                `${item.desconto}% OFF`;
-            header.append(
-                badge
-            );
-        }
-
-        header.append(
-            label
-        );
-
-        // ============================
-        // Imagem
-        // ============================
-
-        const imagem =
-            document.createElement(
-                "img"
-            );
-
-        imagem.src =
-            item.imagem;
-
-        imagem.alt =
-            "";
-
-        imagem.className =
-            "product-image";
-
-        imagem.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        // ============================
-        // Informações
-        // ============================
-
-        const info =
-            document.createElement(
-                "section"
-            );
-
-        info.className =
-            "cart-product-info";
-
-        const franquia =
-            document.createElement(
-                "span"
-            );
-
-        franquia.className =
-            "brand";
-
-        franquia.textContent =
-            item.franquia;
-
-        const nome =
-            document.createElement(
-                "h4"
-            );
-
-        nome.className =
-            "title";
-
-        nome.textContent =
-            item.nome;
-
-        const preco =
-            document.createElement(
-                "p"
-            );
-
-        preco.className =
-            "price";
-
-        preco.textContent =
-            formatarMoeda(item.preco);
-
-        preco.setAttribute(
-            "aria-label",
-            `Preço unitário ${formatarMoeda(item.preco)}`
-        );
-
-        // ============================
-        // Quantidade
-        // ============================
-
-        const controle =
-            document.createElement(
-                "div"
-            );
-
-        controle.className =
-            "quantity-control";
-
-        controle.addEventListener(
-            "click",
-            e => e.stopPropagation()
-        );
-
-        const btnMenos =
-            document.createElement(
-                "button"
-            );
-
-        btnMenos.type =
-            "button";
-
-        btnMenos.className =
-            "btn-minus action-btn";
-
-        btnMenos.dataset.index =
-            index;
-
-        btnMenos.setAttribute(
-            "aria-label",
-            "Diminuir quantidade"
-        );
-
-        const iconeMenos =
-            document.createElement(
-                "i"
-            );
-
-        iconeMenos.setAttribute(
-            "data-lucide",
-            "minus"
-        );
-
-        btnMenos.append(
-            iconeMenos
-        );
-
-        const quantidade =
-            document.createElement(
-                "span"
-            );
-
-        quantidade.textContent = quantidadeProduto(item.id);
-
-        quantidade.setAttribute(
-            "aria-label",
-            `Quantidade ${item.quantidade}`
-        );
-
-        const btnMais =
-            document.createElement(
-                "button"
-            );
-
-        btnMais.type =
-            "button";
-
-        btnMais.className =
-            "btn-plus action-btn";
-
-        btnMais.dataset.index =
-            index;
-
-        btnMais.setAttribute(
-            "aria-label",
-            "Aumentar quantidade"
-        );
-
-        const iconeMais =
-            document.createElement(
-                "i"
-            );
-
-        iconeMais.setAttribute(
-            "data-lucide",
-            "plus"
-        );
-
-        btnMais.append(
-            iconeMais
-        );
-
-        controle.append(
-            btnMenos,
-            quantidade,
-            btnMais
-        );
-
-        // ============================
-        // Estoque
-        // ============================
-
-        const estoque =
-            document.createElement(
-                "span"
-            );
-
-        estoque.className =
-            "stock-info";
-
-        estoque.textContent =
-            `Disponível: ${item.estoque}`;
-
-        info.append(
-            franquia,
-            nome,
-            preco,
-            controle,
-            estoque
-        );
-
-        // ============================
-        // Eventos
-        // ============================
-
-        btnFavorito.addEventListener("click", (event) => {
-            btnFavorito.classList.toggle("is-favorite");
-            toggleFavorito(item.id);
-        });
-
-        btnMais.addEventListener("click", () => {
-            const quantidadeAtual =
-                Number(quantidade.textContent);
-            if (quantidadeAtual >= item.estoque) {
-                return;
-            }
-            alterarQuantidade(
-                item.id,
-                quantidadeAtual + 1
-            );
-            quantidade.textContent =
-                quantidadeAtual + 1;
-            quantidade.setAttribute(
-                "aria-label",
-                `Quantidade ${quantidadeAtual + 1}`
-            );
-            calcularTotal();
-        });
-
-        btnMenos.addEventListener("click", (event) => {
-            const quantidadeAtual =
-                Number(quantidade.textContent);
-            if (quantidadeAtual === 1) {
-                abrirModalExclusao(article, item.id, event.currentTarget);
-                return;
-            }
-            alterarQuantidade(
-                item.id,
-                quantidadeAtual - 1
-            );
-            quantidade.textContent =
-                quantidadeAtual - 1;
-            quantidade.setAttribute(
-                "aria-label",
-                `Quantidade ${quantidadeAtual - 1}`
-            );
-            calcularTotal();
-        });
-
-        btnCarrinho.addEventListener("click", (event) => {
-            abrirModalExclusao(article, item.id, event.currentTarget);
-        });
-
-        article.append(
-            header,
-            imagem,
-            info
-        );
-
-        fragment.append(
-            article
-        );
-
-    });
-
-    cartContainer.append(
-        fragment
-    );
-
-    selectAllCheckbox.checked =
-        todosSelecionados;
-
-    document
-        .querySelector(".select-all-wrapper")
-        ?.classList.toggle(
-            "selecionado",
-            todosSelecionados
-        );
-
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
-
+    const fragment = document.createDocumentFragment();
+    cartData.forEach((item, index) => fragment.append(criarCardCarrinho(item, index)));
+    cartContainer.append(fragment);
+    selectAllCheckbox.checked = true;
+    document.querySelector(".select-all-wrapper")?.classList.add("selecionado");
+    window.lucide?.createIcons();
     calcularTotal();
+}
+
+function definirSelecaoProduto(input, selecionado) {
+    input.checked = selecionado;
+    input.closest(".cart-product-card")?.classList.toggle("selecionado", selecionado);
+}
+
+function sincronizarEstadoSelecao() {
+    const checkboxes = [...document.querySelectorAll(".item-checkbox")];
+    const quantidadeSelecionada = checkboxes.filter(input => input.checked).length;
+    const todosSelecionados = checkboxes.length > 0 && quantidadeSelecionada === checkboxes.length;
+
+    selectAllCheckbox.checked = todosSelecionados;
+    selectAllCheckbox.indeterminate = quantidadeSelecionada > 0 && !todosSelecionados;
+    document.querySelector(".select-all-wrapper")?.classList.toggle("selecionado", todosSelecionados);
+    calcularTotal();
+    habilitarContinuar();
 }
 
 cartContainer.addEventListener("change", (event) => {
     if (!event.target.classList.contains("item-checkbox")) return;
-
-    const article = event.target.closest(".cart-product-card");
-    article?.classList.toggle("selecionado", event.target.checked);
-
-    const todosSelecionados = verificarTodosSelecionados();
-    document.querySelector(".select-all-wrapper")?.classList.toggle("selecionado", todosSelecionados);
-    selectAllCheckbox.checked = todosSelecionados;
-    calcularTotal();
-    habilitarContinuar();
+    definirSelecaoProduto(event.target, event.target.checked);
+    sincronizarEstadoSelecao();
 });
 
-function alternarSelecao(article) {
-    article.classList.toggle(
-        "selecionado"
-    );
-    renderCart();
-}
+cartContainer.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !event.target.classList.contains("item-checkbox")) return;
+    event.preventDefault();
+    event.target.click();
+});
+
+cartContainer.addEventListener("click", (event) => {
+    if (event.target.closest("button, a, input, label, select, textarea")) return;
+    const card = event.target.closest(".cart-product-card");
+    const input = card?.querySelector(".item-checkbox");
+    input?.click();
+});
 
 // Selecionar ou desmarcar todos
 selectAllCheckbox.addEventListener('change', (e) => {
     const isChecked = e.target.checked;
-    document
-        .querySelectorAll(".cart-product-card")
-        .forEach(card => {
-            card.classList.toggle(
-                "selecionado",
-                isChecked
-            );
-            card.querySelector('.sr-only.item-checkbox').checked = isChecked
-        });
-    
-    const selectAll =  document.querySelector(".select-all-wrapper");
-    habilitarContinuar();
-    if (isChecked) {
-        selectAll.classList.add('selecionado');
-        return;
-    }
-    selectAll.classList.remove('selecionado');
+    document.querySelectorAll(".item-checkbox")
+        .forEach(input => definirSelecaoProduto(input, isChecked));
+    sincronizarEstadoSelecao();
 });
-
-function verificarTodosSelecionados() {
-    const cards = document.querySelectorAll(".cart-product-card");
-    if (cards.length === 0) {
-        return false;
-    }
-    return [...cards].every(card =>
-        card.classList.contains("selecionado")
-    );
-}
 
 function calcularTotal() {
     const cardsSelecionados =

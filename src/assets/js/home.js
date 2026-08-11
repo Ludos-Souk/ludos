@@ -201,6 +201,7 @@ export function mostrarToastCarrinho(
 ) {
     const header = document.querySelector('.header');
     const mainContent = document.querySelector('.main-content');
+    if (!header || !mainContent) return;
 
     const toastExistente = document.getElementById("cart-toast");
     if (toastExistente) {
@@ -208,11 +209,10 @@ export function mostrarToastCarrinho(
         limparLayoutToast?.();
     }
 
-    if (!bannerFechado) {
-        banner.classList.add("oculto");
-    }
+    if (!bannerFechado) banner?.classList.add("oculto");
 
     header.classList.remove("sem-banner");
+    header.classList.add("cart-toast-visible");
 
     if (timeoutToast) {
         clearTimeout(timeoutToast);
@@ -266,14 +266,28 @@ export function mostrarToastCarrinho(
     const atualizarEspacoToast = () => {
         if (!toast.isConnected) return;
         const limiteToast = toast.getBoundingClientRect().bottom;
-        mainContent.style.marginTop = `${Math.ceil(limiteToast + 28)}px`;
+        const espacoAbaixo = toast.classList.contains("compact") ? 28 : 52;
+        mainContent.style.marginTop = `${Math.ceil(limiteToast + espacoAbaixo)}px`;
+        header.style.setProperty(
+            "--cart-toast-extension",
+            `${Math.max(100, Math.ceil(limiteToast - header.getBoundingClientRect().bottom + espacoAbaixo))}px`
+        );
     };
+
+    const observadorTamanho = new ResizeObserver(atualizarEspacoToast);
+    observadorTamanho.observe(toast);
+    const atualizarAposScroll = () => requestAnimationFrame(atualizarEspacoToast);
+    window.addEventListener("scroll", atualizarAposScroll, { passive: true });
 
     const restaurarLayout = () => {
         window.removeEventListener("resize", atualizarEspacoToast);
+        window.removeEventListener("scroll", atualizarAposScroll);
+        observadorTamanho.disconnect();
+        header.classList.remove("cart-toast-visible");
+        header.style.removeProperty("--cart-toast-extension");
 
         if (!bannerFechado) {
-            banner.classList.remove("oculto");
+            banner?.classList.remove("oculto");
             mainContent.style.removeProperty("margin-top");
         } else {
             header.classList.add("sem-banner");
@@ -1013,331 +1027,107 @@ function inicializarModalBodyListeners() {
 
 // --- Criação do card de produto ---
 
-function criarCard(produto) {
+function criarIconeProduto(nome) {
+    const icone = document.createElement("i");
+    icone.setAttribute("data-lucide", nome);
+    icone.setAttribute("aria-hidden", "true");
+    return icone;
+}
 
+function criarBotaoAcaoProduto(icone, rotulo) {
+    const item = document.createElement("li");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "btn-icon";
+    botao.setAttribute("aria-label", rotulo);
+    botao.append(criarIconeProduto(icone));
+    item.append(botao);
+    return { item, botao };
+}
+
+function criarTopoProduto(produto) {
+    const topo = document.createElement("header");
+    const actions = document.createElement("menu");
+    const favorito = criarBotaoAcaoProduto("heart", "Adicionar aos favoritos");
+    const carrinho = criarBotaoAcaoProduto("shopping-cart", "Adicionar ao carrinho");
+    topo.className = "product-top";
+    actions.className = "actions";
+    actions.setAttribute("aria-label", "Ações do produto");
+    favorito.botao.classList.toggle("is-favorite", ehFavorito(produto.id));
+    carrinho.botao.classList.toggle("is-cart", estaNoCarrinho(produto.id));
+    if (produto.desconto > 0) {
+        const badge = document.createElement("mark");
+        badge.className = "badge discount-badge";
+        badge.textContent = `${produto.desconto}% OFF`;
+        topo.append(badge);
+    }
+    actions.append(favorito.item, carrinho.item);
+    topo.append(actions);
+    return topo;
+}
+
+function criarAreaImagemProduto(produto) {
+    const area = document.createElement("div");
+    const imagem = document.createElement("img");
+    area.className = "product-image-gradient";
+    imagem.src = produto.imagem;
+    imagem.alt = `Foto do ${produto.nome}`;
+    imagem.className = "product-image";
+    imagem.loading = "lazy";
+    area.append(imagem);
+    return area;
+}
+
+function iniciarCompraDireta(produto) {
+    const quantidade = buscarItemCarrinho(produto.id)?.quantidade ?? 1;
+    sessionStorage.setItem("produtosSelecionados", JSON.stringify([{ id: produto.id, quantidade }]));
+    window.location.href = ROTAS.FINALIZAR_PEDIDO;
+}
+
+function criarRodapeProduto(produto) {
+    const footer = document.createElement("footer");
+    const comprar = document.createElement("button");
+    const avaliacoes = document.createElement("button");
+    footer.className = "product-footer";
+    comprar.type = "button";
+    comprar.className = "btn-buy";
+    comprar.setAttribute("aria-label", `Comprar ${produto.nome}`);
+    comprar.append(Object.assign(document.createElement("span"), { textContent: "Comprar" }));
+    comprar.addEventListener("click", () => iniciarCompraDireta(produto));
+    avaliacoes.type = "button";
+    avaliacoes.className = "btn-arrow";
+    avaliacoes.setAttribute("aria-label", `Ver avaliações de ${produto.nome}`);
+    avaliacoes.append(criarIconeProduto("chevron-right"));
+    footer.append(comprar, avaliacoes);
+    return footer;
+}
+
+function criarInformacoesProduto(produto) {
+    const info = document.createElement("header");
+    const marca = document.createElement("span");
+    const titulo = document.createElement("h3");
+    const preco = document.createElement("p");
+    info.className = "product-info";
+    marca.className = "brand";
+    marca.textContent = produto.franquia;
+    titulo.className = "title";
+    titulo.textContent = produto.nome;
+    preco.className = "price";
+    preco.textContent = produto.preco.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    preco.setAttribute("aria-label", `Preço: ${produto.preco} reais`);
+    info.append(marca, titulo, preco, criarRodapeProduto(produto));
+    return info;
+}
+
+function criarCard(produto) {
     const card = document.createElement("article");
     card.className = "product-card";
     card.setAttribute("data-id", produto.id);
-
-
-    // ==============================
-    // Cabeçalho do card (badge + ações), acima da imagem, sem sobrepor
-    // ==============================
-
-    const topo =
-        document.createElement("header");
-
-    topo.className = "product-top";
-
-
-    // ==============================
-    // Badge de desconto
-    // ==============================
-
-    if (produto.desconto > 0) {
-
-        const badge =
-            document.createElement("mark");
-
-        badge.className =
-            "badge discount-badge";
-
-        badge.textContent =
-            `${produto.desconto}% OFF`;
-
-        topo.appendChild(badge);
-    }
-
-
-    // ==============================
-    // Ações
-    // ==============================
-
-    const actions =
-    document.createElement("menu");
-
-    actions.className = "actions";
-
-    actions.setAttribute(
-        "aria-label",
-        "Ações do produto"
-    );
-
-
-    // ==============================
-    // Botão de favoritos
-    // ==============================
-
-    const favoritoLi =
-        document.createElement("li");
-
-    const btnFavorito =
-        document.createElement("button");
-
-    btnFavorito.type = "button";
-    btnFavorito.className = "btn-icon";
-    if (ehFavorito(produto.id)) {
-        btnFavorito.classList.add("is-favorite")
-    }
-
-    btnFavorito.setAttribute(
-        "aria-label",
-        "Adicionar aos favoritos"
-    );
-
-    const iconeFavorito =
-        document.createElement("i");
-
-    iconeFavorito.setAttribute(
-        "data-lucide",
-        "heart"
-    );
-
-    iconeFavorito.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    btnFavorito.appendChild(
-        iconeFavorito
-    );
-
-    favoritoLi.appendChild(
-        btnFavorito
-    );
-
-
-    // ==============================
-    // Botão de carrinho
-    // ==============================
-
-    const carrinhoLi =
-        document.createElement("li");
-
-    const btnCarrinho =
-        document.createElement("button");
-
-    btnCarrinho.type = "button";
-    btnCarrinho.className = "btn-icon";
-    if (estaNoCarrinho(produto.id)) {
-        btnCarrinho.classList.add("is-cart");
-    }
-
-    btnCarrinho.setAttribute(
-        "aria-label",
-        "Adicionar ao carrinho"
-    );
-
-    const iconeCarrinho =
-        document.createElement("i");
-
-    iconeCarrinho.setAttribute(
-        "data-lucide",
-        "shopping-cart"
-    );
-
-    iconeCarrinho.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    btnCarrinho.appendChild(
-        iconeCarrinho
-    );
-
-    carrinhoLi.appendChild(
-        btnCarrinho
-    );
-
-
-    // ==============================
-    // Adicionar ao menu
-    // ==============================
-
-    actions.append(
-        favoritoLi,
-        carrinhoLi
-    );
-
-    topo.appendChild(actions);
-
-
-
-    // ==============================
-    // Imagem
-    // ==============================
-
-    const imagem =
-        document.createElement("img");
-
-    imagem.src = produto.imagem;
-
-    imagem.alt =
-        `Foto do ${produto.nome}`;
-
-    imagem.className =
-        "product-image";
-
-    const areaImagem =
-        document.createElement("div");
-
-    areaImagem.className =
-        "product-image-gradient";
-
-    areaImagem.appendChild(imagem);
-
-
-    // ==============================
-    // Informações
-    // ==============================
-
-    const info =
-        document.createElement("header");
-
-    info.className =
-        "product-info";
-
-
-    const marca =
-        document.createElement("span");
-
-    marca.className = "brand";
-    marca.textContent = produto.franquia;
-
-
-    const titulo =
-        document.createElement("h3");
-
-    titulo.className = "title";
-    titulo.textContent = produto.nome;
-
-
-    const preco =
-    document.createElement("p");
-
-    preco.className = "price";
-
-    const valorFormatado =
-        produto.preco.toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-
-    preco.textContent = valorFormatado;
-
-    preco.setAttribute(
-        "aria-label",
-        `Preço: ${produto.preco} reais`
-    );
-
-
-    // ==============================
-    // Footer
-    // ==============================
-
-    const footer =
-        document.createElement("footer");
-
-    footer.className =
-        "product-footer";
-
-
-    const btnComprar =
-        document.createElement("button");
-
-    btnComprar.type = "button";
-    btnComprar.className = "btn-buy";
-    btnComprar.setAttribute(
-        "aria-label",
-        `Comprar ${produto.nome}`
-    );
-
-    const textoComprar =
-        document.createElement("span");
-
-    textoComprar.textContent =
-        "Comprar";
-
-    btnComprar.appendChild(
-        textoComprar
-    );
-
-    btnComprar.addEventListener("click", () => {
-        const itemCarrinho = buscarItemCarrinho(produto.id);
-        const quantidade = itemCarrinho?.quantidade ?? 1;
-
-        const produtosSelecionados = [
-            {
-                id: produto.id,
-                quantidade
-            }
-        ];
-
-        sessionStorage.setItem(
-            "produtosSelecionados",
-            JSON.stringify(produtosSelecionados)
-        );
-
-        window.location.href = ROTAS.FINALIZAR_PEDIDO;
-    });
-
-    const btnAvaliacoes =
-        document.createElement("button");
-
-    btnAvaliacoes.type = "button";
-    btnAvaliacoes.className = "btn-arrow";
-
-    btnAvaliacoes.setAttribute(
-        "aria-label",
-        `Ver avaliações de ${produto.nome}`
-    );
-
-
-    const iconeSeta =
-        document.createElement("i");
-
-    iconeSeta.setAttribute(
-        "data-lucide",
-        "chevron-right"
-    );
-
-    iconeSeta.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    btnAvaliacoes.appendChild(
-        iconeSeta
-    );
-
-
-    footer.append(
-        btnComprar,
-        btnAvaliacoes
-    );
-
-
-    info.append(
-        marca,
-        titulo,
-        preco,
-        footer
-    );
-
-
-    // ==============================
-    // Montagem final
-    // ==============================
-
     card.append(
-        topo,
-        areaImagem,
-        info
+        criarTopoProduto(produto),
+        criarAreaImagemProduto(produto),
+        criarInformacoesProduto(produto)
     );
-
     return card;
 }
 

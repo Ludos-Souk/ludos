@@ -188,6 +188,11 @@ input[type="checkbox"]:checked + .custom-checkbox {
     box-shadow: 0 0 0 4px var(--color-accent, #c8d2ff);
 }
 
+.cart-product-card:has(.item-checkbox:focus-visible) {
+    border-color: var(--color-primary, #15338B);
+    box-shadow: 0 0 0 4px var(--color-accent, #c8d2ff);
+}
+
 .cart-product-card.selecionado {
     border-color: var(--color-primary-light, #6b8cff);
 }

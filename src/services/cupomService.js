@@ -34,7 +34,8 @@ export async function buscarCupomValidoPorCodigo(codigo) {
 
     const consulta = query(
         collection(db, "cupons"),
-        where("codigo", "==", codigoNormalizado)
+        where("codigo", "==", codigoNormalizado),
+        where("ativo", "==", true)
     );
     const resultado = await getDocs(consulta);
     if (resultado.empty) throw new Error("Cupom não encontrado. Confira o código informado.");

@@ -93,7 +93,7 @@ async function carregarEnderecoParaEdicao(enderecoId) {
         if (botao) botao.textContent = "Alterar";
 
     if (inputEtiqueta) inputEtiqueta.value = endereco.etiqueta || "";
-    if (inputCep) inputCep.value = endereco.cep || "";
+    if (inputCep) inputCep.value = formatarCep(endereco.cep);
     if (inputRua) inputRua.value = endereco.rua || "";
     if (selectUf) selectUf.value = endereco.uf || "";
     if (inputCidade) inputCidade.value = endereco.cidade || "";
@@ -239,6 +239,13 @@ async function carregarEstados() {
 
 // --- Preenchimento automático via CEP ---
 
+function formatarCep(valor) {
+    const numeros = String(valor ?? "").replace(/\D/g, "").slice(0, 8);
+    return numeros.length > 5
+        ? `${numeros.slice(0, 5)}-${numeros.slice(5)}`
+        : numeros;
+}
+
 async function preencherEnderecoPeloCep(cep) {
     if (cep.replace(/\D/g, "").length !== 8) return;
     inputCep?.setAttribute("aria-busy", "true");
@@ -262,6 +269,7 @@ function inicializarCepAutoPreenchimento() {
     if (!inputCep) return;
 
     inputCep.addEventListener("input", () => {
+        inputCep.value = formatarCep(inputCep.value);
         clearTimeout(temporizador);
 
         temporizador = setTimeout(() => {
@@ -278,6 +286,8 @@ function inicializarFormularioEndereco() {
 
     formulario.addEventListener("submit", async function (event) {
         event.preventDefault();
+
+        if (inputCep) inputCep.value = formatarCep(inputCep.value);
 
         if (botao) {
             botao.textContent = editEndereco ? "Alterando..." : "Adicionando...";

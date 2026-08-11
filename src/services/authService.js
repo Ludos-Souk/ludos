@@ -2,7 +2,6 @@ import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
-    sendPasswordResetEmail,
     confirmPasswordReset,
     onAuthStateChanged
 }
@@ -103,25 +102,6 @@ export async function logout() {
 
 export function usuarioLogado() {
     return auth.currentUser;
-}
-
-export function verificarLogin() {
-
-    return new Promise((resolve) => {
-        const cancelar =
-            onAuthStateChanged(
-                auth,
-                (usuario) => {
-
-                    cancelar();
-
-                    resolve(
-                        usuario !== null
-                    );
-                }
-            );
-    });
-
 }
 
 export async function verificarAdmin() {
