@@ -1212,6 +1212,12 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
     outline-offset: 4px;
 }
 
+.address-select-button:focus-visible,
+.btn-edit-address:focus-visible {
+    outline: 3px solid var(--color-primary-light, #6b8cff);
+    outline-offset: 4px;
+}
+
 .modal-body-empty {
     justify-content: center;
     align-items: center;
