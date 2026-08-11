@@ -103,7 +103,7 @@ function abrirProduto(produtoId) {
 
 function criarCardFavorito(produto) {
     const card = criarElemento("article", "profile-favorite-card");
-    const imagemContainer = criarElemento("div", "profile-favorite-image");
+    const imagemContainer = criarElemento("div", "profile-favorite-image product-image-fade");
 
     if (produto.imagem) {
         const imagem = document.createElement("img");
@@ -211,7 +211,7 @@ function criarCardPedido(pedido, itens) {
     itens.forEach(item => {
         const produto = item.produto;
         const linha = criarElemento("li", "profile-order-product");
-        const imagem = criarElemento("span", "profile-order-product-image");
+        const imagem = criarElemento("span", "profile-order-product-image product-image-fade");
         if (produto?.imagem) {
             const img = document.createElement("img");
             img.src = produto.imagem;
@@ -292,7 +292,7 @@ function criarEstrelasAvaliacao(nota) {
 function criarCardAvaliacao(avaliacao, produto) {
     const card = criarElemento("article", "profile-review-card");
     const cabecalho = criarElemento("header", "profile-review-header");
-    const imagem = criarElemento("span", "profile-review-image");
+    const imagem = criarElemento("span", "profile-review-image product-image-fade");
     if (produto?.imagem) {
         const img = document.createElement("img");
         img.src = produto.imagem;

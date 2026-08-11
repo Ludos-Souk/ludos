@@ -1090,6 +1090,30 @@ button.side-card:focus-visible { outline:3px solid var(--color-primary-light); o
     text-align: left;
 }
 
+/* Degradê reutilizável para miniaturas de produtos em todas as telas. */
+.product-image-fade {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.product-image-fade::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 24%;
+    background: linear-gradient(to bottom, transparent, var(--product-image-fade-color, var(--bg-white, #fff)));
+    pointer-events: none;
+}
+
+.product-image-fade > img {
+    position: relative;
+    z-index: 0;
+}
+
 .address-option-card:hover,
 .address-option-card:has(.address-select-button:focus-visible) {
     background-color: #ebecef;
@@ -2111,11 +2135,35 @@ select {
 }
 
 @media (max-width: 620px) {
-    :root { --main-margin-top: 175px; }
+    :root {
+        --header-height: 164px;
+        --promo-top: 184px;
+        --main-margin-top: 275px;
+        --main-margin-reduced: 188px;
+    }
 
-    .header { gap: 10px; }
-    .header .search-bar { display: none; }
-    .header-icons { margin-left: auto; }
+    .header {
+        padding-block: 10px;
+        align-content: center;
+        flex-wrap: wrap;
+        column-gap: 10px;
+        row-gap: 8px;
+    }
+    .header .logo { order: 1; }
+    .header .logo img { height: 68px; }
+    .header .search-bar {
+        display: block;
+        order: 3;
+        flex: 0 0 100%;
+        max-width: none;
+        margin: 0;
+    }
+    .header .search-form input {
+        height: 42px;
+        padding-block: 10px;
+        background: var(--bg-white);
+    }
+    .header-icons { order: 2; margin-left: auto; }
     .header-icons ul { gap: 7px; }
     .header-icons button { width: 38px; height: 38px; font-size: 19px; }
     .promo-banner { left: 14px; right: 14px; gap: 12px; }
@@ -2174,7 +2222,7 @@ select {
    ============================================================ */
 html.accessibility-dyslexic-font body,
 html.accessibility-dyslexic-font body * {
-    font-family: Arial, Verdana, sans-serif !important;
+    font-family: "OpenDyslexic", Arial, Verdana, sans-serif !important;
     letter-spacing: .04em;
 }
 
@@ -2575,6 +2623,24 @@ html.accessibility-dark-theme .order-product-bubble, html.accessibility-dark-the
 }
 
 @media (max-width: 390px) {
+    :root { --header-padding-x: 14px; }
+
+    .header .logo img { height: 60px; }
+    .header-icons ul { gap: 5px; }
+    .header-icons button,
+    .header-icon-link {
+        width: 34px;
+        height: 34px;
+        font-size: 17px;
+    }
+    .header .search-form input {
+        height: 40px;
+        padding-inline: 42px;
+        font-size: 13px;
+    }
+    .header .search-icon { left: 16px; }
+    .header .mic-btn { right: 16px; }
+
     .cart-toast {
         right: 10px;
         left: 10px;

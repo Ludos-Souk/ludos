@@ -838,7 +838,7 @@ function criarCheckoutProductStrip(produto, quantidade) {
     section.dataset.desconto = produto.desconto ?? 0;
 
     const figure = document.createElement('figure');
-    figure.className = 'product-images';
+    figure.className = 'product-images product-image-fade';
 
     const imagem = document.createElement('img');
     imagem.className = 'checkout-product-image';

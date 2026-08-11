@@ -653,7 +653,7 @@ address {
 
 @media (max-width: 620px) {
     .checkout-main-wrapper {
-        margin-top: var(--main-margin-top, 175px);
+        margin-top: calc(var(--header-height, 164px) + 24px);
         padding: 28px 16px calc(80px + env(safe-area-inset-bottom, 0px));
         overflow-x: clip;
     }
@@ -748,6 +748,8 @@ address {
     height: 100px;
     margin: 0;
     flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 12px;
 }
 
 .checkout-product-image {

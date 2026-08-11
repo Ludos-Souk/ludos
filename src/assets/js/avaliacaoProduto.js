@@ -546,6 +546,12 @@ function criarColunaImagem(produto) {
     coluna.className =
         "produto-col-imagem";
 
+    const molduraImagem =
+        document.createElement("div");
+
+    molduraImagem.className =
+        "produto-imagem-moldura product-image-fade";
+
     const imagem =
         document.createElement("img");
 
@@ -567,8 +573,10 @@ function criarColunaImagem(produto) {
     nome.textContent =
         produto.nome;
 
+    molduraImagem.append(imagem);
+
     coluna.append(
-        imagem,
+        molduraImagem,
         nome
     );
 

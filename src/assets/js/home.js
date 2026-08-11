@@ -173,7 +173,7 @@ function alternarBanner() {
 
     document.querySelector('.header').classList.add('sem-banner');
 
-    document.querySelector('.main-content').style.marginTop = "160px";
+    document.querySelector('.main-content').style.marginTop = "var(--main-margin-reduced)";
 }
 
 function inicializarBanner() {
@@ -291,7 +291,7 @@ export function mostrarToastCarrinho(
             mainContent.style.removeProperty("margin-top");
         } else {
             header.classList.add("sem-banner");
-            mainContent.style.marginTop = "160px";
+            mainContent.style.marginTop = "var(--main-margin-reduced)";
         }
 
         if (limparLayoutToast === restaurarLayout) limparLayoutToast = null;

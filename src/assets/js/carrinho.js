@@ -170,12 +170,15 @@ function criarCabecalhoCardCarrinho(item, index) {
 }
 
 function criarImagemCardCarrinho(item) {
+    const moldura = document.createElement("div");
     const imagem = document.createElement("img");
+    moldura.className = "cart-product-image product-image-fade";
     imagem.src = item.imagem;
     imagem.alt = "";
     imagem.className = "product-image";
     imagem.setAttribute("aria-hidden", "true");
-    return imagem;
+    moldura.append(imagem);
+    return moldura;
 }
 
 function atualizarQuantidadeExibida(elemento, valor) {
